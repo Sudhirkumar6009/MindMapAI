@@ -116,6 +116,18 @@ export const api = {
     return response.data;
   },
 
+  async analyzeGitHub(url) {
+    const response = await axios.post(`${API_BASE}/github/analyze`, { url }, {
+      headers: getAuthHeader()
+    });
+    return response.data;
+  },
+
+  async validateGitHubUrl(url) {
+    const response = await axios.get(`${API_BASE}/github/validate?url=${encodeURIComponent(url)}`);
+    return response.data;
+  },
+
   async healthCheck() {
     const response = await axios.get(`${API_BASE}/health`);
     return response.data;

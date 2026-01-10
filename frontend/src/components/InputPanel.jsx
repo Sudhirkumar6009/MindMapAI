@@ -1,12 +1,14 @@
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { FileText, Upload, Zap, Settings, ChevronDown, ChevronUp, FileUp } from 'lucide-react';
+import { FileText, Upload, Zap, Settings, ChevronDown, ChevronUp, FileUp, Github, Loader2 } from 'lucide-react';
 import ImportMMAI from './ImportMMAI';
 import { useTheme } from '../context/ThemeContext';
 
-function InputPanel({ onTextSubmit, onPDFUpload, onImportMMAI, disabled }) {
+function InputPanel({ onTextSubmit, onPDFUpload, onImportMMAI, onGitHubAnalyze, disabled }) {
   const { isDark } = useTheme();
   const [text, setText] = useState('');
+  const [githubUrl, setGithubUrl] = useState('');
+  const [activeTab, setActiveTab] = useState('text'); // 'text', 'pdf', 'github'
   const [showOptions, setShowOptions] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [options, setOptions] = useState({
@@ -34,6 +36,27 @@ function InputPanel({ onTextSubmit, onPDFUpload, onImportMMAI, disabled }) {
     }
   };
 
+  const handleGitHubSubmit = (e) => {
+    e.preventDefault();
+    if (githubUrl.trim() && isValidGitHubUrl(githubUrl)) {
+      onGitHubAnalyze(githubUrl);
+    }
+  };
+
+  const isValidGitHubUrl = (url) => {
+    const patterns = [
+      /github\.com\/([^\/]+)\/([^\/\s#?]+)/,
+      /^([^\/\s]+)\/([^\/\s]+)$/,
+    ];
+    return patterns.some(p => p.test(url.trim()));
+  };
+
+  const tabs = [
+    { id: 'text', label: 'Text', icon: FileText },
+    { id: 'pdf', label: 'PDF', icon: Upload },
+    { id: 'github', label: 'GitHub', icon: Github },
+  ];
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="text-center space-y-4">
@@ -43,12 +66,33 @@ function InputPanel({ onTextSubmit, onPDFUpload, onImportMMAI, disabled }) {
           <span className={isDark ? 'text-dark-100' : 'text-dark-900'}>into Knowledge Graphs</span>
         </h2>
         <p className={`max-w-2xl mx-auto ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
-          Paste your text or upload a PDF document. Our AI will extract key concepts
-          and map relationships to create an interactive knowledge graph.
+          Paste your text, upload a PDF, or analyze a GitHub repository. Our AI will extract 
+          key concepts and map relationships to create an interactive knowledge graph.
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      {/* Tab Selector */}
+      <div className={`flex rounded-xl p-1 mx-auto max-w-md ${isDark ? 'bg-dark-800' : 'bg-dark-100'}`}>
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-medium transition-all
+              ${activeTab === tab.id
+                ? 'bg-gradient-to-r from-primary-600 to-purple-600 text-white shadow-lg'
+                : isDark
+                  ? 'text-dark-400 hover:text-dark-200'
+                  : 'text-dark-500 hover:text-dark-700'
+              }`}
+          >
+            <tab.icon className="w-4 h-4" />
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Text Input */}
+      {activeTab === 'text' && (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="relative">
             <textarea
@@ -81,7 +125,10 @@ function InputPanel({ onTextSubmit, onPDFUpload, onImportMMAI, disabled }) {
             Generate Mind Map
           </button>
         </form>
+      )}
 
+      {/* PDF Upload */}
+      {activeTab === 'pdf' && (
         <div
           {...getRootProps()}
           className={`h-64 border-2 border-dashed rounded-xl flex flex-col items-center 
@@ -111,7 +158,71 @@ function InputPanel({ onTextSubmit, onPDFUpload, onImportMMAI, disabled }) {
             PDF files up to 10MB
           </div>
         </div>
-      </div>
+      )}
+
+      {/* GitHub Input */}
+      {activeTab === 'github' && (
+        <form onSubmit={handleGitHubSubmit} className="space-y-4">
+          <div className={`p-6 rounded-xl border-2 ${isDark ? 'bg-dark-800 border-dark-700' : 'bg-white border-dark-200'}`}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`p-3 rounded-xl ${isDark ? 'bg-dark-700' : 'bg-dark-100'}`}>
+                <Github className={`w-6 h-6 ${isDark ? 'text-dark-300' : 'text-dark-600'}`} />
+              </div>
+              <div>
+                <h3 className={`font-bold ${isDark ? 'text-dark-100' : 'text-dark-800'}`}>GitHub Repository Analyzer</h3>
+                <p className={`text-sm ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
+                  Extract architecture diagram from any public repository
+                </p>
+              </div>
+            </div>
+            
+            <div className="relative">
+              <input
+                type="text"
+                value={githubUrl}
+                onChange={(e) => setGithubUrl(e.target.value)}
+                placeholder="https://github.com/owner/repo or owner/repo"
+                disabled={disabled}
+                className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none 
+                         focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500
+                         disabled:opacity-50 transition-all
+                         ${isDark 
+                           ? 'bg-dark-900 border-dark-600 text-dark-100 placeholder-dark-500' 
+                           : 'bg-dark-50 border-dark-200 text-dark-900 placeholder-dark-400'
+                         }`}
+              />
+              {githubUrl && (
+                <div className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium
+                  ${isValidGitHubUrl(githubUrl) ? 'text-green-500' : 'text-red-400'}`}>
+                  {isValidGitHubUrl(githubUrl) ? '✓ Valid' : '✗ Invalid'}
+                </div>
+              )}
+            </div>
+
+            <div className={`mt-4 p-3 rounded-lg ${isDark ? 'bg-dark-900/50' : 'bg-dark-50'}`}>
+              <p className={`text-xs ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
+                <strong>What we analyze:</strong> README, package files, source structure, key modules, and dependencies to create an architecture diagram.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={disabled || !githubUrl.trim() || !isValidGitHubUrl(githubUrl)}
+            className="w-full py-3.5 px-6 bg-gradient-to-r from-gray-700 to-gray-900 
+                     hover:from-gray-600 hover:to-gray-800 rounded-xl font-bold text-white
+                     flex items-center justify-center gap-2 transition-all shadow-lg 
+                     disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {disabled ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <Github className="w-5 h-5" />
+            )}
+            Analyze Repository
+          </button>
+        </form>
+      )}
 
       <div className={`rounded-xl overflow-hidden border-2 ${isDark ? 'bg-dark-800/50 border-dark-700' : 'bg-white border-dark-200'}`}>
         <button
@@ -166,10 +277,11 @@ function InputPanel({ onTextSubmit, onPDFUpload, onImportMMAI, disabled }) {
         )}
       </div>
 
-      <div className="grid md:grid-cols-3 gap-4 text-center">
+      <div className="grid md:grid-cols-4 gap-4 text-center">
         {[
           { icon: '🧠', title: 'Concept Extraction', desc: 'AI identifies key ideas and entities' },
           { icon: '🔗', title: 'Relationship Mapping', desc: 'Discovers connections between concepts' },
+          { icon: '🐙', title: 'GitHub Analysis', desc: 'Extract architecture from repos' },
           { icon: '✨', title: 'Smart Refinement', desc: 'Agentic loop optimizes the graph' }
         ].map((feature, i) => (
           <div key={i} className={`p-5 rounded-xl border-2 transition-all hover:scale-105

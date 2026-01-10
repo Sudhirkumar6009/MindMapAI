@@ -1,4 +1,4 @@
-import { model } from '../config/gemini.js';
+import { generateWithRetry } from '../config/gemini.js';
 
 const MERGE_PROMPT = `You are a concept refinement agent. Analyze these concepts and merge similar or redundant ones.
 
@@ -34,8 +34,7 @@ export async function mergeSimilarConcepts(concepts) {
 
   const prompt = MERGE_PROMPT.replace('{{CONCEPTS}}', JSON.stringify(concepts));
   
-  const result = await model.generateContent(prompt);
-  const response = result.response.text();
+  const response = await generateWithRetry(prompt);
   
   const cleaned = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
   
@@ -66,8 +65,7 @@ export async function findIsolatedRelationships(text, concepts, relationships) {
     .replace('{{CONCEPTS}}', JSON.stringify(concepts))
     .replace('{{TEXT}}', text.substring(0, 3000));
   
-  const result = await model.generateContent(prompt);
-  const response = result.response.text();
+  const response = await generateWithRetry(prompt);
   
   const cleaned = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
   

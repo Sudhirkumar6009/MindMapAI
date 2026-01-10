@@ -7,6 +7,7 @@ import uploadRoutes from './routes/upload.js';
 import refineRoutes from './routes/refine.js';
 import authRoutes from './routes/auth.js';
 import historyRoutes from './routes/history.js';
+import githubRoutes from './routes/github.js';
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use('/api/history', historyRoutes);
 app.use('/api/extract', extractRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/refine', refineRoutes);
+app.use('/api/github', githubRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

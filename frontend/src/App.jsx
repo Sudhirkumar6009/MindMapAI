@@ -174,6 +174,114 @@ function AppContent() {
     setSourceType('import');
   };
 
+  const handleGitHubAnalyze = async (url) => {
+    setLoading(true);
+    setError(null);
+    setErrorDetails(null);
+    setSourceType('github');
+    
+    try {
+      setLoadingStatus('Connecting to GitHub...');
+      await new Promise(r => setTimeout(r, 300));
+      
+      setLoadingStatus('Fetching repository structure...');
+      await new Promise(r => setTimeout(r, 500));
+      
+      setLoadingStatus('Analyzing codebase...');
+      const result = await api.analyzeGitHub(url);
+      
+      if (result.success) {
+        setLoadingStatus('Building architecture diagram...');
+        await new Promise(r => setTimeout(r, 300));
+        
+        // Build concepts from nodes
+        const concepts = result.data.nodes.map(n => ({
+          name: n.label,
+          category: n.category,
+          importance: n.importance,
+        }));
+        
+        // Build relationships from edges
+        const relationships = result.data.edges.map(e => ({
+          source: result.data.nodes.find(n => n.id === e.source)?.label,
+          target: result.data.nodes.find(n => n.id === e.target)?.label,
+          relation: e.label,
+        })).filter(r => r.source && r.target);
+        
+        // Build nodes array for GraphView (with connection counts)
+        const connectionCounts = {};
+        relationships.forEach(rel => {
+          connectionCounts[rel.source] = (connectionCounts[rel.source] || 0) + 1;
+          connectionCounts[rel.target] = (connectionCounts[rel.target] || 0) + 1;
+        });
+        
+        const nodes = concepts.map((concept, idx) => ({
+          id: `node-${idx}`,
+          label: concept.name,
+          category: concept.category,
+          importance: concept.importance,
+          connections: connectionCounts[concept.name] || 0,
+        }));
+        
+        // Build edges array for GraphView
+        const edges = relationships.map((rel, idx) => {
+          const sourceNode = nodes.find(n => n.label === rel.source);
+          const targetNode = nodes.find(n => n.label === rel.target);
+          return {
+            id: `edge-${idx}`,
+            source: sourceNode?.id,
+            target: targetNode?.id,
+            label: rel.relation,
+          };
+        }).filter(e => e.source && e.target);
+        
+        // Transform to standard graph format with both formats
+        const graphResult = {
+          success: true,
+          concepts,
+          relationships,
+          nodes,
+          edges,
+          stats: {
+            ...result.stats,
+            conceptCount: concepts.length,
+            relationshipCount: relationships.length,
+          },
+          repoInfo: result.repoInfo,
+          metadata: result.metadata,
+        };
+        
+        setGraphData(graphResult);
+        setSourceText(`GitHub: ${result.repoInfo.fullName}`);
+        
+        if (isAuthenticated) {
+          api.saveToHistory(
+            `📦 ${result.repoInfo.name}`,
+            'github',
+            `GitHub Repository: ${result.repoInfo.fullName} - ${result.repoInfo.description || 'No description'}`,
+            graphResult
+          ).catch(console.error);
+        }
+      } else {
+        setError(result.error || 'Failed to analyze repository');
+        setErrorDetails({ suggestions: ['Make sure the repository is public', 'Check if the URL is correct'] });
+      }
+    } catch (err) {
+      const errorData = err.response?.data;
+      setError(errorData?.message || errorData?.error || err.message || 'Failed to analyze repository');
+      setErrorDetails({
+        suggestions: [
+          'Make sure the repository is public',
+          'Check if the URL format is correct (e.g., owner/repo)',
+          'Try again in a few minutes if rate limited'
+        ]
+      });
+    } finally {
+      setLoading(false);
+      setLoadingStatus('');
+    }
+  };
+
   const { isDark } = useTheme();
 
   return (
@@ -189,6 +297,7 @@ function AppContent() {
             onTextSubmit={handleTextSubmit}
             onPDFUpload={handlePDFUpload}
             onImportMMAI={handleImportMMAI}
+            onGitHubAnalyze={handleGitHubAnalyze}
             disabled={loading}
           />
         ) : (

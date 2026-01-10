@@ -1,4 +1,4 @@
-import { model } from '../config/gemini.js';
+import { generateWithRetry } from '../config/gemini.js';
 
 const CONCEPT_EXTRACTION_PROMPT = `You are a concept extraction agent. Your task is to identify and extract key concepts from the provided text.
 
@@ -20,8 +20,7 @@ Example output: ["Concept A", "Concept B", "Concept C"]`;
 export async function extractConcepts(text) {
   const prompt = CONCEPT_EXTRACTION_PROMPT.replace('{{TEXT}}', text);
   
-  const result = await model.generateContent(prompt);
-  const response = result.response.text();
+  const response = await generateWithRetry(prompt);
   
   const cleaned = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
   

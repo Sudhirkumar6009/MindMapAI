@@ -1,11 +1,119 @@
 import { useEffect, useRef, useState } from 'react';
 import cytoscape from 'cytoscape';
 import coseBilkent from 'cytoscape-cose-bilkent';
-import { ZoomIn, ZoomOut, Maximize2, RotateCcw, Palette, Sparkles, Layers, Grid3X3, LayoutGrid, Network, GitBranch, Target, Workflow } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize2, RotateCcw, Palette, Sparkles, Layers, Grid3X3, LayoutGrid, Network, GitBranch, Target, Workflow, Box, Diamond, Hexagon, Circle, Square, Triangle } from 'lucide-react';
 import ExportMenu from './ExportMenu';
 import { useTheme } from '../context/ThemeContext';
 
 cytoscape.use(coseBilkent);
+
+// Professional Diagram Types (like Miro, Lucidchart, Draw.io)
+const DIAGRAM_TYPES = [
+  {
+    id: 'mindmap',
+    name: 'Mind Map',
+    icon: Network,
+    description: 'Classic mind map with central topic',
+    nodeStyle: 'uniform', // all nodes same shape
+    colorMode: 'gradient', // gradient based on connections
+  },
+  {
+    id: 'flowchart',
+    name: 'Flowchart',
+    icon: Workflow,
+    description: 'Process flow with decisions',
+    nodeStyle: 'smart', // auto-assign shapes based on role
+    colorMode: 'categorical', // colors by type
+  },
+  {
+    id: 'hierarchy',
+    name: 'Org Chart',
+    icon: GitBranch,
+    description: 'Tree-like hierarchical structure',
+    nodeStyle: 'rounded',
+    colorMode: 'level', // colors by hierarchy level
+  },
+  {
+    id: 'uml',
+    name: 'UML Activity',
+    icon: Diamond,
+    description: 'UML-style activity diagram',
+    nodeStyle: 'uml',
+    colorMode: 'uml',
+  },
+  {
+    id: 'concept',
+    name: 'Concept Map',
+    icon: Hexagon,
+    description: 'Academic concept mapping',
+    nodeStyle: 'shapes',
+    colorMode: 'pastel',
+  },
+];
+
+// Professional Color Palettes (inspired by Miro, Figma, etc.)
+const PRO_PALETTES = [
+  {
+    id: 'miro',
+    name: 'Miro Style',
+    colors: {
+      primary: '#FFD166',    // Yellow - main topics
+      secondary: '#F4A261',  // Orange - subtopics
+      action: '#70C1B3',     // Teal - actions
+      decision: '#B8B8FF',   // Purple - decisions
+      result: '#7BDFF2',     // Light blue - results
+      hub: '#EF476F',        // Pink/red - central hub
+    }
+  },
+  {
+    id: 'notion',
+    name: 'Notion Style',
+    colors: {
+      primary: '#FDECC8',
+      secondary: '#F5E0E9',
+      action: '#DBEDDB',
+      decision: '#E8DEEE',
+      result: '#D3E5EF',
+      hub: '#FFE2DD',
+    }
+  },
+  {
+    id: 'figma',
+    name: 'Figma Style',
+    colors: {
+      primary: '#FF7262',
+      secondary: '#A259FF',
+      action: '#1ABCFE',
+      decision: '#0ACF83',
+      result: '#F24E1E',
+      hub: '#FF7262',
+    }
+  },
+  {
+    id: 'corporate',
+    name: 'Corporate',
+    colors: {
+      primary: '#3B82F6',    // Blue
+      secondary: '#F59E0B',  // Amber
+      action: '#10B981',     // Green
+      decision: '#8B5CF6',   // Purple
+      result: '#EC4899',     // Pink
+      hub: '#1E40AF',        // Dark blue
+    }
+  },
+  {
+    id: 'pastel',
+    name: 'Soft Pastel',
+    colors: {
+      primary: '#AED9E0',
+      secondary: '#F6BD60',
+      action: '#84A59D',
+      decision: '#F5CAC3',
+      result: '#B8C0FF',
+      hub: '#E07A5F',
+    }
+  },
+];
 
 // Chart Types for different visualization needs
 const CHART_TYPES = [
@@ -19,12 +127,12 @@ const CHART_TYPES = [
       quality: 'proof',
       nodeDimensionsIncludeLabels: true,
       fit: true,
-      padding: 80,
+      padding: 2000,
       randomize: true,
-      nodeRepulsion: 12000,
-      idealEdgeLength: 200,
-      edgeElasticity: 0.45,
-      gravity: 0.2,
+      nodeRepulsion: 6000,
+      idealEdgeLength: 8,
+      edgeElasticity: 0.6,
+      gravity: 0.4,
       numIter: 2500,
       animate: 'end',
       animationDuration: 600
@@ -40,16 +148,16 @@ const CHART_TYPES = [
       quality: 'proof',
       nodeDimensionsIncludeLabels: true,
       fit: true,
-      padding: 100,
+      padding: 1,
       randomize: false,
-      nodeRepulsion: 18000,
-      idealEdgeLength: 250,
-      edgeElasticity: 0.3,
-      gravity: 0.1,
-      numIter: 3500,
+      nodeRepulsion: 8000,
+      idealEdgeLength: 100,
+      edgeElasticity: 0.5,
+      gravity: 0.35,
+      numIter: 350,
       tile: true,
-      tilingPaddingVertical: 50,
-      tilingPaddingHorizontal: 50,
+      tilingPaddingVertical: 3,
+      tilingPaddingHorizontal: 30,
       animate: 'end',
       animationDuration: 800
     }
@@ -62,12 +170,12 @@ const CHART_TYPES = [
     layout: {
       name: 'concentric',
       fit: true,
-      padding: 80,
+      padding: 40,
       startAngle: 3 / 2 * Math.PI,
       sweep: undefined,
       clockwise: true,
       equidistant: false,
-      minNodeSpacing: 80,
+      minNodeSpacing: 40,
       height: undefined,
       width: undefined,
       concentric: function(node) {
@@ -89,10 +197,10 @@ const CHART_TYPES = [
       name: 'breadthfirst',
       fit: true,
       directed: true,
-      padding: 80,
+      padding: 40,
       circle: false,
       grid: false,
-      spacingFactor: 1.5,
+      spacingFactor: 1.0,
       avoidOverlap: true,
       nodeDimensionsIncludeLabels: true,
       roots: undefined,
@@ -109,12 +217,12 @@ const CHART_TYPES = [
     layout: {
       name: 'concentric',
       fit: true,
-      padding: 60,
+      padding: 35,
       startAngle: 0,
       sweep: 2 * Math.PI,
       clockwise: true,
       equidistant: true,
-      minNodeSpacing: 60,
+      minNodeSpacing: 30,
       concentric: function(node) {
         return node.degree();
       },
@@ -133,19 +241,19 @@ const LAYOUT_OPTIONS = {
   nodeDimensionsIncludeLabels: true,
   refresh: 30,
   fit: true,
-  padding: 80,
+  padding: 50,
   randomize: true,
-  nodeRepulsion: 12000,
-  idealEdgeLength: 200,
-  edgeElasticity: 0.45,
+  nodeRepulsion: 6000,
+  idealEdgeLength: 80,
+  edgeElasticity: 0.6,
   nestingFactor: 0.1,
-  gravity: 0.2,
+  gravity: 0.4,
   numIter: 2500,
   tile: true,
   animate: 'end',
   animationDuration: 600,
-  tilingPaddingVertical: 30,
-  tilingPaddingHorizontal: 30
+  tilingPaddingVertical: 20,
+  tilingPaddingHorizontal: 20
 };
 
 const NODE_SHAPES = [
@@ -227,7 +335,7 @@ const VISUAL_MODES = [
 const createStyle = (shape, theme, edgeStyle, visualMode, isDark) => {
   const bgColor = isDark ? '#0a0f1a' : '#f8fafc';
   const textColor = isDark ? '#ffffff' : '#1e293b';
-  const edgeColor = isDark ? '#475569' : '#94a3b8';
+  const edgeColor = isDark ? '#64748b' : '#cbd5e1';
   const textBgColor = isDark ? 'rgba(10, 15, 26, 0.9)' : 'rgba(248, 250, 252, 0.9)';
   
   const baseNodeStyle = {
@@ -235,20 +343,20 @@ const createStyle = (shape, theme, edgeStyle, visualMode, isDark) => {
     'color': textColor,
     'text-valign': 'center',
     'text-halign': 'center',
-    'font-size': '14px',
+    'font-size': '13px',
     'font-weight': '600',
     'font-family': 'Inter, system-ui, sans-serif',
     'text-wrap': 'wrap',
-    'text-max-width': '120px',
-    'width': 'mapData(connections, 1, 10, 80, 160)',
-    'height': 'mapData(connections, 1, 10, 80, 160)',
-    'shape': shape,
+    'text-max-width': '90px',
+    'width': 'mapData(connections, 1, 10, 80, 130)',
+    'height': 'mapData(connections, 1, 10, 45, 70)',
+    'shape': 'rectangle',
     'background-color': theme.primary,
     'background-opacity': 1,
-    'border-width': 3,
+    'border-width': 2,
     'border-color': theme.secondary,
     'text-outline-color': bgColor,
-    'text-outline-width': 2,
+    'text-outline-width': 1,
     'transition-property': 'background-color, border-color, width, height, box-shadow',
     'transition-duration': '0.3s',
     'z-index': 10
@@ -295,9 +403,11 @@ const createStyle = (shape, theme, edgeStyle, visualMode, isDark) => {
       selector: 'node[connections >= 5]',
       style: {
         'background-color': theme.accent,
-        'border-width': 4,
-        'font-size': '16px',
+        'border-width': 3,
+        'font-size': '15px',
         'font-weight': '700',
+        'width': '140px',
+        'height': '75px',
         'z-index': 20
       }
     },
@@ -316,25 +426,26 @@ const createStyle = (shape, theme, edgeStyle, visualMode, isDark) => {
     {
       selector: 'edge',
       style: {
-        'width': visualMode === 'minimal' ? 1.5 : 3,
+        'width': visualMode === 'minimal' ? 1 : 1.5,
         'line-color': edgeColor,
         'target-arrow-color': edgeColor,
         'target-arrow-shape': 'triangle',
-        'arrow-scale': 1.2,
-        'curve-style': edgeStyle,
+        'arrow-scale': 0.8,
+        'curve-style': 'bezier',
+        'control-point-step-size': 40,
         'label': 'data(label)',
-        'font-size': '11px',
-        'font-weight': '500',
-        'color': isDark ? '#94a3b8' : '#64748b',
+        'font-size': '12px',
+        'font-weight': '600',
+        'color': isDark ? '#94a3b8' : '#475569',
         'text-rotation': 'autorotate',
         'text-margin-y': -12,
         'text-background-color': textBgColor,
-        'text-background-opacity': 1,
+        'text-background-opacity': 0.95,
         'text-background-padding': '4px',
         'text-background-shape': 'roundrectangle',
         'transition-property': 'line-color, width',
         'transition-duration': '0.3s',
-        'opacity': 0.8
+        'opacity': 0.7
       }
     },
     {
@@ -342,7 +453,7 @@ const createStyle = (shape, theme, edgeStyle, visualMode, isDark) => {
       style: {
         'line-color': theme.primary,
         'target-arrow-color': theme.primary,
-        'width': 4,
+        'width': 2.5,
         'opacity': 1
       }
     },
@@ -364,8 +475,10 @@ const createStyle = (shape, theme, edgeStyle, visualMode, isDark) => {
       selector: '.hub-node',
       style: {
         'background-color': theme.accent,
-        'border-width': 5,
-        'font-size': '18px',
+        'border-width': 3,
+        'width': '150px',
+        'height': '80px',
+        'font-size': '16px',
         'font-weight': '700',
         'shadow-blur': visualMode === 'neon' ? 35 : 20,
         'shadow-color': theme.accent,
@@ -381,6 +494,330 @@ const createStyle = (shape, theme, edgeStyle, visualMode, isDark) => {
   ];
 };
 
+// Create professional diagram styles (Miro/Lucidchart style)
+const createProStyle = (diagramType, palette, isDark) => {
+  const bgColor = isDark ? '#0a0f1a' : '#f8fafc';
+  const textColor = isDark ? '#1e293b' : '#1e293b'; // Dark text for visibility on colored backgrounds
+  const edgeColor = isDark ? '#64748b' : '#cbd5e1';
+  const colors = palette.colors;
+
+  // Base style - smaller square boxes with readable text
+  const baseNode = {
+    'label': 'data(label)',
+    'text-valign': 'center',
+    'text-halign': 'center',
+    'font-size': '12px',
+    'font-weight': '600',
+    'font-family': 'Inter, system-ui, sans-serif',
+    'text-wrap': 'wrap',
+    'text-max-width': '85px',
+    'color': textColor,
+    'text-outline-width': 0,
+    'border-width': 2,
+    'border-color': 'rgba(0,0,0,0.15)',
+    'shadow-blur': 6,
+    'shadow-color': 'rgba(0,0,0,0.1)',
+    'shadow-opacity': 1,
+    'shadow-offset-x': 1,
+    'shadow-offset-y': 2,
+    'transition-property': 'background-color, border-color, width, height',
+    'transition-duration': '0.3s',
+  };
+
+  let styles = [];
+
+  if (diagramType.id === 'flowchart') {
+    // Flowchart: Square boxes - smaller sizes
+    styles = [
+      {
+        selector: 'node',
+        style: {
+          ...baseNode,
+          'shape': 'rectangle',
+          'width': '100px',
+          'height': '50px',
+          'background-color': colors.primary,
+        }
+      },
+      {
+        selector: 'node[connections >= 4]', // Hub/Start nodes
+        style: {
+          'shape': 'rectangle',
+          'background-color': colors.hub,
+          'width': '120px',
+          'height': '60px',
+          'font-size': '14px',
+          'font-weight': '700',
+          'border-width': 2,
+        }
+      },
+      {
+        selector: 'node[connections = 2]', // Decision-like nodes
+        style: {
+          'shape': 'diamond',
+          'background-color': colors.decision,
+          'width': '75px',
+          'height': '75px',
+          'text-max-width': '60px',
+          'font-size': '11px',
+        }
+      },
+      {
+        selector: 'node[connections = 1]', // End/leaf nodes
+        style: {
+          'shape': 'rectangle',
+          'background-color': colors.result,
+          'width': '95px',
+          'height': '45px',
+        }
+      },
+      {
+        selector: 'node[connections = 3]', // Action nodes
+        style: {
+          'shape': 'rectangle',
+          'background-color': colors.action,
+          'width': '105px',
+          'height': '50px',
+        }
+      },
+    ];
+  } else if (diagramType.id === 'hierarchy') {
+    // Org chart style - smaller square boxes
+    styles = [
+      {
+        selector: 'node',
+        style: {
+          ...baseNode,
+          'shape': 'rectangle',
+          'width': '105px',
+          'height': '50px',
+          'background-color': colors.secondary,
+        }
+      },
+      {
+        selector: 'node[connections >= 5]', // Top level
+        style: {
+          'background-color': colors.hub,
+          'width': '130px',
+          'height': '60px',
+          'font-size': '14px',
+          'font-weight': '700',
+          'border-width': 2,
+          'color': '#ffffff',
+        }
+      },
+      {
+        selector: 'node[connections >= 3][connections < 5]', // Mid level
+        style: {
+          'background-color': colors.primary,
+          'width': '115px',
+          'height': '55px',
+          'font-size': '13px',
+        }
+      },
+      {
+        selector: 'node[connections < 3]', // Lower level
+        style: {
+          'background-color': colors.action,
+          'width': '100px',
+          'height': '45px',
+        }
+      },
+    ];
+  } else if (diagramType.id === 'uml') {
+    // UML Activity diagram style - smaller boxes
+    styles = [
+      {
+        selector: 'node',
+        style: {
+          ...baseNode,
+          'shape': 'rectangle',
+          'width': '100px',
+          'height': '45px',
+          'background-color': colors.action,
+        }
+      },
+      {
+        selector: 'node[connections >= 4]', // Start/major nodes
+        style: {
+          'shape': 'ellipse',
+          'background-color': colors.hub,
+          'width': '110px',
+          'height': '55px',
+          'font-size': '13px',
+          'font-weight': '700',
+          'color': '#ffffff',
+        }
+      },
+      {
+        selector: 'node[connections = 2]', // Decision points
+        style: {
+          'shape': 'diamond',
+          'background-color': colors.decision,
+          'width': '70px',
+          'height': '70px',
+          'font-size': '10px',
+          'text-max-width': '55px',
+        }
+      },
+      {
+        selector: 'node[connections = 1]', // End states
+        style: {
+          'shape': 'ellipse',
+          'background-color': colors.result,
+          'width': '90px',
+          'height': '40px',
+        }
+      },
+    ];
+  } else if (diagramType.id === 'concept') {
+    // Concept map - smaller boxes
+    styles = [
+      {
+        selector: 'node',
+        style: {
+          ...baseNode,
+          'shape': 'rectangle',
+          'width': 'mapData(connections, 1, 8, 80, 120)',
+          'height': 'mapData(connections, 1, 8, 45, 65)',
+          'background-color': colors.primary,
+        }
+      },
+      {
+        selector: 'node[connections >= 4]',
+        style: {
+          'shape': 'rectangle',
+          'background-color': colors.hub,
+          'width': '130px',
+          'height': '70px',
+          'font-size': '14px',
+          'font-weight': '700',
+        }
+      },
+      {
+        selector: 'node[connections = 3]',
+        style: {
+          'shape': 'rectangle',
+          'background-color': colors.secondary,
+          'width': '110px',
+          'height': '55px',
+          'font-size': '12px',
+        }
+      },
+      {
+        selector: 'node[connections <= 2]',
+        style: {
+          'shape': 'rectangle',
+          'background-color': colors.action,
+          'width': '95px',
+          'height': '45px',
+        }
+      },
+    ];
+  } else {
+    // Default mind map style - smaller square boxes
+    styles = [
+      {
+        selector: 'node',
+        style: {
+          ...baseNode,
+          'shape': 'rectangle',
+          'width': 'mapData(connections, 1, 10, 85, 130)',
+          'height': 'mapData(connections, 1, 10, 45, 70)',
+          'background-color': colors.primary,
+        }
+      },
+      {
+        selector: 'node[connections >= 5]',
+        style: {
+          'background-color': colors.hub,
+          'width': '145px',
+          'height': '80px',
+          'font-size': '15px',
+          'font-weight': '700',
+          'border-width': 2,
+        }
+      },
+      {
+        selector: 'node[connections >= 3][connections < 5]',
+        style: {
+          'background-color': colors.secondary,
+          'width': '115px',
+          'height': '60px',
+          'font-size': '13px',
+        }
+      },
+    ];
+  }
+
+  // Common edge and interaction styles - bigger edge label fonts
+  styles.push(
+    {
+      selector: 'node:selected',
+      style: {
+        'border-color': '#3B82F6',
+        'border-width': 3,
+        'shadow-blur': 15,
+        'shadow-color': '#3B82F6',
+        'shadow-opacity': 0.6,
+      }
+    },
+    {
+      selector: 'edge',
+      style: {
+        'width': 1.5,
+        'line-color': edgeColor,
+        'target-arrow-color': edgeColor,
+        'target-arrow-shape': 'triangle',
+        'arrow-scale': 0.8,
+        'curve-style': 'bezier',
+        'control-point-step-size': 40,
+        'label': 'data(label)',
+        'font-size': '12px',
+        'font-weight': '600',
+        'color': isDark ? '#94a3b8' : '#475569',
+        'text-rotation': 'autorotate',
+        'text-margin-y': -12,
+        'text-background-color': bgColor,
+        'text-background-opacity': 0.95,
+        'text-background-padding': '4px',
+        'text-background-shape': 'roundrectangle',
+        'opacity': 0.7,
+      }
+    },
+    {
+      selector: 'edge:selected',
+      style: {
+        'line-color': '#3B82F6',
+        'target-arrow-color': '#3B82F6',
+        'width': 2,
+        'opacity': 1,
+      }
+    },
+    {
+      selector: '.highlighted',
+      style: {
+        'border-color': '#3B82F6',
+        'border-width': 4,
+        'line-color': '#3B82F6',
+        'target-arrow-color': '#3B82F6',
+        'shadow-blur': 20,
+        'shadow-color': '#3B82F6',
+        'shadow-opacity': 0.7,
+        'opacity': 1,
+      }
+    },
+    {
+      selector: '.faded',
+      style: {
+        'opacity': 0.2,
+      }
+    }
+  );
+
+  return styles;
+};
+
 function GraphView({ data, metadata = {} }) {
   const containerRef = useRef(null);
   const cyRef = useRef(null);
@@ -389,15 +826,52 @@ function GraphView({ data, metadata = {} }) {
   const [selectedEdge, setSelectedEdge] = useState(null);
   const [showStylePanel, setShowStylePanel] = useState(false);
   const [showChartPanel, setShowChartPanel] = useState(false);
+  const [showDiagramPanel, setShowDiagramPanel] = useState(false);
   const [nodeShape, setNodeShape] = useState('round-rectangle');
   const [colorTheme, setColorTheme] = useState(COLOR_THEMES[0]);
   const [edgeStyle, setEdgeStyle] = useState('bezier');
   const [visualMode, setVisualMode] = useState('modern');
   const [chartType, setChartType] = useState(CHART_TYPES[0]);
+  const [diagramType, setDiagramType] = useState(DIAGRAM_TYPES[0]);
+  const [proPalette, setProPalette] = useState(PRO_PALETTES[0]);
+  const [useProStyle, setUseProStyle] = useState(false);
 
   const applyStyle = () => {
     if (cyRef.current) {
-      const newStyle = createStyle(nodeShape, colorTheme, edgeStyle, visualMode, isDark);
+      if (useProStyle) {
+        const newStyle = createProStyle(diagramType, proPalette, isDark);
+        cyRef.current.style(newStyle);
+      } else {
+        const newStyle = createStyle(nodeShape, colorTheme, edgeStyle, visualMode, isDark);
+        cyRef.current.style(newStyle);
+      }
+    }
+  };
+
+  const applyDiagramType = (type) => {
+    setDiagramType(type);
+    setUseProStyle(true);
+    if (cyRef.current) {
+      const newStyle = createProStyle(type, proPalette, isDark);
+      cyRef.current.style(newStyle);
+      
+      // Apply appropriate layout for the diagram type
+      let layout;
+      if (type.id === 'hierarchy') {
+        layout = CHART_TYPES.find(c => c.id === 'hierarchical')?.layout || CHART_TYPES[0].layout;
+      } else if (type.id === 'flowchart' || type.id === 'uml') {
+        layout = CHART_TYPES.find(c => c.id === 'topic-optimized')?.layout || CHART_TYPES[0].layout;
+      } else {
+        layout = CHART_TYPES[0].layout;
+      }
+      cyRef.current.layout(layout).run();
+    }
+  };
+
+  const applyProPalette = (palette) => {
+    setProPalette(palette);
+    if (cyRef.current && useProStyle) {
+      const newStyle = createProStyle(diagramType, palette, isDark);
       cyRef.current.style(newStyle);
     }
   };
@@ -429,7 +903,7 @@ function GraphView({ data, metadata = {} }) {
 
   useEffect(() => {
     applyStyle();
-  }, [nodeShape, colorTheme, edgeStyle, visualMode, isDark]);
+  }, [nodeShape, colorTheme, edgeStyle, visualMode, isDark, useProStyle, diagramType, proPalette]);
 
   useEffect(() => {
     if (!containerRef.current || !data) return;
@@ -557,8 +1031,24 @@ function GraphView({ data, metadata = {} }) {
       
       {/* Style Panel Toggle */}
       <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+        {/* Professional Diagrams Button */}
         <button
-          onClick={() => { setShowStylePanel(!showStylePanel); setShowChartPanel(false); }}
+          onClick={() => { setShowDiagramPanel(!showDiagramPanel); setShowStylePanel(false); setShowChartPanel(false); }}
+          className={`p-3 rounded-xl border-2 transition-all flex items-center gap-2 shadow-lg
+                    ${showDiagramPanel 
+                      ? 'bg-gradient-to-r from-amber-500 to-orange-500 border-amber-400 text-white shadow-amber-500/30' 
+                      : isDark
+                        ? 'bg-dark-800/90 hover:bg-dark-700 border-dark-600 text-dark-300 hover:text-white backdrop-blur-sm'
+                        : 'bg-white/90 hover:bg-white border-dark-200 text-dark-600 hover:text-dark-900 backdrop-blur-sm'
+                    }`}
+          title="Professional Diagrams"
+        >
+          <Workflow className="w-5 h-5" />
+          <span className="text-sm font-semibold">Pro Diagrams</span>
+        </button>
+
+        <button
+          onClick={() => { setShowStylePanel(!showStylePanel); setShowChartPanel(false); setShowDiagramPanel(false); }}
           className={`p-3 rounded-xl border-2 transition-all flex items-center gap-2 shadow-lg
                     ${showStylePanel 
                       ? 'bg-primary-600 border-primary-400 text-white shadow-primary-500/30' 
@@ -573,7 +1063,7 @@ function GraphView({ data, metadata = {} }) {
         </button>
         
         <button
-          onClick={() => { setShowChartPanel(!showChartPanel); setShowStylePanel(false); }}
+          onClick={() => { setShowChartPanel(!showChartPanel); setShowStylePanel(false); setShowDiagramPanel(false); }}
           className={`p-3 rounded-xl border-2 transition-all flex items-center gap-2 shadow-lg
                     ${showChartPanel 
                       ? 'bg-emerald-600 border-emerald-400 text-white shadow-emerald-500/30' 
@@ -584,9 +1074,112 @@ function GraphView({ data, metadata = {} }) {
           title="Chart Types"
         >
           <LayoutGrid className="w-5 h-5" />
-          <span className="text-sm font-semibold">Chart Type</span>
+          <span className="text-sm font-semibold">Layout</span>
         </button>
       </div>
+
+      {/* Professional Diagram Panel */}
+      {showDiagramPanel && (
+        <div className={`absolute top-4 left-48 w-96 rounded-2xl border-2 shadow-2xl overflow-hidden z-20 max-h-[80vh] overflow-y-auto
+                       ${isDark 
+                         ? 'bg-dark-800/95 border-dark-600 backdrop-blur-xl' 
+                         : 'bg-white/95 border-dark-200 backdrop-blur-xl'
+                       }`}>
+          <div className={`p-4 border-b bg-gradient-to-r from-amber-500/10 to-orange-500/10 ${isDark ? 'border-dark-700' : 'border-dark-200'}`}>
+            <h3 className={`font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-dark-900'}`}>
+              <Workflow className="w-5 h-5 text-amber-500" />
+              Professional Diagrams
+            </h3>
+            <p className={`text-xs mt-1 ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
+              Miro, Lucidchart & UML styles
+            </p>
+          </div>
+          
+          <div className="p-4 space-y-4">
+            {/* Diagram Types */}
+            <div>
+              <label className={`text-xs font-semibold uppercase tracking-wide mb-2 block ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
+                Diagram Type
+              </label>
+              <div className="grid grid-cols-1 gap-2">
+                {DIAGRAM_TYPES.map(type => {
+                  const Icon = type.icon;
+                  return (
+                    <button
+                      key={type.id}
+                      onClick={() => applyDiagramType(type)}
+                      className={`p-3 rounded-xl border-2 transition-all flex items-center gap-3 text-left
+                                ${diagramType.id === type.id && useProStyle
+                                  ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-amber-500/50' 
+                                  : isDark
+                                    ? 'border-dark-600 hover:border-amber-500/50 hover:bg-dark-700/50'
+                                    : 'border-dark-200 hover:border-amber-400 hover:bg-amber-50'
+                                }`}
+                    >
+                      <div className={`p-2 rounded-lg ${diagramType.id === type.id && useProStyle ? 'bg-amber-500 text-white' : isDark ? 'bg-dark-700 text-dark-300' : 'bg-dark-100 text-dark-600'}`}>
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <span className={`font-semibold block ${isDark ? 'text-dark-100' : 'text-dark-800'}`}>{type.name}</span>
+                        <span className={`text-xs ${isDark ? 'text-dark-500' : 'text-dark-400'}`}>{type.description}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {/* Color Palettes */}
+            <div>
+              <label className={`text-xs font-semibold uppercase tracking-wide mb-2 block ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
+                Color Palette
+              </label>
+              <div className="grid grid-cols-1 gap-2">
+                {PRO_PALETTES.map(palette => (
+                  <button
+                    key={palette.id}
+                    onClick={() => applyProPalette(palette)}
+                    className={`p-3 rounded-xl border-2 transition-all flex items-center gap-3
+                              ${proPalette.id === palette.id && useProStyle
+                                ? 'border-amber-500/50 bg-amber-500/10' 
+                                : isDark
+                                  ? 'border-dark-600 hover:border-dark-500'
+                                  : 'border-dark-200 hover:border-dark-300'
+                              }`}
+                  >
+                    <div className="flex gap-1">
+                      {Object.values(palette.colors).slice(0, 5).map((color, i) => (
+                        <div
+                          key={i}
+                          className="w-5 h-5 rounded-full border border-white/20 shadow-sm"
+                          style={{ backgroundColor: color }}
+                        />
+                      ))}
+                    </div>
+                    <span className={`font-medium ${isDark ? 'text-dark-200' : 'text-dark-700'}`}>{palette.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Switch to Custom */}
+            <button
+              onClick={() => { setUseProStyle(false); applyStyle(); }}
+              className={`w-full p-3 rounded-xl border-2 transition-all text-center
+                        ${!useProStyle
+                          ? 'bg-primary-500/10 border-primary-500/50' 
+                          : isDark
+                            ? 'border-dark-600 hover:border-dark-500'
+                            : 'border-dark-200 hover:border-dark-300'
+                        }`}
+            >
+              <span className={`font-medium ${isDark ? 'text-dark-200' : 'text-dark-700'}`}>
+                ← Back to Custom Styling
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Chart Type Panel */}
       {showChartPanel && (
@@ -614,7 +1207,7 @@ function GraphView({ data, metadata = {} }) {
                 <button
                   key={type.id}
                   onClick={() => { applyChartLayout(type); setShowChartPanel(false); }}
-                  className={`w-full p-4 rounded-xl border-2 text-left transition-all flex items-start gap-3
+                  className={`w-full p-1 rounded-xl border-2 text-left transition-all flex items-start gap-3
                             ${isActive 
                               ? 'bg-emerald-500/20 border-emerald-400 shadow-lg shadow-emerald-500/20' 
                               : isDark
@@ -937,7 +1530,7 @@ function GraphView({ data, metadata = {} }) {
       </div>
 
       {/* Current Chart Type Indicator */}
-      <div className={`absolute bottom-4 left-4 px-4 py-2.5 rounded-xl z-10 flex items-center gap-2
+      <div className={`absolute bottom-4 left-4 px-4 py-2.5 rounded-xl z-10 flex items-center gap-3
                      ${isDark 
                        ? 'bg-dark-800/80 backdrop-blur-sm border border-dark-700' 
                        : 'bg-white/80 backdrop-blur-sm border border-dark-200'
@@ -954,6 +1547,32 @@ function GraphView({ data, metadata = {} }) {
             Layout
           </span>
         </div>
+        
+        {/* Show Pro Diagram Type if active */}
+        {useProStyle && (
+          <>
+            <div className={`w-px h-6 ${isDark ? 'bg-dark-600' : 'bg-dark-300'}`} />
+            <div className="flex items-center gap-2">
+              <div className="flex gap-0.5">
+                {PRO_PALETTES[proPalette].colors.slice(0, 3).map((color, i) => (
+                  <div 
+                    key={i}
+                    className="w-2.5 h-2.5 rounded-full"
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+              </div>
+              <div>
+                <span className={`text-xs font-semibold ${isDark ? 'text-dark-300' : 'text-dark-600'}`}>
+                  {DIAGRAM_TYPES[diagramType].name}
+                </span>
+                <span className={`text-xs ml-1 ${isDark ? 'text-dark-500' : 'text-dark-400'}`}>
+                  • {PRO_PALETTES[proPalette].name}
+                </span>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
