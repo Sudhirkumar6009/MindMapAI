@@ -46,4 +46,51 @@ router.post('/', upload.single('file'), async (req, res) => {
         success: false,
         error: 'PDF contains insufficient text content',
         suggestions: [
-          'The PDF may be image-based or scanned'
+          'The PDF may be image-based or scanned',
+          'Try a PDF with selectable text',
+          'Consider using OCR to extract text first'
+        ],
+        analysis: {
+          pages: pdfData.numpages,
+          charCount: text?.length || 0
+        }
+      });
+    }
+
+    const options = req.body.options ? JSON.parse(req.body.options) : {};
+    const result = await processDocument(text.trim(), options);
+
+    if (!result.success) {
+      console.log('❌ Processing failed:', result.error);
+      return res.status(400).json({
+        ...result,
+        pdfInfo: {
+          pages: pdfData.numpages,
+          textLength: text.length
+        }
+      });
+    }
+
+    console.log('✅ PDF processed successfully');
+    console.log('   Concepts:', result.concepts?.length);
+    console.log('   Relationships:', result.relationships?.length);
+    console.log('==================================\n');
+
+    res.json({
+      ...result,
+      pdfInfo: {
+        pages: pdfData.numpages,
+        textLength: text.length
+      }
+    });
+  } catch (error) {
+    console.error('❌ Upload error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to process PDF',
+      suggestions: ['Please try again with a different PDF file']
+    });
+  }
+});
+
+export default router;
