@@ -222,27 +222,42 @@ SOURCE FOLDERS: ${Array.from(structure.folders).join(', ')}
 FILE CONTENTS:
 ${fileContents}
 
-TASK: Extract the main architectural concepts and their relationships from this codebase.
+TASK: Extract the main architectural concepts, their relationships, AND group them into logical sections.
 
 Return a JSON object with this EXACT structure:
 {
+  "sections": [
+    {"id": "frontend", "name": "Frontend", "description": "User interface components"},
+    {"id": "backend", "name": "Backend", "description": "Server-side logic"}
+  ],
   "concepts": [
-    {"name": "ConceptName", "category": "category", "importance": 1-5}
+    {"name": "ConceptName", "category": "category", "importance": 1-5, "section": "frontend"}
   ],
   "relationships": [
     {"source": "ConceptA", "relation": "uses", "target": "ConceptB"}
   ]
 }
 
+SECTIONS to detect (use these IDs when applicable):
+- "frontend": UI, React, Vue, Angular, components, pages, views
+- "backend": Server, API, routes, controllers, middleware
+- "database": Models, schemas, migrations, database
+- "services": Business logic, services, utilities
+- "config": Configuration, environment, settings
+- "testing": Tests, specs, mocks
+- "devops": Docker, CI/CD, deployment
+- "shared": Shared utilities, types, constants used across sections
+
 CATEGORIES to use: "core", "component", "service", "model", "util", "config", "external", "framework"
 
 RULES:
 1. Extract 10-25 meaningful concepts (not individual files)
-2. Focus on: main components, services, data models, external integrations, frameworks
-3. Use SHORT relation words: "uses", "has", "creates", "extends", "imports", "calls", "stores", "serves"
-4. importance: 5=core/main, 4=important, 3=standard, 2=supporting, 1=minor
-5. Group related files into single concepts (e.g., all route files → "API Routes")
-6. Include the tech stack as concepts (React, Express, MongoDB, etc.)
+2. ALWAYS assign each concept to a section (use "shared" if it spans multiple)
+3. Focus on: main components, services, data models, external integrations, frameworks
+4. Use SHORT relation words: "uses", "has", "creates", "extends", "imports", "calls", "stores", "serves"
+5. importance: 5=core/main, 4=important, 3=standard, 2=supporting, 1=minor
+6. Group related files into single concepts (e.g., all route files → "API Routes")
+7. Include the tech stack as concepts (React, Express, MongoDB, etc.)
 
 Return ONLY valid JSON, no markdown or explanation.`;
 }
@@ -301,11 +316,21 @@ export async function analyzeGitHubRepo(githubUrl) {
     }
   }
   
+  // Extract sections with defaults
+  const defaultSections = [
+    { id: 'main', name: 'All Components', description: 'Complete project overview' }
+  ];
+  
+  const sections = analysis.sections?.length > 0 
+    ? [...defaultSections, ...analysis.sections]
+    : defaultSections;
+  
   // Format for frontend
   const concepts = (analysis.concepts || []).map(c => ({
     name: c.name,
     category: c.category || 'component',
     importance: c.importance || 3,
+    section: c.section || 'main',
   }));
   
   const relationships = (analysis.relationships || []).map(r => ({
@@ -314,7 +339,7 @@ export async function analyzeGitHubRepo(githubUrl) {
     target: r.target,
   }));
   
-  console.log(`🎯 Extracted ${concepts.length} concepts and ${relationships.length} relationships`);
+  console.log(`🎯 Extracted ${concepts.length} concepts, ${relationships.length} relationships, ${sections.length} sections`);
   
   return {
     repoInfo: {
@@ -328,10 +353,108 @@ export async function analyzeGitHubRepo(githubUrl) {
     },
     concepts,
     relationships,
+    sections,
     metadata: {
       languages: Array.from(structure.languages),
       folders: Array.from(structure.folders),
       analyzedFiles: filesToFetch.map(f => f.path),
     },
+  };
+}
+
+/**
+ * Analyze a specific section/topic in-depth
+ */
+export async function analyzeInDepth(sectionName, concepts, relationships, repoInfo) {
+  console.log(`🔍 Analyzing "${sectionName}" in-depth...`);
+  
+  // Filter concepts that belong to this section
+  const sectionConcepts = concepts.filter(c => 
+    c.section === sectionName || 
+    c.name.toLowerCase().includes(sectionName.toLowerCase())
+  );
+  
+  // Find relationships involving these concepts
+  const conceptNames = new Set(sectionConcepts.map(c => c.name.toLowerCase()));
+  const sectionRelationships = relationships.filter(r => 
+    conceptNames.has(r.source?.toLowerCase()) || 
+    conceptNames.has(r.target?.toLowerCase())
+  );
+  
+  const prompt = `You are an expert software architect performing an IN-DEPTH analysis of a specific section of a codebase.
+
+REPOSITORY: ${repoInfo?.fullName || 'Unknown'}
+SECTION: ${sectionName}
+
+EXISTING CONCEPTS IN THIS SECTION:
+${JSON.stringify(sectionConcepts, null, 2)}
+
+EXISTING RELATIONSHIPS:
+${JSON.stringify(sectionRelationships, null, 2)}
+
+TASK: Provide a DEEPER, more detailed analysis of this section. Break down the existing concepts into sub-components and find more granular relationships.
+
+Return a JSON object with this EXACT structure:
+{
+  "concepts": [
+    {"name": "DetailedConceptName", "category": "category", "importance": 1-5, "section": "${sectionName}", "parentConcept": "OriginalConceptName"}
+  ],
+  "relationships": [
+    {"source": "ConceptA", "relation": "uses", "target": "ConceptB"}
+  ],
+  "insights": [
+    "Key insight about this section's architecture",
+    "Another important observation"
+  ]
+}
+
+RULES:
+1. Extract 8-15 MORE DETAILED concepts than the original
+2. Break down high-level concepts into sub-components
+3. Find internal relationships within this section
+4. Add "parentConcept" to show which original concept each new one derives from
+5. Provide 2-4 architectural insights
+6. Use SHORT relation words: "uses", "has", "creates", "extends", "imports", "calls", "validates", "renders"
+7. importance: 5=critical, 4=important, 3=standard, 2=supporting, 1=minor
+
+Return ONLY valid JSON, no markdown or explanation.`;
+
+  const response = await generateWithRetry(prompt);
+  const cleaned = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+  
+  let analysis;
+  try {
+    analysis = JSON.parse(cleaned);
+  } catch (e) {
+    const match = cleaned.match(/\{[\s\S]*\}/);
+    if (match) {
+      analysis = JSON.parse(match[0]);
+    } else {
+      throw new Error('Failed to parse in-depth analysis');
+    }
+  }
+  
+  const detailedConcepts = (analysis.concepts || []).map(c => ({
+    name: c.name,
+    category: c.category || 'component',
+    importance: c.importance || 3,
+    section: sectionName,
+    parentConcept: c.parentConcept || null,
+  }));
+  
+  const detailedRelationships = (analysis.relationships || []).map(r => ({
+    source: r.source,
+    relation: r.relation,
+    target: r.target,
+  }));
+  
+  console.log(`🎯 In-depth: ${detailedConcepts.length} concepts, ${detailedRelationships.length} relationships`);
+  
+  return {
+    section: sectionName,
+    concepts: detailedConcepts,
+    relationships: detailedRelationships,
+    insights: analysis.insights || [],
+    originalConceptCount: sectionConcepts.length,
   };
 }

@@ -123,6 +123,18 @@ export const api = {
     return response.data;
   },
 
+  async analyzeInDepth(sectionName, concepts, relationships, repoInfo) {
+    const response = await axios.post(`${API_BASE}/github/analyze-depth`, {
+      sectionName,
+      concepts,
+      relationships,
+      repoInfo,
+    }, {
+      headers: getAuthHeader()
+    });
+    return response.data;
+  },
+
   async validateGitHubUrl(url) {
     const response = await axios.get(`${API_BASE}/github/validate?url=${encodeURIComponent(url)}`);
     return response.data;

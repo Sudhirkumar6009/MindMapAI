@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import cytoscape from 'cytoscape';
 import coseBilkent from 'cytoscape-cose-bilkent';
-import { ZoomIn, ZoomOut, Maximize2, RotateCcw, Palette, Sparkles, Layers, Grid3X3, LayoutGrid, Network, GitBranch, Target, Workflow, Box, Diamond, Hexagon, Circle, Square, Triangle } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize2, RotateCcw, Palette, Sparkles, Layers, Grid3X3, LayoutGrid, Network, GitBranch, Target, Workflow, Box, Diamond, Hexagon, Circle, Square, Triangle, ChevronDown, Filter, Microscope, Loader2 } from 'lucide-react';
 import ExportMenu from './ExportMenu';
 import { useTheme } from '../context/ThemeContext';
 
@@ -818,7 +818,7 @@ const createProStyle = (diagramType, palette, isDark) => {
   return styles;
 };
 
-function GraphView({ data, metadata = {} }) {
+function GraphView({ data, metadata = {}, onAnalyzeInDepth }) {
   const containerRef = useRef(null);
   const cyRef = useRef(null);
   const { isDark } = useTheme();
@@ -835,6 +835,14 @@ function GraphView({ data, metadata = {} }) {
   const [diagramType, setDiagramType] = useState(DIAGRAM_TYPES[0]);
   const [proPalette, setProPalette] = useState(PRO_PALETTES[0]);
   const [useProStyle, setUseProStyle] = useState(false);
+  
+  // Topic filter state
+  const [selectedSection, setSelectedSection] = useState('main');
+  const [showSectionDropdown, setShowSectionDropdown] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  
+  // Get sections from data
+  const sections = data?.sections || [{ id: 'main', name: 'All Components', description: 'Complete overview' }];
 
   const applyStyle = () => {
     if (cyRef.current) {
@@ -905,18 +913,39 @@ function GraphView({ data, metadata = {} }) {
     applyStyle();
   }, [nodeShape, colorTheme, edgeStyle, visualMode, isDark, useProStyle, diagramType, proPalette]);
 
-  useEffect(() => {
-    if (!containerRef.current || !data) return;
-
-    const elements = [
-      ...data.nodes.map(node => ({
+  // Filter nodes based on selected section
+  const getFilteredElements = () => {
+    if (!data?.nodes || !data?.edges) return [];
+    
+    let filteredNodes = data.nodes;
+    let filteredEdges = data.edges;
+    
+    // If a specific section is selected (not 'main'), filter by section
+    if (selectedSection !== 'main') {
+      filteredNodes = data.nodes.filter(node => 
+        node.section === selectedSection || 
+        node.section === 'shared' ||
+        !node.section // Include nodes without section (backwards compat)
+      );
+      
+      const nodeIds = new Set(filteredNodes.map(n => n.id));
+      filteredEdges = data.edges.filter(edge => 
+        nodeIds.has(edge.source) && nodeIds.has(edge.target)
+      );
+    }
+    
+    return [
+      ...filteredNodes.map(node => ({
         data: { 
           id: node.id, 
           label: node.label,
-          connections: Math.max(node.connections, 1)
+          connections: Math.max(node.connections || 1, 1),
+          section: node.section || 'main',
+          category: node.category || 'component',
+          importance: node.importance || 3
         }
       })),
-      ...data.edges.map(edge => ({
+      ...filteredEdges.map(edge => ({
         data: {
           id: edge.id,
           source: edge.source,
@@ -928,6 +957,12 @@ function GraphView({ data, metadata = {} }) {
         }
       }))
     ];
+  };
+
+  useEffect(() => {
+    if (!containerRef.current || !data) return;
+
+    const elements = getFilteredElements();
 
     const initialStyle = createStyle(nodeShape, colorTheme, edgeStyle, visualMode, isDark);
 
@@ -1006,7 +1041,7 @@ function GraphView({ data, metadata = {} }) {
         cyRef.current.destroy();
       }
     };
-  }, [data]);
+  }, [data, selectedSection]);
 
   const handleZoomIn = () => cyRef.current?.animate({ zoom: cyRef.current.zoom() * 1.3 }, { duration: 200 });
   const handleZoomOut = () => cyRef.current?.animate({ zoom: cyRef.current.zoom() * 0.7 }, { duration: 200 });
@@ -1530,48 +1565,166 @@ function GraphView({ data, metadata = {} }) {
       </div>
 
       {/* Current Chart Type Indicator */}
-      <div className={`absolute bottom-4 left-4 px-4 py-2.5 rounded-xl z-10 flex items-center gap-3
-                     ${isDark 
-                       ? 'bg-dark-800/80 backdrop-blur-sm border border-dark-700' 
-                       : 'bg-white/80 backdrop-blur-sm border border-dark-200'
-                     }`}>
-        {(() => {
-          const Icon = chartType.icon;
-          return <Icon className="w-4 h-4 text-emerald-400" />;
-        })()}
-        <div>
-          <span className={`text-xs font-semibold ${isDark ? 'text-dark-300' : 'text-dark-600'}`}>
-            {chartType.name}
-          </span>
-          <span className={`text-xs ml-2 ${isDark ? 'text-dark-500' : 'text-dark-400'}`}>
-            Layout
-          </span>
-        </div>
-        
-        {/* Show Pro Diagram Type if active */}
-        {useProStyle && (
-          <>
-            <div className={`w-px h-6 ${isDark ? 'bg-dark-600' : 'bg-dark-300'}`} />
-            <div className="flex items-center gap-2">
-              <div className="flex gap-0.5">
-                {PRO_PALETTES[proPalette].colors.slice(0, 3).map((color, i) => (
-                  <div 
-                    key={i}
-                    className="w-2.5 h-2.5 rounded-full"
-                    style={{ backgroundColor: color }}
-                  />
-                ))}
-              </div>
-              <div>
+      <div className={`absolute bottom-4 left-4 z-20 flex flex-col gap-2`}>
+        {/* Topic/Section Filter - Only show if sections exist */}
+        {sections.length > 1 && (
+          <div className="relative">
+            <button
+              onClick={() => setShowSectionDropdown(!showSectionDropdown)}
+              className={`px-4 py-2.5 rounded-xl flex items-center gap-3 transition-all shadow-lg border-2
+                        ${isDark 
+                          ? 'bg-dark-800/95 backdrop-blur-sm border-dark-600 hover:border-primary-500' 
+                          : 'bg-white/95 backdrop-blur-sm border-dark-200 hover:border-primary-500'
+                        }`}
+            >
+              <Filter className={`w-4 h-4 ${isDark ? 'text-primary-400' : 'text-primary-600'}`} />
+              <div className="text-left">
                 <span className={`text-xs font-semibold ${isDark ? 'text-dark-300' : 'text-dark-600'}`}>
-                  {DIAGRAM_TYPES[diagramType].name}
-                </span>
-                <span className={`text-xs ml-1 ${isDark ? 'text-dark-500' : 'text-dark-400'}`}>
-                  • {PRO_PALETTES[proPalette].name}
+                  {sections.find(s => s.id === selectedSection)?.name || 'All Components'}
                 </span>
               </div>
+              <ChevronDown className={`w-4 h-4 transition-transform ${showSectionDropdown ? 'rotate-180' : ''} ${isDark ? 'text-dark-400' : 'text-dark-500'}`} />
+            </button>
+            
+            {/* Dropdown */}
+            {showSectionDropdown && (
+              <div className={`absolute bottom-full left-0 mb-2 w-64 rounded-xl border-2 shadow-2xl overflow-hidden
+                            ${isDark 
+                              ? 'bg-dark-800/98 border-dark-600 backdrop-blur-xl' 
+                              : 'bg-white/98 border-dark-200 backdrop-blur-xl'
+                            }`}>
+                <div className={`px-3 py-2 border-b ${isDark ? 'border-dark-700' : 'border-dark-200'}`}>
+                  <span className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
+                    Filter by Section
+                  </span>
+                </div>
+                <div className="max-h-48 overflow-y-auto">
+                  {sections.map(section => (
+                    <button
+                      key={section.id}
+                      onClick={() => {
+                        setSelectedSection(section.id);
+                        setShowSectionDropdown(false);
+                      }}
+                      className={`w-full px-4 py-2.5 text-left flex items-center gap-3 transition-all
+                                ${selectedSection === section.id
+                                  ? isDark
+                                    ? 'bg-primary-500/20 text-primary-300'
+                                    : 'bg-primary-50 text-primary-700'
+                                  : isDark
+                                    ? 'hover:bg-dark-700 text-dark-300'
+                                    : 'hover:bg-dark-50 text-dark-600'
+                                }`}
+                    >
+                      <div className={`w-2 h-2 rounded-full ${selectedSection === section.id ? 'bg-primary-500' : isDark ? 'bg-dark-600' : 'bg-dark-300'}`} />
+                      <div>
+                        <div className="text-sm font-medium">{section.name}</div>
+                        {section.description && (
+                          <div className={`text-xs ${isDark ? 'text-dark-500' : 'text-dark-400'}`}>
+                            {section.description}
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                
+                {/* Analyze In-Depth Button */}
+                {selectedSection !== 'main' && onAnalyzeInDepth && (
+                  <div className={`border-t px-3 py-2 ${isDark ? 'border-dark-700' : 'border-dark-200'}`}>
+                    <button
+                      onClick={() => {
+                        setIsAnalyzing(true);
+                        setShowSectionDropdown(false);
+                        onAnalyzeInDepth(selectedSection);
+                        setTimeout(() => setIsAnalyzing(false), 500);
+                      }}
+                      disabled={isAnalyzing}
+                      className={`w-full px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-semibold transition-all
+                                bg-gradient-to-r from-purple-600 to-primary-600 hover:from-purple-500 hover:to-primary-500
+                                text-white shadow-lg disabled:opacity-50`}
+                    >
+                      {isAnalyzing ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Microscope className="w-4 h-4" />
+                      )}
+                      Analyze In-Depth
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Layout Indicator */}
+        <div className={`px-4 py-2.5 rounded-xl flex items-center gap-3
+                       ${isDark 
+                         ? 'bg-dark-800/80 backdrop-blur-sm border border-dark-700' 
+                         : 'bg-white/80 backdrop-blur-sm border border-dark-200'
+                       }`}>
+          {(() => {
+            const Icon = chartType.icon;
+            return <Icon className="w-4 h-4 text-emerald-400" />;
+          })()}
+          <div>
+            <span className={`text-xs font-semibold ${isDark ? 'text-dark-300' : 'text-dark-600'}`}>
+              {chartType.name}
+            </span>
+            <span className={`text-xs ml-2 ${isDark ? 'text-dark-500' : 'text-dark-400'}`}>
+              Layout
+            </span>
+          </div>
+          
+          {/* Show Pro Diagram Type if active */}
+          {useProStyle && (
+            <>
+              <div className={`w-px h-6 ${isDark ? 'bg-dark-600' : 'bg-dark-300'}`} />
+              <div className="flex items-center gap-2">
+                <div className="flex gap-0.5">
+                  {Object.values(proPalette.colors).slice(0, 3).map((color, i) => (
+                    <div 
+                      key={i}
+                      className="w-2.5 h-2.5 rounded-full"
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+                <div>
+                  <span className={`text-xs font-semibold ${isDark ? 'text-dark-300' : 'text-dark-600'}`}>
+                    {diagramType.name}
+                  </span>
+                  <span className={`text-xs ml-1 ${isDark ? 'text-dark-500' : 'text-dark-400'}`}>
+                    • {proPalette.name}
+                  </span>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* In-Depth Insights */}
+        {data?.insights && data.insights.length > 0 && (
+          <div className={`px-4 py-3 rounded-xl max-w-xs
+                         ${isDark 
+                           ? 'bg-purple-500/10 border border-purple-500/30' 
+                           : 'bg-purple-50 border border-purple-200'
+                         }`}>
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="w-4 h-4 text-purple-400" />
+              <span className={`text-xs font-bold ${isDark ? 'text-purple-300' : 'text-purple-700'}`}>
+                AI Insights
+              </span>
             </div>
-          </>
+            <ul className="space-y-1">
+              {data.insights.slice(0, 3).map((insight, i) => (
+                <li key={i} className={`text-xs ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
+                  • {insight}
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     </div>

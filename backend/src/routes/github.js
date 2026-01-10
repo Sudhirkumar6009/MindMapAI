@@ -1,5 +1,5 @@
 import express from 'express';
-import { analyzeGitHubRepo } from '../agents/githubAgent.js';
+import { analyzeGitHubRepo, analyzeInDepth } from '../agents/githubAgent.js';
 
 const router = express.Router();
 
@@ -29,7 +29,7 @@ router.post('/analyze', async (req, res) => {
     
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
     console.log(`✅ GitHub analysis completed in ${duration}s`);
-    console.log(`📊 Concepts: ${result.concepts.length}, Relationships: ${result.relationships.length}`);
+    console.log(`📊 Concepts: ${result.concepts.length}, Relationships: ${result.relationships.length}, Sections: ${result.sections.length}`);
     
     // Transform to frontend format
     const graphData = {
@@ -38,6 +38,7 @@ router.post('/analyze', async (req, res) => {
         label: concept.name,
         category: concept.category,
         importance: concept.importance,
+        section: concept.section || 'main',
       })),
       edges: result.relationships.map((rel, idx) => ({
         id: `edge-${idx}`,
@@ -54,11 +55,13 @@ router.post('/analyze', async (req, res) => {
     res.json({
       success: true,
       data: graphData,
+      sections: result.sections,
       repoInfo: result.repoInfo,
       metadata: result.metadata,
       stats: {
         concepts: result.concepts.length,
         relationships: result.relationships.length,
+        sections: result.sections.length,
         duration: `${duration}s`,
       },
     });
@@ -77,6 +80,76 @@ router.post('/analyze', async (req, res) => {
     res.status(500).json({ 
       error: 'Failed to analyze GitHub repository',
       message: userMessage,
+    });
+  }
+});
+
+/**
+ * POST /api/github/analyze-depth
+ * Analyze a specific section in-depth
+ */
+router.post('/analyze-depth', async (req, res) => {
+  try {
+    const { sectionName, concepts, relationships, repoInfo } = req.body;
+    
+    if (!sectionName) {
+      return res.status(400).json({ 
+        error: 'Section name is required',
+        message: 'Please specify which section to analyze in-depth'
+      });
+    }
+    
+    console.log(`\n${'='.repeat(50)}`);
+    console.log(`🔬 In-Depth Analysis Request: ${sectionName}`);
+    console.log(`${'='.repeat(50)}`);
+    
+    const startTime = Date.now();
+    
+    const result = await analyzeInDepth(sectionName, concepts, relationships, repoInfo);
+    
+    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+    console.log(`✅ In-depth analysis completed in ${duration}s`);
+    
+    // Transform to frontend format
+    const graphData = {
+      nodes: result.concepts.map((concept, idx) => ({
+        id: `depth-node-${idx}`,
+        label: concept.name,
+        category: concept.category,
+        importance: concept.importance,
+        section: concept.section,
+        parentConcept: concept.parentConcept,
+      })),
+      edges: result.relationships.map((rel, idx) => ({
+        id: `depth-edge-${idx}`,
+        source: result.concepts.findIndex(c => c.name.toLowerCase() === rel.source.toLowerCase()),
+        target: result.concepts.findIndex(c => c.name.toLowerCase() === rel.target.toLowerCase()),
+        label: rel.relation,
+      })).filter(e => e.source !== -1 && e.target !== -1).map(e => ({
+        ...e,
+        source: `depth-node-${e.source}`,
+        target: `depth-node-${e.target}`,
+      })),
+    };
+    
+    res.json({
+      success: true,
+      data: graphData,
+      insights: result.insights,
+      section: result.section,
+      stats: {
+        concepts: result.concepts.length,
+        relationships: result.relationships.length,
+        originalConceptCount: result.originalConceptCount,
+        duration: `${duration}s`,
+      },
+    });
+    
+  } catch (error) {
+    console.error('❌ In-depth analysis error:', error.message);
+    res.status(500).json({ 
+      error: 'Failed to analyze section in-depth',
+      message: error.message,
     });
   }
 });

@@ -194,11 +194,12 @@ function AppContent() {
         setLoadingStatus('Building architecture diagram...');
         await new Promise(r => setTimeout(r, 300));
         
-        // Build concepts from nodes
+        // Build concepts from nodes (include section)
         const concepts = result.data.nodes.map(n => ({
           name: n.label,
           category: n.category,
           importance: n.importance,
+          section: n.section || 'main',
         }));
         
         // Build relationships from edges
@@ -220,6 +221,7 @@ function AppContent() {
           label: concept.name,
           category: concept.category,
           importance: concept.importance,
+          section: concept.section,
           connections: connectionCounts[concept.name] || 0,
         }));
         
@@ -242,6 +244,7 @@ function AppContent() {
           relationships,
           nodes,
           edges,
+          sections: result.sections || [],
           stats: {
             ...result.stats,
             conceptCount: concepts.length,
@@ -276,6 +279,77 @@ function AppContent() {
           'Try again in a few minutes if rate limited'
         ]
       });
+    } finally {
+      setLoading(false);
+      setLoadingStatus('');
+    }
+  };
+
+  const handleAnalyzeInDepth = async (sectionName) => {
+    if (!graphData || !graphData.repoInfo) return;
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      setLoadingStatus(`Analyzing ${sectionName} in-depth...`);
+      
+      const result = await api.analyzeInDepth(
+        sectionName,
+        graphData.concepts,
+        graphData.relationships,
+        graphData.repoInfo
+      );
+      
+      if (result.success) {
+        setLoadingStatus('Building detailed diagram...');
+        await new Promise(r => setTimeout(r, 300));
+        
+        // Build nodes with connection counts
+        const nodes = result.data.nodes;
+        const edges = result.data.edges;
+        
+        const connectionCounts = {};
+        edges.forEach(e => {
+          const sourceNode = nodes.find(n => n.id === e.source);
+          const targetNode = nodes.find(n => n.id === e.target);
+          if (sourceNode) connectionCounts[sourceNode.label] = (connectionCounts[sourceNode.label] || 0) + 1;
+          if (targetNode) connectionCounts[targetNode.label] = (connectionCounts[targetNode.label] || 0) + 1;
+        });
+        
+        const nodesWithConnections = nodes.map(n => ({
+          ...n,
+          connections: connectionCounts[n.label] || 0,
+        }));
+        
+        // Create in-depth graph result
+        const depthResult = {
+          success: true,
+          concepts: nodes.map(n => ({ name: n.label, category: n.category, importance: n.importance, section: n.section })),
+          relationships: edges.map(e => ({
+            source: nodes.find(n => n.id === e.source)?.label,
+            target: nodes.find(n => n.id === e.target)?.label,
+            relation: e.label,
+          })),
+          nodes: nodesWithConnections,
+          edges,
+          insights: result.insights,
+          sections: [{ id: sectionName, name: sectionName, description: `In-depth analysis of ${sectionName}` }],
+          stats: {
+            ...result.stats,
+            conceptCount: nodes.length,
+            relationshipCount: edges.length,
+          },
+          repoInfo: graphData.repoInfo,
+          isInDepth: true,
+          parentSection: sectionName,
+        };
+        
+        setGraphData(depthResult);
+        setSourceText(`${sectionName} (In-Depth)`);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || 'Failed to analyze in-depth');
     } finally {
       setLoading(false);
       setLoadingStatus('');
@@ -332,6 +406,7 @@ function AppContent() {
                 title: sourceText.substring(0, 50) || 'Mind Map',
                 sourceType: sourceType
               }}
+              onAnalyzeInDepth={handleAnalyzeInDepth}
             />
           </div>
         )}
