@@ -226,56 +226,109 @@ function AppContent() {
             />
           </div>
         )}
-        
-        {error && (
-          <div className={`mt-6 p-5 rounded-xl border-2 
-                         ${isDark 
-                           ? 'bg-red-500/10 border-red-500/30' 
-                           : 'bg-red-50 border-red-200'
-                         }`}>
-            <div className={`flex items-start gap-3 ${isDark ? 'text-red-400' : 'text-red-600'}`}>
-              <svg className="w-6 h-6 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              <div className="flex-1">
-                <p className="font-semibold">{error}</p>
-                
-                {errorDetails?.suggestions?.length > 0 && (
-                  <div className="mt-3">
-                    <p className={`text-sm font-medium mb-2 ${isDark ? 'text-dark-300' : 'text-dark-600'}`}>
-                      💡 Suggestions:
-                    </p>
-                    <ul className={`text-sm space-y-1 ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
-                      {errorDetails.suggestions.map((suggestion, i) => (
-                        <li key={i} className="flex items-start gap-2">
-                          <span className="text-primary-500">•</span>
-                          <span>{suggestion}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                
-                {errorDetails?.analysis && (
-                  <div className={`mt-3 text-xs ${isDark ? 'text-dark-500' : 'text-dark-400'}`}>
-                    {errorDetails.analysis.wordCount !== undefined && (
-                      <span>Words: {errorDetails.analysis.wordCount} </span>
-                    )}
-                    {errorDetails.analysis.uniqueWords !== undefined && (
-                      <span>• Unique: {errorDetails.analysis.uniqueWords} </span>
-                    )}
-                    {errorDetails.analysis.minRequired !== undefined && (
-                      <span>• Required: {errorDetails.analysis.minRequired}</span>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
       </main>
       
       {loading && <LoadingOverlay status={loadingStatus} />}
+      
+      {/* Error Modal - Full Screen with Blur */}
+      {error && (
+        <div className={`fixed inset-0 backdrop-blur-md z-50 flex items-center justify-center p-4
+                        ${isDark ? 'bg-dark-950/80' : 'bg-dark-900/40'}`}>
+          <div className={`relative w-full max-w-lg rounded-2xl border-2 shadow-2xl overflow-hidden
+                          ${isDark 
+                            ? 'bg-dark-800 border-red-500/30' 
+                            : 'bg-white border-red-200'
+                          }`}>
+            {/* Header with gradient */}
+            <div className={`p-6 border-b bg-gradient-to-br from-red-500/10 to-orange-500/10
+                            ${isDark ? 'border-dark-700' : 'border-dark-200'}`}>
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-red-500 to-orange-500 shadow-lg shadow-red-500/30">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className={`text-xl font-bold ${isDark ? 'text-dark-100' : 'text-dark-800'}`}>
+                    Unable to Generate Graph
+                  </h3>
+                  <p className={`text-sm mt-1 ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
+                    The content couldn't be processed
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Error Content */}
+            <div className="p-6 space-y-4">
+              <div className={`p-4 rounded-xl ${isDark ? 'bg-red-500/10' : 'bg-red-50'}`}>
+                <p className={`font-medium ${isDark ? 'text-red-400' : 'text-red-600'}`}>
+                  {error}
+                </p>
+              </div>
+              
+              {errorDetails?.suggestions?.length > 0 && (
+                <div className="space-y-3">
+                  <p className={`text-sm font-semibold flex items-center gap-2 ${isDark ? 'text-dark-200' : 'text-dark-700'}`}>
+                    <span className="text-lg">💡</span> How to fix this:
+                  </p>
+                  <ul className="space-y-2">
+                    {errorDetails.suggestions.map((suggestion, i) => (
+                      <li key={i} className={`flex items-start gap-3 text-sm p-3 rounded-lg
+                                             ${isDark ? 'bg-dark-700/50 text-dark-300' : 'bg-dark-50 text-dark-600'}`}>
+                        <span className="w-6 h-6 rounded-full bg-primary-500/20 text-primary-500 flex items-center justify-center flex-shrink-0 text-xs font-bold">
+                          {i + 1}
+                        </span>
+                        <span>{suggestion}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              {errorDetails?.analysis && (
+                <div className={`flex flex-wrap gap-3 pt-2 ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
+                  {errorDetails.analysis.wordCount !== undefined && (
+                    <span className={`px-3 py-1.5 rounded-lg text-xs font-medium
+                                    ${isDark ? 'bg-dark-700' : 'bg-dark-100'}`}>
+                      📝 Words: {errorDetails.analysis.wordCount}
+                    </span>
+                  )}
+                  {errorDetails.analysis.uniqueWords !== undefined && (
+                    <span className={`px-3 py-1.5 rounded-lg text-xs font-medium
+                                    ${isDark ? 'bg-dark-700' : 'bg-dark-100'}`}>
+                      🔤 Unique: {errorDetails.analysis.uniqueWords}
+                    </span>
+                  )}
+                  {errorDetails.analysis.minRequired !== undefined && (
+                    <span className={`px-3 py-1.5 rounded-lg text-xs font-medium
+                                    ${isDark ? 'bg-dark-700' : 'bg-dark-100'}`}>
+                      ✓ Required: {errorDetails.analysis.minRequired}
+                    </span>
+                  )}
+                  {errorDetails.analysis.charCount !== undefined && (
+                    <span className={`px-3 py-1.5 rounded-lg text-xs font-medium
+                                    ${isDark ? 'bg-dark-700' : 'bg-dark-100'}`}>
+                      📄 Characters: {errorDetails.analysis.charCount}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            {/* Footer with button */}
+            <div className={`p-4 border-t ${isDark ? 'border-dark-700 bg-dark-900/50' : 'border-dark-200 bg-dark-50'}`}>
+              <button
+                onClick={() => { setError(null); setErrorDetails(null); }}
+                className="w-full py-3 px-4 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 
+                         text-white rounded-xl font-semibold transition-all shadow-lg shadow-primary-500/25"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       <AuthModal 
         isOpen={showAuthModal} 
