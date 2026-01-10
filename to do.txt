@@ -1,0 +1,9 @@
+✅ 1. 3 demo for non-login uses, unlimited after Login,
+2. Connections having modifications like, edging, shapes based (curve, straight, Highlight[line weight 1 to 5], Visibility),
+3. Complex to Easier Graph manipulation selector
+4. Proper Sidebar Dashboard with all features like, plans, Settings, Profile, History, Graph
+5. Live Deployment
+6. Docs -> Text -> Graph Generator
+7. Image -> Text -> Graph
+8. Image -> Graph Extractor with having capability for editing
+9. Personal Create Graph option (drag and drop based)

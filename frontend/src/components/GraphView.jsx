@@ -1,1733 +1,1151 @@
-import { useEffect, useRef, useState } from 'react';
-import cytoscape from 'cytoscape';
-import coseBilkent from 'cytoscape-cose-bilkent';
-import { ZoomIn, ZoomOut, Maximize2, RotateCcw, Palette, Sparkles, Layers, Grid3X3, LayoutGrid, Network, GitBranch, Target, Workflow, Box, Diamond, Hexagon, Circle, Square, Triangle, ChevronDown, Filter, Microscope, Loader2 } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import {
+  ReactFlow,
+  Controls,
+  Background,
+  MiniMap,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  MarkerType,
+  Panel,
+  useReactFlow,
+  ReactFlowProvider,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+import dagre from '@dagrejs/dagre';
+import { 
+  ZoomIn, ZoomOut, Maximize2, RotateCcw, Palette, Sparkles, 
+  LayoutGrid, Network, GitBranch, Target, Workflow, 
+  ChevronDown, Filter, Microscope, Loader2,
+  Trash2, Edit3, Save, X
+} from 'lucide-react';
 import ExportMenu from './ExportMenu';
 import { useTheme } from '../context/ThemeContext';
+import { nodeTypes } from './flow/CustomNodes';
 
-cytoscape.use(coseBilkent);
+// ============================================
+// CONFIGURATION - Professional Color Palettes
+// ============================================
 
-// Professional Diagram Types (like Miro, Lucidchart, Draw.io)
-const DIAGRAM_TYPES = [
-  {
-    id: 'mindmap',
-    name: 'Mind Map',
-    icon: Network,
-    description: 'Classic mind map with central topic',
-    nodeStyle: 'uniform', // all nodes same shape
-    colorMode: 'gradient', // gradient based on connections
+const COLOR_PALETTES = {
+  academic: {
+    name: 'Academic',
+    description: 'Clean scholarly style',
+    primary: '#3B82F6',
+    secondary: '#6366F1', 
+    accent: '#8B5CF6',
+    hub: '#1E40AF',
+    action: '#10B981',
+    result: '#06B6D4',
+    decision: '#F59E0B',
+    background: { light: '#F8FAFC', dark: '#0F172A' },
+    edge: { light: '#94A3B8', dark: '#475569' }
   },
-  {
-    id: 'flowchart',
-    name: 'Flowchart',
-    icon: Workflow,
-    description: 'Process flow with decisions',
-    nodeStyle: 'smart', // auto-assign shapes based on role
-    colorMode: 'categorical', // colors by type
+  research: {
+    name: 'Research',
+    description: 'Scientific paper style',
+    primary: '#0EA5E9',
+    secondary: '#14B8A6',
+    accent: '#6366F1',
+    hub: '#0369A1',
+    action: '#059669',
+    result: '#7C3AED',
+    decision: '#D97706',
+    background: { light: '#F0F9FF', dark: '#0C4A6E' },
+    edge: { light: '#64748B', dark: '#38BDF8' }
   },
-  {
-    id: 'hierarchy',
-    name: 'Org Chart',
-    icon: GitBranch,
-    description: 'Tree-like hierarchical structure',
-    nodeStyle: 'rounded',
-    colorMode: 'level', // colors by hierarchy level
+  modern: {
+    name: 'Modern',
+    description: 'Contemporary design',
+    primary: '#EC4899',
+    secondary: '#8B5CF6',
+    accent: '#06B6D4',
+    hub: '#DB2777',
+    action: '#22C55E',
+    result: '#3B82F6',
+    decision: '#F97316',
+    background: { light: '#FDF2F8', dark: '#1E1B4B' },
+    edge: { light: '#A855F7', dark: '#C084FC' }
   },
-  {
-    id: 'uml',
-    name: 'UML Activity',
-    icon: Diamond,
-    description: 'UML-style activity diagram',
-    nodeStyle: 'uml',
-    colorMode: 'uml',
+  minimal: {
+    name: 'Minimal',
+    description: 'Clean & simple',
+    primary: '#374151',
+    secondary: '#6B7280',
+    accent: '#111827',
+    hub: '#1F2937',
+    action: '#4B5563',
+    result: '#9CA3AF',
+    decision: '#6B7280',
+    background: { light: '#FFFFFF', dark: '#111827' },
+    edge: { light: '#D1D5DB', dark: '#4B5563' }
   },
-  {
-    id: 'concept',
-    name: 'Concept Map',
-    icon: Hexagon,
-    description: 'Academic concept mapping',
-    nodeStyle: 'shapes',
-    colorMode: 'pastel',
-  },
-];
-
-// Professional Color Palettes (inspired by Miro, Figma, etc.)
-const PRO_PALETTES = [
-  {
-    id: 'miro',
-    name: 'Miro Style',
-    colors: {
-      primary: '#FFD166',    // Yellow - main topics
-      secondary: '#F4A261',  // Orange - subtopics
-      action: '#70C1B3',     // Teal - actions
-      decision: '#B8B8FF',   // Purple - decisions
-      result: '#7BDFF2',     // Light blue - results
-      hub: '#EF476F',        // Pink/red - central hub
-    }
-  },
-  {
-    id: 'notion',
-    name: 'Notion Style',
-    colors: {
-      primary: '#FDECC8',
-      secondary: '#F5E0E9',
-      action: '#DBEDDB',
-      decision: '#E8DEEE',
-      result: '#D3E5EF',
-      hub: '#FFE2DD',
-    }
-  },
-  {
-    id: 'figma',
-    name: 'Figma Style',
-    colors: {
-      primary: '#FF7262',
-      secondary: '#A259FF',
-      action: '#1ABCFE',
-      decision: '#0ACF83',
-      result: '#F24E1E',
-      hub: '#FF7262',
-    }
-  },
-  {
-    id: 'corporate',
-    name: 'Corporate',
-    colors: {
-      primary: '#3B82F6',    // Blue
-      secondary: '#F59E0B',  // Amber
-      action: '#10B981',     // Green
-      decision: '#8B5CF6',   // Purple
-      result: '#EC4899',     // Pink
-      hub: '#1E40AF',        // Dark blue
-    }
-  },
-  {
-    id: 'pastel',
-    name: 'Soft Pastel',
-    colors: {
-      primary: '#AED9E0',
-      secondary: '#F6BD60',
-      action: '#84A59D',
-      decision: '#F5CAC3',
-      result: '#B8C0FF',
-      hub: '#E07A5F',
-    }
-  },
-];
-
-// Chart Types for different visualization needs
-const CHART_TYPES = [
-  { 
-    id: 'normal', 
-    name: 'Normal Chart', 
-    icon: Network,
-    description: 'Standard mind map layout',
-    layout: {
-      name: 'cose-bilkent',
-      quality: 'proof',
-      nodeDimensionsIncludeLabels: true,
-      fit: true,
-      padding: 2000,
-      randomize: true,
-      nodeRepulsion: 6000,
-      idealEdgeLength: 8,
-      edgeElasticity: 0.6,
-      gravity: 0.4,
-      numIter: 2500,
-      animate: 'end',
-      animationDuration: 600
-    }
-  },
-  { 
-    id: 'topic-optimized', 
-    name: 'Best for Topics', 
-    icon: LayoutGrid,
-    description: 'Optimized layout per topic cluster',
-    layout: {
-      name: 'cose-bilkent',
-      quality: 'proof',
-      nodeDimensionsIncludeLabels: true,
-      fit: true,
-      padding: 1,
-      randomize: false,
-      nodeRepulsion: 8000,
-      idealEdgeLength: 100,
-      edgeElasticity: 0.5,
-      gravity: 0.35,
-      numIter: 350,
-      tile: true,
-      tilingPaddingVertical: 3,
-      tilingPaddingHorizontal: 30,
-      animate: 'end',
-      animationDuration: 800
-    }
-  },
-  { 
-    id: 'essential', 
-    name: 'Essential Points', 
-    icon: Target,
-    description: 'Focus on key concepts only',
-    layout: {
-      name: 'concentric',
-      fit: true,
-      padding: 40,
-      startAngle: 3 / 2 * Math.PI,
-      sweep: undefined,
-      clockwise: true,
-      equidistant: false,
-      minNodeSpacing: 40,
-      height: undefined,
-      width: undefined,
-      concentric: function(node) {
-        return node.data('connections') || 1;
-      },
-      levelWidth: function() {
-        return 2;
-      },
-      animate: true,
-      animationDuration: 600
-    }
-  },
-  { 
-    id: 'hierarchical', 
-    name: 'Hierarchy View', 
-    icon: GitBranch,
-    description: 'Tree-like structure',
-    layout: {
-      name: 'breadthfirst',
-      fit: true,
-      directed: true,
-      padding: 40,
-      circle: false,
-      grid: false,
-      spacingFactor: 1.0,
-      avoidOverlap: true,
-      nodeDimensionsIncludeLabels: true,
-      roots: undefined,
-      maximal: false,
-      animate: true,
-      animationDuration: 600
-    }
-  },
-  { 
-    id: 'radial', 
-    name: 'Radial Spread', 
-    icon: Workflow,
-    description: 'Circular topic arrangement',
-    layout: {
-      name: 'concentric',
-      fit: true,
-      padding: 35,
-      startAngle: 0,
-      sweep: 2 * Math.PI,
-      clockwise: true,
-      equidistant: true,
-      minNodeSpacing: 30,
-      concentric: function(node) {
-        return node.degree();
-      },
-      levelWidth: function(nodes) {
-        return Math.max(1, Math.floor(nodes.length / 4));
-      },
-      animate: true,
-      animationDuration: 600
-    }
+  nature: {
+    name: 'Nature',
+    description: 'Organic earthy tones',
+    primary: '#059669',
+    secondary: '#0D9488',
+    accent: '#65A30D',
+    hub: '#047857',
+    action: '#16A34A',
+    result: '#0891B2',
+    decision: '#CA8A04',
+    background: { light: '#F0FDF4', dark: '#064E3B' },
+    edge: { light: '#6EE7B7', dark: '#34D399' }
   }
-];
-
-const LAYOUT_OPTIONS = {
-  name: 'cose-bilkent',
-  quality: 'proof',
-  nodeDimensionsIncludeLabels: true,
-  refresh: 30,
-  fit: true,
-  padding: 50,
-  randomize: true,
-  nodeRepulsion: 6000,
-  idealEdgeLength: 80,
-  edgeElasticity: 0.6,
-  nestingFactor: 0.1,
-  gravity: 0.4,
-  numIter: 2500,
-  tile: true,
-  animate: 'end',
-  animationDuration: 600,
-  tilingPaddingVertical: 20,
-  tilingPaddingHorizontal: 20
 };
 
-const NODE_SHAPES = [
-  { id: 'ellipse', name: 'Circle', icon: '●' },
-  { id: 'round-rectangle', name: 'Rounded', icon: '▢' },
-  { id: 'diamond', name: 'Diamond', icon: '◆' },
-  { id: 'hexagon', name: 'Hexagon', icon: '⬡' },
-  { id: 'octagon', name: 'Octagon', icon: '⯃' },
-  { id: 'star', name: 'Star', icon: '★' },
-  { id: 'triangle', name: 'Triangle', icon: '▲' },
-  { id: 'barrel', name: 'Barrel', icon: '▭' },
-];
+const LAYOUT_TYPES = {
+  dagre: { 
+    name: 'Auto Layout', 
+    icon: LayoutGrid, 
+    description: 'Automatic hierarchical layout' 
+  },
+  radial: { 
+    name: 'Radial', 
+    icon: Target, 
+    description: 'Circular arrangement' 
+  },
+  horizontal: { 
+    name: 'Horizontal', 
+    icon: Workflow, 
+    description: 'Left to right flow' 
+  },
+  vertical: { 
+    name: 'Vertical', 
+    icon: GitBranch, 
+    description: 'Top to bottom flow' 
+  }
+};
 
-const COLOR_THEMES = [
-  { 
-    id: 'ocean', 
-    name: 'Ocean', 
-    primary: '#0ea5e9', 
-    secondary: '#38bdf8', 
-    accent: '#06b6d4',
-    bg: { dark: '#0c4a6e', light: '#e0f2fe' }
-  },
-  { 
-    id: 'purple', 
-    name: 'Cosmic', 
-    primary: '#8b5cf6', 
-    secondary: '#a78bfa', 
-    accent: '#7c3aed',
-    bg: { dark: '#4c1d95', light: '#ede9fe' }
-  },
-  { 
-    id: 'sunset', 
-    name: 'Sunset', 
-    primary: '#f97316', 
-    secondary: '#fb923c', 
-    accent: '#ea580c',
-    bg: { dark: '#7c2d12', light: '#ffedd5' }
-  },
-  { 
-    id: 'emerald', 
-    name: 'Forest', 
-    primary: '#10b981', 
-    secondary: '#34d399', 
-    accent: '#059669',
-    bg: { dark: '#064e3b', light: '#d1fae5' }
-  },
-  { 
-    id: 'rose', 
-    name: 'Rose', 
-    primary: '#f43f5e', 
-    secondary: '#fb7185', 
-    accent: '#e11d48',
-    bg: { dark: '#881337', light: '#ffe4e6' }
-  },
-  { 
-    id: 'gold', 
-    name: 'Gold', 
-    primary: '#eab308', 
-    secondary: '#facc15', 
-    accent: '#ca8a04',
-    bg: { dark: '#713f12', light: '#fef9c3' }
-  },
-];
+const NODE_STYLES = {
+  standard: { name: 'Standard', icon: '▢' },
+  mindmap: { name: 'Mind Map', icon: '◎' },
+  flowchart: { name: 'Flowchart', icon: '◇' },
+  circle: { name: 'Circle', icon: '●' },
+  hexagon: { name: 'Hexagon', icon: '⬡' }
+};
 
-const EDGE_STYLES = [
-  { id: 'bezier', name: 'Curved', curveStyle: 'bezier' },
-  { id: 'straight', name: 'Straight', curveStyle: 'straight' },
-  { id: 'taxi', name: 'Orthogonal', curveStyle: 'taxi' },
-  { id: 'unbundled-bezier', name: 'Smooth', curveStyle: 'unbundled-bezier' },
-];
+// ============================================
+// DAGRE LAYOUT ALGORITHM
+// ============================================
 
-const VISUAL_MODES = [
-  { id: 'modern', name: 'Modern', desc: 'Clean with shadows' },
-  { id: 'neon', name: 'Neon', desc: 'Glowing effects' },
-  { id: 'gradient', name: 'Gradient', desc: 'Color transitions' },
-  { id: 'minimal', name: 'Minimal', desc: 'Simple & clean' },
-];
-
-const createStyle = (shape, theme, edgeStyle, visualMode, isDark) => {
-  const bgColor = isDark ? '#0a0f1a' : '#f8fafc';
-  const textColor = isDark ? '#ffffff' : '#1e293b';
-  const edgeColor = isDark ? '#64748b' : '#cbd5e1';
-  const textBgColor = isDark ? 'rgba(10, 15, 26, 0.9)' : 'rgba(248, 250, 252, 0.9)';
+const getLayoutedElements = (nodes, edges, direction = 'TB') => {
+  const dagreGraph = new dagre.graphlib.Graph();
+  dagreGraph.setDefaultEdgeLabel(() => ({}));
   
-  const baseNodeStyle = {
-    'label': 'data(label)',
-    'color': textColor,
-    'text-valign': 'center',
-    'text-halign': 'center',
-    'font-size': '13px',
-    'font-weight': '600',
-    'font-family': 'Inter, system-ui, sans-serif',
-    'text-wrap': 'wrap',
-    'text-max-width': '90px',
-    'width': 'mapData(connections, 1, 10, 80, 130)',
-    'height': 'mapData(connections, 1, 10, 45, 70)',
-    'shape': 'rectangle',
-    'background-color': theme.primary,
-    'background-opacity': 1,
-    'border-width': 2,
-    'border-color': theme.secondary,
-    'text-outline-color': bgColor,
-    'text-outline-width': 1,
-    'transition-property': 'background-color, border-color, width, height, box-shadow',
-    'transition-duration': '0.3s',
-    'z-index': 10
-  };
-
-  // Apply visual mode specific styles
-  if (visualMode === 'neon') {
-    baseNodeStyle['shadow-blur'] = 25;
-    baseNodeStyle['shadow-color'] = theme.primary;
-    baseNodeStyle['shadow-opacity'] = 0.8;
-    baseNodeStyle['shadow-offset-x'] = 0;
-    baseNodeStyle['shadow-offset-y'] = 0;
-    baseNodeStyle['border-width'] = 2;
-    baseNodeStyle['background-opacity'] = 0.9;
-  }
-
-  if (visualMode === 'gradient') {
-    baseNodeStyle['background-fill'] = 'linear-gradient';
-    baseNodeStyle['background-gradient-stop-colors'] = `${theme.primary} ${theme.accent}`;
-    baseNodeStyle['background-gradient-direction'] = 'to-bottom-right';
-  }
-
-  if (visualMode === 'minimal') {
-    baseNodeStyle['background-opacity'] = isDark ? 0.2 : 0.3;
-    baseNodeStyle['border-width'] = 2;
-    baseNodeStyle['border-opacity'] = 0.5;
-    baseNodeStyle['text-outline-width'] = 0;
-  }
-
-  if (visualMode === 'modern') {
-    baseNodeStyle['shadow-blur'] = 15;
-    baseNodeStyle['shadow-color'] = isDark ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.2)';
-    baseNodeStyle['shadow-opacity'] = 1;
-    baseNodeStyle['shadow-offset-x'] = 4;
-    baseNodeStyle['shadow-offset-y'] = 4;
-  }
-
-  return [
-    {
-      selector: 'node',
-      style: baseNodeStyle
-    },
-    {
-      selector: 'node[connections >= 5]',
-      style: {
-        'background-color': theme.accent,
-        'border-width': 3,
-        'font-size': '15px',
-        'font-weight': '700',
-        'width': '140px',
-        'height': '75px',
-        'z-index': 20
-      }
-    },
-    {
-      selector: 'node:selected',
-      style: {
-        'background-color': '#8b5cf6',
-        'border-color': '#a78bfa',
-        'border-width': 5,
-        'shadow-blur': 30,
-        'shadow-color': '#8b5cf6',
-        'shadow-opacity': 0.9,
-        'z-index': 100
-      }
-    },
-    {
-      selector: 'edge',
-      style: {
-        'width': visualMode === 'minimal' ? 1 : 1.5,
-        'line-color': edgeColor,
-        'target-arrow-color': edgeColor,
-        'target-arrow-shape': 'triangle',
-        'arrow-scale': 0.8,
-        'curve-style': 'bezier',
-        'control-point-step-size': 40,
-        'label': 'data(label)',
-        'font-size': '12px',
-        'font-weight': '600',
-        'color': isDark ? '#94a3b8' : '#475569',
-        'text-rotation': 'autorotate',
-        'text-margin-y': -12,
-        'text-background-color': textBgColor,
-        'text-background-opacity': 0.95,
-        'text-background-padding': '4px',
-        'text-background-shape': 'roundrectangle',
-        'transition-property': 'line-color, width',
-        'transition-duration': '0.3s',
-        'opacity': 0.7
-      }
-    },
-    {
-      selector: 'edge:selected',
-      style: {
-        'line-color': theme.primary,
-        'target-arrow-color': theme.primary,
-        'width': 2.5,
-        'opacity': 1
-      }
-    },
-    {
-      selector: '.highlighted',
-      style: {
-        'background-color': '#ec4899',
-        'border-color': '#f472b6',
-        'line-color': '#ec4899',
-        'target-arrow-color': '#ec4899',
-        'shadow-blur': 30,
-        'shadow-color': '#ec4899',
-        'shadow-opacity': 0.8,
-        'opacity': 1,
-        'z-index': 50
-      }
-    },
-    {
-      selector: '.hub-node',
-      style: {
-        'background-color': theme.accent,
-        'border-width': 3,
-        'width': '150px',
-        'height': '80px',
-        'font-size': '16px',
-        'font-weight': '700',
-        'shadow-blur': visualMode === 'neon' ? 35 : 20,
-        'shadow-color': theme.accent,
-        'shadow-opacity': 0.6
-      }
-    },
-    {
-      selector: '.faded',
-      style: {
-        'opacity': 0.25
-      }
-    }
-  ];
+  const nodeWidth = 172;
+  const nodeHeight = 60;
+  
+  const isHorizontal = direction === 'LR' || direction === 'RL';
+  dagreGraph.setGraph({ 
+    rankdir: direction,
+    nodesep: 80,
+    ranksep: 100,
+    edgesep: 50
+  });
+  
+  nodes.forEach((node) => {
+    dagreGraph.setNode(node.id, { 
+      width: node.measured?.width || nodeWidth, 
+      height: node.measured?.height || nodeHeight 
+    });
+  });
+  
+  edges.forEach((edge) => {
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
+  
+  dagre.layout(dagreGraph);
+  
+  const layoutedNodes = nodes.map((node) => {
+    const nodeWithPosition = dagreGraph.node(node.id);
+    return {
+      ...node,
+      position: {
+        x: nodeWithPosition.x - (node.measured?.width || nodeWidth) / 2,
+        y: nodeWithPosition.y - (node.measured?.height || nodeHeight) / 2,
+      },
+      targetPosition: isHorizontal ? 'left' : 'top',
+      sourcePosition: isHorizontal ? 'right' : 'bottom',
+    };
+  });
+  
+  return { nodes: layoutedNodes, edges };
 };
 
-// Create professional diagram styles (Miro/Lucidchart style)
-const createProStyle = (diagramType, palette, isDark) => {
-  const bgColor = isDark ? '#0a0f1a' : '#f8fafc';
-  const textColor = isDark ? '#1e293b' : '#1e293b'; // Dark text for visibility on colored backgrounds
-  const edgeColor = isDark ? '#64748b' : '#cbd5e1';
-  const colors = palette.colors;
-
-  // Base style - smaller square boxes with readable text
-  const baseNode = {
-    'label': 'data(label)',
-    'text-valign': 'center',
-    'text-halign': 'center',
-    'font-size': '12px',
-    'font-weight': '600',
-    'font-family': 'Inter, system-ui, sans-serif',
-    'text-wrap': 'wrap',
-    'text-max-width': '85px',
-    'color': textColor,
-    'text-outline-width': 0,
-    'border-width': 2,
-    'border-color': 'rgba(0,0,0,0.15)',
-    'shadow-blur': 6,
-    'shadow-color': 'rgba(0,0,0,0.1)',
-    'shadow-opacity': 1,
-    'shadow-offset-x': 1,
-    'shadow-offset-y': 2,
-    'transition-property': 'background-color, border-color, width, height',
-    'transition-duration': '0.3s',
-  };
-
-  let styles = [];
-
-  if (diagramType.id === 'flowchart') {
-    // Flowchart: Square boxes - smaller sizes
-    styles = [
-      {
-        selector: 'node',
-        style: {
-          ...baseNode,
-          'shape': 'rectangle',
-          'width': '100px',
-          'height': '50px',
-          'background-color': colors.primary,
-        }
-      },
-      {
-        selector: 'node[connections >= 4]', // Hub/Start nodes
-        style: {
-          'shape': 'rectangle',
-          'background-color': colors.hub,
-          'width': '120px',
-          'height': '60px',
-          'font-size': '14px',
-          'font-weight': '700',
-          'border-width': 2,
-        }
-      },
-      {
-        selector: 'node[connections = 2]', // Decision-like nodes
-        style: {
-          'shape': 'diamond',
-          'background-color': colors.decision,
-          'width': '75px',
-          'height': '75px',
-          'text-max-width': '60px',
-          'font-size': '11px',
-        }
-      },
-      {
-        selector: 'node[connections = 1]', // End/leaf nodes
-        style: {
-          'shape': 'rectangle',
-          'background-color': colors.result,
-          'width': '95px',
-          'height': '45px',
-        }
-      },
-      {
-        selector: 'node[connections = 3]', // Action nodes
-        style: {
-          'shape': 'rectangle',
-          'background-color': colors.action,
-          'width': '105px',
-          'height': '50px',
-        }
-      },
-    ];
-  } else if (diagramType.id === 'hierarchy') {
-    // Org chart style - smaller square boxes
-    styles = [
-      {
-        selector: 'node',
-        style: {
-          ...baseNode,
-          'shape': 'rectangle',
-          'width': '105px',
-          'height': '50px',
-          'background-color': colors.secondary,
-        }
-      },
-      {
-        selector: 'node[connections >= 5]', // Top level
-        style: {
-          'background-color': colors.hub,
-          'width': '130px',
-          'height': '60px',
-          'font-size': '14px',
-          'font-weight': '700',
-          'border-width': 2,
-          'color': '#ffffff',
-        }
-      },
-      {
-        selector: 'node[connections >= 3][connections < 5]', // Mid level
-        style: {
-          'background-color': colors.primary,
-          'width': '115px',
-          'height': '55px',
-          'font-size': '13px',
-        }
-      },
-      {
-        selector: 'node[connections < 3]', // Lower level
-        style: {
-          'background-color': colors.action,
-          'width': '100px',
-          'height': '45px',
-        }
-      },
-    ];
-  } else if (diagramType.id === 'uml') {
-    // UML Activity diagram style - smaller boxes
-    styles = [
-      {
-        selector: 'node',
-        style: {
-          ...baseNode,
-          'shape': 'rectangle',
-          'width': '100px',
-          'height': '45px',
-          'background-color': colors.action,
-        }
-      },
-      {
-        selector: 'node[connections >= 4]', // Start/major nodes
-        style: {
-          'shape': 'ellipse',
-          'background-color': colors.hub,
-          'width': '110px',
-          'height': '55px',
-          'font-size': '13px',
-          'font-weight': '700',
-          'color': '#ffffff',
-        }
-      },
-      {
-        selector: 'node[connections = 2]', // Decision points
-        style: {
-          'shape': 'diamond',
-          'background-color': colors.decision,
-          'width': '70px',
-          'height': '70px',
-          'font-size': '10px',
-          'text-max-width': '55px',
-        }
-      },
-      {
-        selector: 'node[connections = 1]', // End states
-        style: {
-          'shape': 'ellipse',
-          'background-color': colors.result,
-          'width': '90px',
-          'height': '40px',
-        }
-      },
-    ];
-  } else if (diagramType.id === 'concept') {
-    // Concept map - smaller boxes
-    styles = [
-      {
-        selector: 'node',
-        style: {
-          ...baseNode,
-          'shape': 'rectangle',
-          'width': 'mapData(connections, 1, 8, 80, 120)',
-          'height': 'mapData(connections, 1, 8, 45, 65)',
-          'background-color': colors.primary,
-        }
-      },
-      {
-        selector: 'node[connections >= 4]',
-        style: {
-          'shape': 'rectangle',
-          'background-color': colors.hub,
-          'width': '130px',
-          'height': '70px',
-          'font-size': '14px',
-          'font-weight': '700',
-        }
-      },
-      {
-        selector: 'node[connections = 3]',
-        style: {
-          'shape': 'rectangle',
-          'background-color': colors.secondary,
-          'width': '110px',
-          'height': '55px',
-          'font-size': '12px',
-        }
-      },
-      {
-        selector: 'node[connections <= 2]',
-        style: {
-          'shape': 'rectangle',
-          'background-color': colors.action,
-          'width': '95px',
-          'height': '45px',
-        }
-      },
-    ];
-  } else {
-    // Default mind map style - smaller square boxes
-    styles = [
-      {
-        selector: 'node',
-        style: {
-          ...baseNode,
-          'shape': 'rectangle',
-          'width': 'mapData(connections, 1, 10, 85, 130)',
-          'height': 'mapData(connections, 1, 10, 45, 70)',
-          'background-color': colors.primary,
-        }
-      },
-      {
-        selector: 'node[connections >= 5]',
-        style: {
-          'background-color': colors.hub,
-          'width': '145px',
-          'height': '80px',
-          'font-size': '15px',
-          'font-weight': '700',
-          'border-width': 2,
-        }
-      },
-      {
-        selector: 'node[connections >= 3][connections < 5]',
-        style: {
-          'background-color': colors.secondary,
-          'width': '115px',
-          'height': '60px',
-          'font-size': '13px',
-        }
-      },
-    ];
-  }
-
-  // Common edge and interaction styles - bigger edge label fonts
-  styles.push(
-    {
-      selector: 'node:selected',
-      style: {
-        'border-color': '#3B82F6',
-        'border-width': 3,
-        'shadow-blur': 15,
-        'shadow-color': '#3B82F6',
-        'shadow-opacity': 0.6,
+// Radial layout
+const getRadialLayout = (nodes, edges, centerX = 400, centerY = 300) => {
+  const hubNodes = nodes.filter(n => n.data.connections >= 5);
+  const otherNodes = nodes.filter(n => n.data.connections < 5);
+  
+  const layoutedNodes = [];
+  
+  // Place hub nodes in center
+  hubNodes.forEach((node, i) => {
+    layoutedNodes.push({
+      ...node,
+      position: {
+        x: centerX - 80 + (i * 50),
+        y: centerY - 30
       }
-    },
-    {
-      selector: 'edge',
-      style: {
-        'width': 1.5,
-        'line-color': edgeColor,
-        'target-arrow-color': edgeColor,
-        'target-arrow-shape': 'triangle',
-        'arrow-scale': 0.8,
-        'curve-style': 'bezier',
-        'control-point-step-size': 40,
-        'label': 'data(label)',
-        'font-size': '12px',
-        'font-weight': '600',
-        'color': isDark ? '#94a3b8' : '#475569',
-        'text-rotation': 'autorotate',
-        'text-margin-y': -12,
-        'text-background-color': bgColor,
-        'text-background-opacity': 0.95,
-        'text-background-padding': '4px',
-        'text-background-shape': 'roundrectangle',
-        'opacity': 0.7,
+    });
+  });
+  
+  // Place other nodes in circles around hub
+  const radius = 250;
+  otherNodes.forEach((node, i) => {
+    const angle = (2 * Math.PI * i) / otherNodes.length;
+    layoutedNodes.push({
+      ...node,
+      position: {
+        x: centerX + radius * Math.cos(angle) - 80,
+        y: centerY + radius * Math.sin(angle) - 30
       }
-    },
-    {
-      selector: 'edge:selected',
-      style: {
-        'line-color': '#3B82F6',
-        'target-arrow-color': '#3B82F6',
-        'width': 2,
-        'opacity': 1,
-      }
-    },
-    {
-      selector: '.highlighted',
-      style: {
-        'border-color': '#3B82F6',
-        'border-width': 4,
-        'line-color': '#3B82F6',
-        'target-arrow-color': '#3B82F6',
-        'shadow-blur': 20,
-        'shadow-color': '#3B82F6',
-        'shadow-opacity': 0.7,
-        'opacity': 1,
-      }
-    },
-    {
-      selector: '.faded',
-      style: {
-        'opacity': 0.2,
-      }
-    }
-  );
-
-  return styles;
+    });
+  });
+  
+  return { nodes: layoutedNodes, edges };
 };
 
-function GraphView({ data, metadata = {}, onAnalyzeInDepth }) {
-  const containerRef = useRef(null);
-  const cyRef = useRef(null);
+// ============================================
+// MAIN GRAPH COMPONENT
+// ============================================
+
+function GraphViewInner({ data, metadata = {}, onAnalyzeInDepth }) {
   const { isDark } = useTheme();
+  const reactFlowInstance = useReactFlow();
+  const containerRef = useRef(null);
+  
+  // State
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [selectedPalette, setSelectedPalette] = useState('academic');
+  const [nodeStyle, setNodeStyle] = useState('standard');
+  const [layoutType, setLayoutType] = useState('dagre');
+  const [layoutDirection, setLayoutDirection] = useState('TB');
+  const [showStylePanel, setShowStylePanel] = useState(false);
+  const [showLayoutPanel, setShowLayoutPanel] = useState(false);
   const [selectedNode, setSelectedNode] = useState(null);
   const [selectedEdge, setSelectedEdge] = useState(null);
-  const [showStylePanel, setShowStylePanel] = useState(false);
-  const [showChartPanel, setShowChartPanel] = useState(false);
-  const [showDiagramPanel, setShowDiagramPanel] = useState(false);
-  const [nodeShape, setNodeShape] = useState('round-rectangle');
-  const [colorTheme, setColorTheme] = useState(COLOR_THEMES[0]);
-  const [edgeStyle, setEdgeStyle] = useState('bezier');
-  const [visualMode, setVisualMode] = useState('modern');
-  const [chartType, setChartType] = useState(CHART_TYPES[0]);
-  const [diagramType, setDiagramType] = useState(DIAGRAM_TYPES[0]);
-  const [proPalette, setProPalette] = useState(PRO_PALETTES[0]);
-  const [useProStyle, setUseProStyle] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editLabel, setEditLabel] = useState('');
   
-  // Topic filter state
+  // Section filter state
   const [selectedSection, setSelectedSection] = useState('main');
   const [showSectionDropdown, setShowSectionDropdown] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   
-  // Get sections from data
-  const sections = data?.sections || [{ id: 'main', name: 'All Components', description: 'Complete overview' }];
-
-  const applyStyle = () => {
-    if (cyRef.current) {
-      if (useProStyle) {
-        const newStyle = createProStyle(diagramType, proPalette, isDark);
-        cyRef.current.style(newStyle);
-      } else {
-        const newStyle = createStyle(nodeShape, colorTheme, edgeStyle, visualMode, isDark);
-        cyRef.current.style(newStyle);
-      }
-    }
-  };
-
-  const applyDiagramType = (type) => {
-    setDiagramType(type);
-    setUseProStyle(true);
-    if (cyRef.current) {
-      const newStyle = createProStyle(type, proPalette, isDark);
-      cyRef.current.style(newStyle);
-      
-      // Apply appropriate layout for the diagram type
-      let layout;
-      if (type.id === 'hierarchy') {
-        layout = CHART_TYPES.find(c => c.id === 'hierarchical')?.layout || CHART_TYPES[0].layout;
-      } else if (type.id === 'flowchart' || type.id === 'uml') {
-        layout = CHART_TYPES.find(c => c.id === 'topic-optimized')?.layout || CHART_TYPES[0].layout;
-      } else {
-        layout = CHART_TYPES[0].layout;
-      }
-      cyRef.current.layout(layout).run();
-    }
-  };
-
-  const applyProPalette = (palette) => {
-    setProPalette(palette);
-    if (cyRef.current && useProStyle) {
-      const newStyle = createProStyle(diagramType, palette, isDark);
-      cyRef.current.style(newStyle);
-    }
-  };
-
-  const applyChartLayout = (type) => {
-    if (cyRef.current && type) {
-      setChartType(type);
-      
-      // For essential points, filter to show only high-connection nodes
-      if (type.id === 'essential') {
-        const allNodes = cyRef.current.nodes();
-        const avgConnections = allNodes.reduce((sum, n) => sum + (n.data('connections') || 1), 0) / allNodes.length;
-        
-        allNodes.forEach(node => {
-          const connections = node.data('connections') || 1;
-          if (connections < avgConnections * 0.5) {
-            node.addClass('faded');
-          } else {
-            node.removeClass('faded');
-          }
-        });
-      } else {
-        cyRef.current.nodes().removeClass('faded');
-      }
-      
-      cyRef.current.layout(type.layout).run();
-    }
-  };
-
-  useEffect(() => {
-    applyStyle();
-  }, [nodeShape, colorTheme, edgeStyle, visualMode, isDark, useProStyle, diagramType, proPalette]);
-
-  // Filter nodes based on selected section
-  const getFilteredElements = () => {
-    if (!data?.nodes || !data?.edges) return [];
+  const sections = data?.sections || [{ id: 'main', name: 'All Topics', description: 'Complete overview' }];
+  const palette = COLOR_PALETTES[selectedPalette];
+  
+  // ============================================
+  // DATA TRANSFORMATION
+  // ============================================
+  
+  const transformData = useCallback(() => {
+    if (!data?.nodes || !data?.edges) return { nodes: [], edges: [] };
     
     let filteredNodes = data.nodes;
     let filteredEdges = data.edges;
     
-    // If a specific section is selected (not 'main'), filter by section
+    // Filter by section
     if (selectedSection !== 'main') {
       filteredNodes = data.nodes.filter(node => 
         node.section === selectedSection || 
         node.section === 'shared' ||
-        !node.section // Include nodes without section (backwards compat)
+        !node.section
       );
-      
       const nodeIds = new Set(filteredNodes.map(n => n.id));
       filteredEdges = data.edges.filter(edge => 
         nodeIds.has(edge.source) && nodeIds.has(edge.target)
       );
     }
     
-    return [
-      ...filteredNodes.map(node => ({
-        data: { 
-          id: node.id, 
-          label: node.label,
-          connections: Math.max(node.connections || 1, 1),
-          section: node.section || 'main',
-          category: node.category || 'component',
-          importance: node.importance || 3
-        }
-      })),
-      ...filteredEdges.map(edge => ({
+    // Create connection count map
+    const connectionCount = {};
+    filteredEdges.forEach(edge => {
+      connectionCount[edge.source] = (connectionCount[edge.source] || 0) + 1;
+      connectionCount[edge.target] = (connectionCount[edge.target] || 0) + 1;
+    });
+    
+    // Transform nodes
+    const transformedNodes = filteredNodes.map((node, index) => {
+      const connections = connectionCount[node.id] || node.connections || 1;
+      
+      // Determine node type based on style
+      let type = 'standard';
+      if (nodeStyle === 'mindmap') type = 'mindmap';
+      else if (nodeStyle === 'flowchart') type = 'flowchart';
+      else if (nodeStyle === 'circle') type = 'circle';
+      else if (nodeStyle === 'hexagon') type = 'hexagon';
+      
+      return {
+        id: node.id,
+        type,
+        position: { x: (index % 5) * 200, y: Math.floor(index / 5) * 120 },
         data: {
-          id: edge.id,
-          source: edge.source,
-          target: edge.target,
-          label: edge.label || '',
-          originalLabel: edge.originalLabel || edge.label || '',
-          sourceLabel: edge.sourceLabel || '',
-          targetLabel: edge.targetLabel || ''
-        }
-      }))
-    ];
-  };
-
+          label: node.label,
+          connections,
+          category: node.category || 'concept',
+          section: node.section || 'main',
+          importance: node.importance || 3,
+          isDark,
+          colors: {
+            primary: palette.primary,
+            secondary: palette.secondary,
+            hub: palette.hub,
+            action: palette.action,
+            result: palette.result,
+            decision: palette.decision
+          }
+        },
+        draggable: true,
+        selectable: true
+      };
+    });
+    
+    // Transform edges
+    const transformedEdges = filteredEdges.map((edge, index) => ({
+      id: edge.id || `edge-${index}`,
+      source: edge.source,
+      target: edge.target,
+      label: edge.label || '',
+      type: 'smoothstep',
+      animated: false,
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+        width: 15,
+        height: 15,
+        color: isDark ? palette.edge.dark : palette.edge.light
+      },
+      style: {
+        stroke: isDark ? palette.edge.dark : palette.edge.light,
+        strokeWidth: 2
+      },
+      labelStyle: {
+        fill: isDark ? '#E2E8F0' : '#334155',
+        fontWeight: 600,
+        fontSize: 11
+      },
+      labelBgStyle: {
+        fill: isDark ? '#1E293B' : '#FFFFFF',
+        fillOpacity: 0.9
+      },
+      labelBgPadding: [6, 4],
+      labelBgBorderRadius: 4
+    }));
+    
+    return { nodes: transformedNodes, edges: transformedEdges };
+  }, [data, selectedSection, isDark, palette, nodeStyle]);
+  
+  // ============================================
+  // LAYOUT APPLICATION
+  // ============================================
+  
+  const applyLayout = useCallback(() => {
+    if (nodes.length === 0) return;
+    
+    let layouted;
+    
+    switch (layoutType) {
+      case 'radial':
+        layouted = getRadialLayout(nodes, edges);
+        break;
+      case 'horizontal':
+        layouted = getLayoutedElements(nodes, edges, 'LR');
+        break;
+      case 'vertical':
+        layouted = getLayoutedElements(nodes, edges, 'TB');
+        break;
+      case 'dagre':
+      default:
+        layouted = getLayoutedElements(nodes, edges, layoutDirection);
+        break;
+    }
+    
+    setNodes(layouted.nodes);
+    setEdges(layouted.edges);
+    
+    setTimeout(() => {
+      reactFlowInstance?.fitView({ padding: 0.2, duration: 500 });
+    }, 100);
+  }, [nodes, edges, layoutType, layoutDirection, setNodes, setEdges, reactFlowInstance]);
+  
+  // ============================================
+  // EFFECTS
+  // ============================================
+  
+  // Transform data on changes
   useEffect(() => {
-    if (!containerRef.current || !data) return;
-
-    const elements = getFilteredElements();
-
-    const initialStyle = createStyle(nodeShape, colorTheme, edgeStyle, visualMode, isDark);
-
-    cyRef.current = cytoscape({
-      container: containerRef.current,
-      elements,
-      style: initialStyle,
-      layout: LAYOUT_OPTIONS,
-      minZoom: 0.1,
-      maxZoom: 4,
-      wheelSensitivity: 0.2
-    });
-
-    cyRef.current.nodes().forEach(node => {
-      if (node.connectedEdges().length >= 5) {
-        node.addClass('hub-node');
+    const { nodes: newNodes, edges: newEdges } = transformData();
+    if (newNodes.length > 0) {
+      const layouted = getLayoutedElements(newNodes, newEdges, layoutDirection);
+      setNodes(layouted.nodes);
+      setEdges(layouted.edges);
+      
+      setTimeout(() => {
+        reactFlowInstance?.fitView({ padding: 0.2, duration: 500 });
+      }, 200);
+    }
+  }, [data, selectedSection, selectedPalette, nodeStyle, transformData, layoutDirection]);
+  
+  // Update edge styles when theme changes
+  useEffect(() => {
+    setEdges(eds => eds.map(edge => ({
+      ...edge,
+      markerEnd: {
+        ...edge.markerEnd,
+        color: isDark ? palette.edge.dark : palette.edge.light
+      },
+      style: {
+        ...edge.style,
+        stroke: isDark ? palette.edge.dark : palette.edge.light
+      },
+      labelStyle: {
+        ...edge.labelStyle,
+        fill: isDark ? '#E2E8F0' : '#334155'
+      },
+      labelBgStyle: {
+        ...edge.labelBgStyle,
+        fill: isDark ? '#1E293B' : '#FFFFFF'
       }
+    })));
+  }, [isDark, palette, setEdges]);
+  
+  // ============================================
+  // EVENT HANDLERS
+  // ============================================
+  
+  const onConnect = useCallback((params) => {
+    setEdges((eds) => addEdge({
+      ...params,
+      type: 'smoothstep',
+      animated: true,
+      label: 'relates to',
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+        width: 15,
+        height: 15,
+        color: isDark ? palette.edge.dark : palette.edge.light
+      },
+      style: {
+        stroke: isDark ? palette.edge.dark : palette.edge.light,
+        strokeWidth: 2
+      }
+    }, eds));
+  }, [setEdges, isDark, palette]);
+  
+  const onNodeClick = useCallback((_, node) => {
+    setSelectedNode({
+      id: node.id,
+      label: node.data.label,
+      connections: node.data.connections,
+      category: node.data.category,
+      section: node.data.section
     });
-
-    cyRef.current.on('tap', 'node', (evt) => {
-      const node = evt.target;
-      setSelectedNode({
-        id: node.id(),
-        label: node.data('label'),
-        connections: node.connectedEdges().length,
-        neighbors: node.neighborhood('node').map(n => n.data('label'))
-      });
-      setSelectedEdge(null);
-
-      // Highlight connected elements and fade others
-      cyRef.current.elements().removeClass('highlighted faded');
-      const connectedElements = node.closedNeighborhood();
-      cyRef.current.elements().not(connectedElements).addClass('faded');
-      node.addClass('highlighted');
-      node.connectedEdges().addClass('highlighted');
-      node.neighborhood('node').addClass('highlighted');
+    setSelectedEdge(null);
+    setIsEditing(false);
+  }, []);
+  
+  const onEdgeClick = useCallback((_, edge) => {
+    const sourceNode = nodes.find(n => n.id === edge.source);
+    const targetNode = nodes.find(n => n.id === edge.target);
+    setSelectedEdge({
+      id: edge.id,
+      label: edge.label,
+      source: sourceNode?.data.label || edge.source,
+      target: targetNode?.data.label || edge.target
     });
-
-    // Edge click handler
-    cyRef.current.on('tap', 'edge', (evt) => {
-      const edge = evt.target;
-      setSelectedEdge({
-        id: edge.id(),
-        label: edge.data('label'),
-        originalLabel: edge.data('originalLabel'),
-        source: edge.data('sourceLabel') || edge.source().data('label'),
-        target: edge.data('targetLabel') || edge.target().data('label')
-      });
+    setSelectedNode(null);
+    setIsEditing(false);
+  }, [nodes]);
+  
+  const onPaneClick = useCallback(() => {
+    setSelectedNode(null);
+    setSelectedEdge(null);
+    setIsEditing(false);
+  }, []);
+  
+  const handleDeleteNode = useCallback(() => {
+    if (selectedNode) {
+      setNodes(nds => nds.filter(n => n.id !== selectedNode.id));
+      setEdges(eds => eds.filter(e => e.source !== selectedNode.id && e.target !== selectedNode.id));
       setSelectedNode(null);
-
-      // Highlight the edge and connected nodes
-      cyRef.current.elements().removeClass('highlighted faded');
-      cyRef.current.elements().not(edge.connectedNodes().union(edge)).addClass('faded');
-      edge.addClass('highlighted');
-      edge.connectedNodes().addClass('highlighted');
-    });
-
-    cyRef.current.on('tap', (evt) => {
-      if (evt.target === cyRef.current) {
-        setSelectedNode(null);
-        setSelectedEdge(null);
-        cyRef.current.elements().removeClass('highlighted faded');
-      }
-    });
-
-    // Double click to zoom to node
-    cyRef.current.on('dbltap', 'node', (evt) => {
-      cyRef.current.animate({
-        center: { eles: evt.target },
-        zoom: 2
-      }, { duration: 500 });
-    });
-
-    return () => {
-      if (cyRef.current) {
-        cyRef.current.destroy();
-      }
-    };
-  }, [data, selectedSection]);
-
-  const handleZoomIn = () => cyRef.current?.animate({ zoom: cyRef.current.zoom() * 1.3 }, { duration: 200 });
-  const handleZoomOut = () => cyRef.current?.animate({ zoom: cyRef.current.zoom() * 0.7 }, { duration: 200 });
-  const handleFit = () => cyRef.current?.animate({ fit: { padding: 60 } }, { duration: 400 });
-  const handleReset = () => {
-    cyRef.current?.nodes().removeClass('faded');
-    cyRef.current?.layout(chartType.layout || LAYOUT_OPTIONS).run();
-  };
-
+    }
+  }, [selectedNode, setNodes, setEdges]);
+  
+  const handleDeleteEdge = useCallback(() => {
+    if (selectedEdge) {
+      setEdges(eds => eds.filter(e => e.id !== selectedEdge.id));
+      setSelectedEdge(null);
+    }
+  }, [selectedEdge, setEdges]);
+  
+  const handleEditLabel = useCallback(() => {
+    if (selectedNode) {
+      setEditLabel(selectedNode.label);
+      setIsEditing(true);
+    } else if (selectedEdge) {
+      setEditLabel(selectedEdge.label || '');
+      setIsEditing(true);
+    }
+  }, [selectedNode, selectedEdge]);
+  
+  const handleSaveLabel = useCallback(() => {
+    if (selectedNode) {
+      setNodes(nds => nds.map(n => 
+        n.id === selectedNode.id 
+          ? { ...n, data: { ...n.data, label: editLabel } }
+          : n
+      ));
+      setSelectedNode({ ...selectedNode, label: editLabel });
+    } else if (selectedEdge) {
+      setEdges(eds => eds.map(e => 
+        e.id === selectedEdge.id 
+          ? { ...e, label: editLabel }
+          : e
+      ));
+      setSelectedEdge({ ...selectedEdge, label: editLabel });
+    }
+    setIsEditing(false);
+  }, [selectedNode, selectedEdge, editLabel, setNodes, setEdges]);
+  
+  const handleZoomIn = () => reactFlowInstance?.zoomIn({ duration: 300 });
+  const handleZoomOut = () => reactFlowInstance?.zoomOut({ duration: 300 });
+  const handleFitView = () => reactFlowInstance?.fitView({ padding: 0.2, duration: 500 });
+  
+  // ============================================
+  // RENDER
+  // ============================================
+  
+  const bgColor = isDark ? palette.background.dark : palette.background.light;
+  
   return (
-    <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-      {/* Graph Container with themed background */}
+    <div className="relative rounded-2xl overflow-hidden shadow-2xl" ref={containerRef}>
       <div 
-        ref={containerRef} 
-        className={`graph-container w-full rounded-2xl border-2 transition-all duration-300
+        className={`w-full rounded-2xl border-2 transition-all duration-300
                    ${isDark 
-                     ? 'border-dark-700/50 shadow-[inset_0_0_100px_rgba(14,165,233,0.03)]' 
-                     : 'border-dark-200 shadow-[inset_0_0_100px_rgba(14,165,233,0.05)]'
+                     ? 'border-slate-700/50' 
+                     : 'border-slate-200'
                    }`}
         style={{ height: 'calc(100vh - 280px)', minHeight: '600px' }}
-      />
-      
-      {/* Style Panel Toggle */}
-      <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
-        {/* Professional Diagrams Button */}
-        <button
-          onClick={() => { setShowDiagramPanel(!showDiagramPanel); setShowStylePanel(false); setShowChartPanel(false); }}
-          className={`p-3 rounded-xl border-2 transition-all flex items-center gap-2 shadow-lg
-                    ${showDiagramPanel 
-                      ? 'bg-gradient-to-r from-amber-500 to-orange-500 border-amber-400 text-white shadow-amber-500/30' 
-                      : isDark
-                        ? 'bg-dark-800/90 hover:bg-dark-700 border-dark-600 text-dark-300 hover:text-white backdrop-blur-sm'
-                        : 'bg-white/90 hover:bg-white border-dark-200 text-dark-600 hover:text-dark-900 backdrop-blur-sm'
-                    }`}
-          title="Professional Diagrams"
+      >
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onNodeClick={onNodeClick}
+          onEdgeClick={onEdgeClick}
+          onPaneClick={onPaneClick}
+          nodeTypes={nodeTypes}
+          fitView
+          fitViewOptions={{ padding: 0.2 }}
+          defaultEdgeOptions={{
+            type: 'smoothstep',
+            animated: false
+          }}
+          connectionLineStyle={{ stroke: palette.primary, strokeWidth: 2 }}
+          connectionLineType="smoothstep"
+          snapToGrid
+          snapGrid={[15, 15]}
+          minZoom={0.1}
+          maxZoom={4}
+          proOptions={{ hideAttribution: true }}
+          style={{ background: bgColor }}
         >
-          <Workflow className="w-5 h-5" />
-          <span className="text-sm font-semibold">Pro Diagrams</span>
-        </button>
-
-        <button
-          onClick={() => { setShowStylePanel(!showStylePanel); setShowChartPanel(false); setShowDiagramPanel(false); }}
-          className={`p-3 rounded-xl border-2 transition-all flex items-center gap-2 shadow-lg
-                    ${showStylePanel 
-                      ? 'bg-primary-600 border-primary-400 text-white shadow-primary-500/30' 
-                      : isDark
-                        ? 'bg-dark-800/90 hover:bg-dark-700 border-dark-600 text-dark-300 hover:text-white backdrop-blur-sm'
-                        : 'bg-white/90 hover:bg-white border-dark-200 text-dark-600 hover:text-dark-900 backdrop-blur-sm'
-                    }`}
-          title="Style Options"
-        >
-          <Palette className="w-5 h-5" />
-          <span className="text-sm font-semibold">Customize</span>
-        </button>
-        
-        <button
-          onClick={() => { setShowChartPanel(!showChartPanel); setShowStylePanel(false); setShowDiagramPanel(false); }}
-          className={`p-3 rounded-xl border-2 transition-all flex items-center gap-2 shadow-lg
-                    ${showChartPanel 
-                      ? 'bg-emerald-600 border-emerald-400 text-white shadow-emerald-500/30' 
-                      : isDark
-                        ? 'bg-dark-800/90 hover:bg-dark-700 border-dark-600 text-dark-300 hover:text-white backdrop-blur-sm'
-                        : 'bg-white/90 hover:bg-white border-dark-200 text-dark-600 hover:text-dark-900 backdrop-blur-sm'
-                    }`}
-          title="Chart Types"
-        >
-          <LayoutGrid className="w-5 h-5" />
-          <span className="text-sm font-semibold">Layout</span>
-        </button>
-      </div>
-
-      {/* Professional Diagram Panel */}
-      {showDiagramPanel && (
-        <div className={`absolute top-4 left-48 w-96 rounded-2xl border-2 shadow-2xl overflow-hidden z-20 max-h-[80vh] overflow-y-auto
-                       ${isDark 
-                         ? 'bg-dark-800/95 border-dark-600 backdrop-blur-xl' 
-                         : 'bg-white/95 border-dark-200 backdrop-blur-xl'
-                       }`}>
-          <div className={`p-4 border-b bg-gradient-to-r from-amber-500/10 to-orange-500/10 ${isDark ? 'border-dark-700' : 'border-dark-200'}`}>
-            <h3 className={`font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-dark-900'}`}>
-              <Workflow className="w-5 h-5 text-amber-500" />
-              Professional Diagrams
-            </h3>
-            <p className={`text-xs mt-1 ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
-              Miro, Lucidchart & UML styles
-            </p>
-          </div>
+          {/* Background Pattern */}
+          <Background 
+            color={isDark ? '#334155' : '#CBD5E1'} 
+            gap={20} 
+            size={1}
+            variant="dots"
+          />
           
-          <div className="p-4 space-y-4">
-            {/* Diagram Types */}
-            <div>
-              <label className={`text-xs font-semibold uppercase tracking-wide mb-2 block ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
-                Diagram Type
-              </label>
-              <div className="grid grid-cols-1 gap-2">
-                {DIAGRAM_TYPES.map(type => {
-                  const Icon = type.icon;
-                  return (
-                    <button
-                      key={type.id}
-                      onClick={() => applyDiagramType(type)}
-                      className={`p-3 rounded-xl border-2 transition-all flex items-center gap-3 text-left
-                                ${diagramType.id === type.id && useProStyle
-                                  ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-amber-500/50' 
-                                  : isDark
-                                    ? 'border-dark-600 hover:border-amber-500/50 hover:bg-dark-700/50'
-                                    : 'border-dark-200 hover:border-amber-400 hover:bg-amber-50'
-                                }`}
-                    >
-                      <div className={`p-2 rounded-lg ${diagramType.id === type.id && useProStyle ? 'bg-amber-500 text-white' : isDark ? 'bg-dark-700 text-dark-300' : 'bg-dark-100 text-dark-600'}`}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <span className={`font-semibold block ${isDark ? 'text-dark-100' : 'text-dark-800'}`}>{type.name}</span>
-                        <span className={`text-xs ${isDark ? 'text-dark-500' : 'text-dark-400'}`}>{type.description}</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-            
-            {/* Color Palettes */}
-            <div>
-              <label className={`text-xs font-semibold uppercase tracking-wide mb-2 block ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
-                Color Palette
-              </label>
-              <div className="grid grid-cols-1 gap-2">
-                {PRO_PALETTES.map(palette => (
-                  <button
-                    key={palette.id}
-                    onClick={() => applyProPalette(palette)}
-                    className={`p-3 rounded-xl border-2 transition-all flex items-center gap-3
-                              ${proPalette.id === palette.id && useProStyle
-                                ? 'border-amber-500/50 bg-amber-500/10' 
-                                : isDark
-                                  ? 'border-dark-600 hover:border-dark-500'
-                                  : 'border-dark-200 hover:border-dark-300'
-                              }`}
-                  >
-                    <div className="flex gap-1">
-                      {Object.values(palette.colors).slice(0, 5).map((color, i) => (
-                        <div
-                          key={i}
-                          className="w-5 h-5 rounded-full border border-white/20 shadow-sm"
-                          style={{ backgroundColor: color }}
-                        />
-                      ))}
-                    </div>
-                    <span className={`font-medium ${isDark ? 'text-dark-200' : 'text-dark-700'}`}>{palette.name}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-            
-            {/* Switch to Custom */}
+          {/* MiniMap */}
+          <MiniMap 
+            nodeColor={(node) => {
+              if (node.data.connections >= 5) return palette.hub;
+              if (node.data.connections >= 3) return palette.secondary;
+              return palette.primary;
+            }}
+            maskColor={isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(248, 250, 252, 0.8)'}
+            className="!bg-white/80 dark:!bg-slate-800/80 rounded-xl border-2 border-slate-200 dark:border-slate-700"
+            style={{ width: 150, height: 100 }}
+          />
+          
+          {/* Default Controls */}
+          <Controls 
+            className="!bg-white/90 dark:!bg-slate-800/90 !border-2 !border-slate-200 dark:!border-slate-700 !rounded-xl !shadow-lg"
+            showInteractive={false}
+          />
+          
+          {/* Top Left Panel - Style & Layout Controls */}
+          <Panel position="top-left" className="flex flex-col gap-2">
+            {/* Style Button */}
             <button
-              onClick={() => { setUseProStyle(false); applyStyle(); }}
-              className={`w-full p-3 rounded-xl border-2 transition-all text-center
-                        ${!useProStyle
-                          ? 'bg-primary-500/10 border-primary-500/50' 
+              onClick={() => { setShowStylePanel(!showStylePanel); setShowLayoutPanel(false); }}
+              className={`px-4 py-2.5 rounded-xl border-2 transition-all flex items-center gap-2 shadow-lg
+                        ${showStylePanel 
+                          ? 'bg-gradient-to-r from-purple-600 to-indigo-600 border-purple-400 text-white' 
                           : isDark
-                            ? 'border-dark-600 hover:border-dark-500'
-                            : 'border-dark-200 hover:border-dark-300'
+                            ? 'bg-slate-800/90 hover:bg-slate-700 border-slate-600 text-slate-300 backdrop-blur-sm'
+                            : 'bg-white/90 hover:bg-white border-slate-200 text-slate-600 backdrop-blur-sm'
                         }`}
             >
-              <span className={`font-medium ${isDark ? 'text-dark-200' : 'text-dark-700'}`}>
-                ← Back to Custom Styling
-              </span>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Chart Type Panel */}
-      {showChartPanel && (
-        <div className={`absolute top-4 left-48 w-80 rounded-2xl border-2 shadow-2xl overflow-hidden z-20
-                       ${isDark 
-                         ? 'bg-dark-800/95 border-dark-600 backdrop-blur-xl' 
-                         : 'bg-white/95 border-dark-200 backdrop-blur-xl'
-                       }`}>
-          <div className={`p-4 border-b ${isDark ? 'border-dark-700' : 'border-dark-200'}`}>
-            <h3 className={`font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-dark-900'}`}>
-              <LayoutGrid className="w-5 h-5 text-emerald-400" />
-              Chart Type Selection
-            </h3>
-            <p className={`text-xs mt-1 ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
-              Choose the best visualization for your data
-            </p>
-          </div>
-
-          <div className="p-4 space-y-2 max-h-[400px] overflow-y-auto">
-            {CHART_TYPES.map((type) => {
-              const Icon = type.icon;
-              const isActive = chartType.id === type.id;
-              
-              return (
-                <button
-                  key={type.id}
-                  onClick={() => { applyChartLayout(type); setShowChartPanel(false); }}
-                  className={`w-full p-1 rounded-xl border-2 text-left transition-all flex items-start gap-3
-                            ${isActive 
-                              ? 'bg-emerald-500/20 border-emerald-400 shadow-lg shadow-emerald-500/20' 
-                              : isDark
-                                ? 'bg-dark-700/50 border-dark-600 hover:border-dark-500 hover:bg-dark-700'
-                                : 'bg-dark-50 border-dark-200 hover:border-dark-300 hover:bg-dark-100'
-                            }`}
-                >
-                  <div className={`p-2 rounded-lg ${isActive ? 'bg-emerald-500/30' : isDark ? 'bg-dark-600' : 'bg-dark-200'}`}>
-                    <Icon className={`w-5 h-5 ${isActive ? 'text-emerald-400' : isDark ? 'text-dark-300' : 'text-dark-600'}`} />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className={`font-semibold ${isActive ? 'text-emerald-400' : isDark ? 'text-dark-100' : 'text-dark-800'}`}>
-                        {type.name}
-                      </span>
-                      {isActive && (
-                        <span className="px-1.5 py-0.5 text-[10px] font-bold bg-emerald-500 text-white rounded">
-                          ACTIVE
-                        </span>
-                      )}
-                    </div>
-                    <p className={`text-xs mt-0.5 ${isDark ? 'text-dark-500' : 'text-dark-400'}`}>
-                      {type.description}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          <div className={`p-3 border-t ${isDark ? 'border-dark-700 bg-dark-900/50' : 'border-dark-200 bg-dark-50'}`}>
-            <div className="flex items-center gap-2 text-xs">
-              <span className={isDark ? 'text-dark-500' : 'text-dark-400'}>💡 Tip:</span>
-              <span className={isDark ? 'text-dark-400' : 'text-dark-500'}>
-                Use <strong>Essential Points</strong> for presentations
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Style Panel */}
-      {showStylePanel && (
-        <div className={`absolute top-4 left-48 w-80 rounded-2xl border-2 shadow-2xl overflow-hidden z-20
-                       ${isDark 
-                         ? 'bg-dark-800/95 border-dark-600 backdrop-blur-xl' 
-                         : 'bg-white/95 border-dark-200 backdrop-blur-xl'
-                       }`}>
-          <div className={`p-4 border-b ${isDark ? 'border-dark-700' : 'border-dark-200'}`}>
-            <h3 className={`font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-dark-900'}`}>
-              <Sparkles className="w-5 h-5 text-primary-400" />
-              Graph Styling
-            </h3>
-            <p className={`text-xs mt-1 ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
-              Customize the appearance of your mind map
-            </p>
-          </div>
-
-          <div className="p-4 space-y-5 max-h-[450px] overflow-y-auto">
-            {/* Visual Mode */}
-            <div>
-              <label className={`text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2
-                              ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
-                <Layers className="w-3.5 h-3.5" />
-                Visual Mode
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {VISUAL_MODES.map(mode => (
-                  <button
-                    key={mode.id}
-                    onClick={() => setVisualMode(mode.id)}
-                    className={`px-3 py-2.5 rounded-xl border-2 text-left transition-all
-                              ${visualMode === mode.id 
-                                ? 'bg-primary-500/20 border-primary-400 shadow-lg shadow-primary-500/20' 
-                                : isDark
-                                  ? 'bg-dark-700/50 border-dark-600 hover:border-dark-500'
-                                  : 'bg-dark-50 border-dark-200 hover:border-dark-300'
-                              }`}
-                  >
-                    <span className={`text-sm font-semibold block ${visualMode === mode.id ? 'text-primary-400' : isDark ? 'text-dark-200' : 'text-dark-700'}`}>
-                      {mode.name}
-                    </span>
-                    <span className={`text-xs ${isDark ? 'text-dark-500' : 'text-dark-400'}`}>{mode.desc}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Node Shape */}
-            <div>
-              <label className={`text-xs font-bold uppercase tracking-wider mb-3 block
-                              ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
-                Node Shape
-              </label>
-              <div className="grid grid-cols-4 gap-2">
-                {NODE_SHAPES.map(shape => (
-                  <button
-                    key={shape.id}
-                    onClick={() => setNodeShape(shape.id)}
-                    className={`p-3 rounded-xl border-2 text-center transition-all text-xl
-                              ${nodeShape === shape.id 
-                                ? 'bg-primary-500/20 border-primary-400 shadow-lg' 
-                                : isDark
-                                  ? 'bg-dark-700/50 border-dark-600 hover:border-dark-500 text-dark-300'
-                                  : 'bg-dark-50 border-dark-200 hover:border-dark-300 text-dark-600'
-                              }`}
-                    title={shape.name}
-                  >
-                    {shape.icon}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Color Theme */}
-            <div>
-              <label className={`text-xs font-bold uppercase tracking-wider mb-3 block
-                              ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
-                Color Theme
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                {COLOR_THEMES.map(theme => (
-                  <button
-                    key={theme.id}
-                    onClick={() => setColorTheme(theme)}
-                    className={`p-2.5 rounded-xl border-2 transition-all flex items-center gap-2
-                              ${colorTheme.id === theme.id 
-                                ? 'border-white/50 ring-2 ring-white/30 shadow-lg' 
-                                : isDark
-                                  ? 'border-dark-600 hover:border-dark-500'
-                                  : 'border-dark-200 hover:border-dark-300'
-                              }`}
-                  >
-                    <div 
-                      className="w-5 h-5 rounded-full shadow-inner"
-                      style={{ 
-                        background: `linear-gradient(135deg, ${theme.primary}, ${theme.accent})` 
-                      }}
-                    />
-                    <span className={`text-xs font-medium ${isDark ? 'text-dark-200' : 'text-dark-700'}`}>
-                      {theme.name}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Edge Style */}
-            <div>
-              <label className={`text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2
-                              ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
-                <Grid3X3 className="w-3.5 h-3.5" />
-                Edge Style
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {EDGE_STYLES.map(style => (
-                  <button
-                    key={style.id}
-                    onClick={() => setEdgeStyle(style.curveStyle)}
-                    className={`px-4 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all
-                              ${edgeStyle === style.curveStyle 
-                                ? 'bg-primary-500/20 border-primary-400' 
-                                : isDark
-                                  ? 'bg-dark-700/50 border-dark-600 hover:border-dark-500 text-dark-300'
-                                  : 'bg-dark-50 border-dark-200 hover:border-dark-300 text-dark-600'
-                              }`}
-                  >
-                    {style.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className={`p-3 border-t ${isDark ? 'border-dark-700 bg-dark-900/50' : 'border-dark-200 bg-dark-50'}`}>
-            <button
-              onClick={() => {
-                setNodeShape('round-rectangle');
-                setColorTheme(COLOR_THEMES[0]);
-                setEdgeStyle('bezier');
-                setVisualMode('modern');
-              }}
-              className={`w-full px-4 py-2.5 text-sm font-semibold rounded-xl transition-colors
-                        ${isDark 
-                          ? 'text-dark-400 hover:text-white hover:bg-dark-700' 
-                          : 'text-dark-500 hover:text-dark-900 hover:bg-dark-100'
-                        }`}
-            >
-              Reset to Default
-            </button>
-          </div>
-        </div>
-      )}
-      
-      {/* Control Buttons */}
-      <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
-        <ExportMenu data={data} cyRef={cyRef} metadata={metadata} />
-        {[
-          { icon: ZoomIn, action: handleZoomIn, label: 'Zoom In' },
-          { icon: ZoomOut, action: handleZoomOut, label: 'Zoom Out' },
-          { icon: Maximize2, action: handleFit, label: 'Fit View' },
-          { icon: RotateCcw, action: handleReset, label: 'Reset Layout' }
-        ].map(({ icon: Icon, action, label }) => (
-          <button
-            key={label}
-            onClick={action}
-            className={`p-2.5 rounded-xl border-2 transition-all group shadow-lg
-                      ${isDark
-                        ? 'bg-dark-800/90 hover:bg-dark-700 border-dark-600 backdrop-blur-sm'
-                        : 'bg-white/90 hover:bg-white border-dark-200 backdrop-blur-sm'
-                      }`}
-            title={label}
-          >
-            <Icon className={`w-5 h-5 transition-colors
-                           ${isDark ? 'text-dark-400 group-hover:text-white' : 'text-dark-500 group-hover:text-dark-900'}`} />
-          </button>
-        ))}
-      </div>
-
-      {/* Selected Node Info */}
-      {selectedNode && (
-        <div className={`absolute bottom-20 left-4 p-5 rounded-2xl border-2 max-w-sm shadow-2xl z-20
-                       ${isDark 
-                         ? 'bg-dark-800/95 border-dark-600 backdrop-blur-xl' 
-                         : 'bg-white/95 border-dark-200 backdrop-blur-xl'
-                       }`}>
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-primary-500 to-purple-500">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex-1">
-              <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-dark-900'}`}>
-                {selectedNode.label}
-              </h3>
-              <p className={`text-sm mt-1 ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
-                {selectedNode.connections} connection{selectedNode.connections !== 1 ? 's' : ''}
-              </p>
-              {selectedNode.neighbors?.length > 0 && (
-                <div className="mt-3">
-                  <p className={`text-xs font-semibold uppercase tracking-wide mb-2 
-                              ${isDark ? 'text-dark-500' : 'text-dark-400'}`}>
-                    Connected to:
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {selectedNode.neighbors.slice(0, 5).map((n, i) => (
-                      <span 
-                        key={i}
-                        className={`px-2 py-1 rounded-lg text-xs font-medium
-                                  ${isDark ? 'bg-dark-700 text-dark-300' : 'bg-dark-100 text-dark-600'}`}
-                      >
-                        {n}
-                      </span>
-                    ))}
-                    {selectedNode.neighbors.length > 5 && (
-                      <span className={`px-2 py-1 rounded-lg text-xs font-medium
-                                      ${isDark ? 'bg-dark-700 text-dark-400' : 'bg-dark-100 text-dark-500'}`}>
-                        +{selectedNode.neighbors.length - 5} more
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Selected Edge Info */}
-      {selectedEdge && (
-        <div className={`absolute bottom-20 left-4 p-5 rounded-2xl border-2 max-w-sm shadow-2xl z-20
-                       ${isDark 
-                         ? 'bg-dark-800/95 border-dark-600 backdrop-blur-xl' 
-                         : 'bg-white/95 border-dark-200 backdrop-blur-xl'
-                       }`}>
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500">
-              <Network className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex-1">
-              <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-dark-900'}`}>
-                Relationship
-              </h3>
-              <div className="mt-3 space-y-2">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className={`px-2.5 py-1 rounded-lg text-sm font-medium
-                                  ${isDark ? 'bg-primary-500/20 text-primary-300' : 'bg-primary-100 text-primary-700'}`}>
-                    {selectedEdge.source}
-                  </span>
-                  <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase
-                                  ${isDark ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-700'}`}>
-                    {selectedEdge.label || '→'}
-                  </span>
-                  <span className={`px-2.5 py-1 rounded-lg text-sm font-medium
-                                  ${isDark ? 'bg-purple-500/20 text-purple-300' : 'bg-purple-100 text-purple-700'}`}>
-                    {selectedEdge.target}
-                  </span>
-                </div>
-                {selectedEdge.originalLabel && selectedEdge.originalLabel !== selectedEdge.label && (
-                  <p className={`text-xs ${isDark ? 'text-dark-500' : 'text-dark-400'}`}>
-                    Original: <span className="italic">{selectedEdge.originalLabel}</span>
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Help Text */}
-      <div className={`absolute bottom-4 right-4 px-4 py-2 rounded-xl text-xs font-medium z-10
-                     ${isDark 
-                       ? 'bg-dark-800/80 text-dark-400 backdrop-blur-sm' 
-                       : 'bg-white/80 text-dark-500 backdrop-blur-sm'
-                     }`}>
-        <span className="opacity-75">Click nodes to explore</span>
-        <span className="mx-2 opacity-50">•</span>
-        <span className="opacity-75">Double-click to zoom</span>
-        <span className="mx-2 opacity-50">•</span>
-        <span className="opacity-75">Scroll to zoom</span>
-      </div>
-
-      {/* Current Chart Type Indicator */}
-      <div className={`absolute bottom-4 left-4 z-20 flex flex-col gap-2`}>
-        {/* Topic/Section Filter - Only show if sections exist */}
-        {sections.length > 1 && (
-          <div className="relative">
-            <button
-              onClick={() => setShowSectionDropdown(!showSectionDropdown)}
-              className={`px-4 py-2.5 rounded-xl flex items-center gap-3 transition-all shadow-lg border-2
-                        ${isDark 
-                          ? 'bg-dark-800/95 backdrop-blur-sm border-dark-600 hover:border-primary-500' 
-                          : 'bg-white/95 backdrop-blur-sm border-dark-200 hover:border-primary-500'
-                        }`}
-            >
-              <Filter className={`w-4 h-4 ${isDark ? 'text-primary-400' : 'text-primary-600'}`} />
-              <div className="text-left">
-                <span className={`text-xs font-semibold ${isDark ? 'text-dark-300' : 'text-dark-600'}`}>
-                  {sections.find(s => s.id === selectedSection)?.name || 'All Components'}
-                </span>
-              </div>
-              <ChevronDown className={`w-4 h-4 transition-transform ${showSectionDropdown ? 'rotate-180' : ''} ${isDark ? 'text-dark-400' : 'text-dark-500'}`} />
+              <Palette className="w-4 h-4" />
+              <span className="text-sm font-semibold">Style</span>
             </button>
             
-            {/* Dropdown */}
-            {showSectionDropdown && (
-              <div className={`absolute bottom-full left-0 mb-2 w-64 rounded-xl border-2 shadow-2xl overflow-hidden
-                            ${isDark 
-                              ? 'bg-dark-800/98 border-dark-600 backdrop-blur-xl' 
-                              : 'bg-white/98 border-dark-200 backdrop-blur-xl'
-                            }`}>
-                <div className={`px-3 py-2 border-b ${isDark ? 'border-dark-700' : 'border-dark-200'}`}>
-                  <span className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
-                    Filter by Section
-                  </span>
-                </div>
-                <div className="max-h-48 overflow-y-auto">
-                  {sections.map(section => (
-                    <button
-                      key={section.id}
-                      onClick={() => {
-                        setSelectedSection(section.id);
-                        setShowSectionDropdown(false);
-                      }}
-                      className={`w-full px-4 py-2.5 text-left flex items-center gap-3 transition-all
-                                ${selectedSection === section.id
-                                  ? isDark
-                                    ? 'bg-primary-500/20 text-primary-300'
-                                    : 'bg-primary-50 text-primary-700'
-                                  : isDark
-                                    ? 'hover:bg-dark-700 text-dark-300'
-                                    : 'hover:bg-dark-50 text-dark-600'
-                                }`}
-                    >
-                      <div className={`w-2 h-2 rounded-full ${selectedSection === section.id ? 'bg-primary-500' : isDark ? 'bg-dark-600' : 'bg-dark-300'}`} />
-                      <div>
-                        <div className="text-sm font-medium">{section.name}</div>
-                        {section.description && (
-                          <div className={`text-xs ${isDark ? 'text-dark-500' : 'text-dark-400'}`}>
-                            {section.description}
-                          </div>
-                        )}
-                      </div>
-                    </button>
-                  ))}
+            {/* Layout Button */}
+            <button
+              onClick={() => { setShowLayoutPanel(!showLayoutPanel); setShowStylePanel(false); }}
+              className={`px-4 py-2.5 rounded-xl border-2 transition-all flex items-center gap-2 shadow-lg
+                        ${showLayoutPanel 
+                          ? 'bg-gradient-to-r from-emerald-600 to-teal-600 border-emerald-400 text-white' 
+                          : isDark
+                            ? 'bg-slate-800/90 hover:bg-slate-700 border-slate-600 text-slate-300 backdrop-blur-sm'
+                            : 'bg-white/90 hover:bg-white border-slate-200 text-slate-600 backdrop-blur-sm'
+                        }`}
+            >
+              <LayoutGrid className="w-4 h-4" />
+              <span className="text-sm font-semibold">Layout</span>
+            </button>
+          </Panel>
+          
+          {/* Style Panel */}
+          {showStylePanel && (
+            <Panel position="top-left" className="ml-28">
+              <div className={`w-72 rounded-2xl border-2 shadow-2xl overflow-hidden
+                             ${isDark 
+                               ? 'bg-slate-800/95 border-slate-600 backdrop-blur-xl' 
+                               : 'bg-white/95 border-slate-200 backdrop-blur-xl'
+                             }`}>
+                <div className={`px-4 py-3 border-b ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
+                  <h3 className={`font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                    <Sparkles className="w-4 h-4 text-purple-500" />
+                    Style Options
+                  </h3>
                 </div>
                 
-                {/* Analyze In-Depth Button */}
-                {selectedSection !== 'main' && onAnalyzeInDepth && (
-                  <div className={`border-t px-3 py-2 ${isDark ? 'border-dark-700' : 'border-dark-200'}`}>
-                    <button
-                      onClick={() => {
-                        setIsAnalyzing(true);
-                        setShowSectionDropdown(false);
-                        onAnalyzeInDepth(selectedSection);
-                        setTimeout(() => setIsAnalyzing(false), 500);
-                      }}
-                      disabled={isAnalyzing}
-                      className={`w-full px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-semibold transition-all
-                                bg-gradient-to-r from-purple-600 to-primary-600 hover:from-purple-500 hover:to-primary-500
-                                text-white shadow-lg disabled:opacity-50`}
-                    >
-                      {isAnalyzing ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Microscope className="w-4 h-4" />
-                      )}
-                      Analyze In-Depth
-                    </button>
+                <div className="p-4 space-y-4 max-h-[400px] overflow-y-auto">
+                  {/* Color Palette */}
+                  <div>
+                    <label className={`text-xs font-bold uppercase tracking-wider mb-2 block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                      Color Palette
+                    </label>
+                    <div className="space-y-2">
+                      {Object.entries(COLOR_PALETTES).map(([key, pal]) => (
+                        <button
+                          key={key}
+                          onClick={() => setSelectedPalette(key)}
+                          className={`w-full p-3 rounded-xl border-2 text-left transition-all flex items-center gap-3
+                                    ${selectedPalette === key
+                                      ? 'border-purple-500 bg-purple-500/10'
+                                      : isDark
+                                        ? 'border-slate-600 hover:border-slate-500'
+                                        : 'border-slate-200 hover:border-slate-300'
+                                    }`}
+                        >
+                          <div className="flex gap-1">
+                            {[pal.primary, pal.secondary, pal.hub, pal.action].map((color, i) => (
+                              <div key={i} className="w-4 h-4 rounded-full" style={{ backgroundColor: color }} />
+                            ))}
+                          </div>
+                          <div>
+                            <div className={`font-semibold text-sm ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+                              {pal.name}
+                            </div>
+                            <div className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                              {pal.description}
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Node Style */}
+                  <div>
+                    <label className={`text-xs font-bold uppercase tracking-wider mb-2 block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                      Node Style
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {Object.entries(NODE_STYLES).map(([key, style]) => (
+                        <button
+                          key={key}
+                          onClick={() => setNodeStyle(key)}
+                          className={`p-2 rounded-xl border-2 transition-all flex flex-col items-center gap-1
+                                    ${nodeStyle === key
+                                      ? 'border-purple-500 bg-purple-500/10'
+                                      : isDark
+                                        ? 'border-slate-600 hover:border-slate-500'
+                                        : 'border-slate-200 hover:border-slate-300'
+                                    }`}
+                        >
+                          <span className={`text-lg ${nodeStyle === key ? 'text-purple-500' : isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                            {style.icon}
+                          </span>
+                          <span className={`text-xs font-medium ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                            {style.name}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Panel>
+          )}
+          
+          {/* Layout Panel */}
+          {showLayoutPanel && (
+            <Panel position="top-left" className="ml-28">
+              <div className={`w-64 rounded-2xl border-2 shadow-2xl overflow-hidden
+                             ${isDark 
+                               ? 'bg-slate-800/95 border-slate-600 backdrop-blur-xl' 
+                               : 'bg-white/95 border-slate-200 backdrop-blur-xl'
+                             }`}>
+                <div className={`px-4 py-3 border-b ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
+                  <h3 className={`font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                    <LayoutGrid className="w-4 h-4 text-emerald-500" />
+                    Layout Options
+                  </h3>
+                </div>
+                
+                <div className="p-4 space-y-3">
+                  {Object.entries(LAYOUT_TYPES).map(([key, layout]) => {
+                    const Icon = layout.icon;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => {
+                          setLayoutType(key);
+                          setTimeout(applyLayout, 100);
+                        }}
+                        className={`w-full p-3 rounded-xl border-2 text-left transition-all flex items-center gap-3
+                                  ${layoutType === key
+                                    ? 'border-emerald-500 bg-emerald-500/10'
+                                    : isDark
+                                      ? 'border-slate-600 hover:border-slate-500'
+                                      : 'border-slate-200 hover:border-slate-300'
+                                  }`}
+                      >
+                        <div className={`p-2 rounded-lg ${layoutType === key ? 'bg-emerald-500 text-white' : isDark ? 'bg-slate-700' : 'bg-slate-100'}`}>
+                          <Icon className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className={`font-semibold text-sm ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+                            {layout.name}
+                          </div>
+                          <div className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                            {layout.description}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                  
+                  {/* Re-apply Layout Button */}
+                  <button
+                    onClick={applyLayout}
+                    className={`w-full p-3 rounded-xl border-2 transition-all flex items-center justify-center gap-2 font-semibold
+                              ${isDark 
+                                ? 'border-emerald-500 text-emerald-400 hover:bg-emerald-500/10' 
+                                : 'border-emerald-500 text-emerald-600 hover:bg-emerald-50'
+                              }`}
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    Re-apply Layout
+                  </button>
+                </div>
+              </div>
+            </Panel>
+          )}
+          
+          {/* Top Right Panel - Export & Zoom */}
+          <Panel position="top-right" className="flex flex-col gap-2">
+            <ExportMenu data={data} containerRef={containerRef} metadata={metadata} />
+            
+            <button
+              onClick={handleZoomIn}
+              className={`p-2.5 rounded-xl border-2 transition-all shadow-lg
+                        ${isDark
+                          ? 'bg-slate-800/90 hover:bg-slate-700 border-slate-600 text-slate-300 backdrop-blur-sm'
+                          : 'bg-white/90 hover:bg-white border-slate-200 text-slate-600 backdrop-blur-sm'
+                        }`}
+              title="Zoom In"
+            >
+              <ZoomIn className="w-5 h-5" />
+            </button>
+            
+            <button
+              onClick={handleZoomOut}
+              className={`p-2.5 rounded-xl border-2 transition-all shadow-lg
+                        ${isDark
+                          ? 'bg-slate-800/90 hover:bg-slate-700 border-slate-600 text-slate-300 backdrop-blur-sm'
+                          : 'bg-white/90 hover:bg-white border-slate-200 text-slate-600 backdrop-blur-sm'
+                        }`}
+              title="Zoom Out"
+            >
+              <ZoomOut className="w-5 h-5" />
+            </button>
+            
+            <button
+              onClick={handleFitView}
+              className={`p-2.5 rounded-xl border-2 transition-all shadow-lg
+                        ${isDark
+                          ? 'bg-slate-800/90 hover:bg-slate-700 border-slate-600 text-slate-300 backdrop-blur-sm'
+                          : 'bg-white/90 hover:bg-white border-slate-200 text-slate-600 backdrop-blur-sm'
+                        }`}
+              title="Fit View"
+            >
+              <Maximize2 className="w-5 h-5" />
+            </button>
+          </Panel>
+          
+          {/* Bottom Left Panel - Section Filter & Info */}
+          <Panel position="bottom-left" className="flex flex-col gap-2">
+            {/* Section Filter */}
+            {sections.length > 1 && (
+              <div className="relative">
+                <button
+                  onClick={() => setShowSectionDropdown(!showSectionDropdown)}
+                  className={`px-4 py-2.5 rounded-xl flex items-center gap-3 transition-all shadow-lg border-2
+                            ${isDark 
+                              ? 'bg-slate-800/95 backdrop-blur-sm border-slate-600 hover:border-blue-500' 
+                              : 'bg-white/95 backdrop-blur-sm border-slate-200 hover:border-blue-500'
+                            }`}
+                >
+                  <Filter className={`w-4 h-4 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                  <span className={`text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                    {sections.find(s => s.id === selectedSection)?.name || 'All Topics'}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showSectionDropdown ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {showSectionDropdown && (
+                  <div className={`absolute bottom-full left-0 mb-2 w-64 rounded-xl border-2 shadow-2xl overflow-hidden
+                                ${isDark 
+                                  ? 'bg-slate-800/98 border-slate-600 backdrop-blur-xl' 
+                                  : 'bg-white/98 border-slate-200 backdrop-blur-xl'
+                                }`}>
+                    <div className={`px-3 py-2 border-b ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
+                      <span className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                        Filter by Topic
+                      </span>
+                    </div>
+                    <div className="max-h-48 overflow-y-auto">
+                      {sections.map(section => (
+                        <button
+                          key={section.id}
+                          onClick={() => {
+                            setSelectedSection(section.id);
+                            setShowSectionDropdown(false);
+                          }}
+                          className={`w-full px-4 py-2.5 text-left flex items-center gap-3 transition-all
+                                    ${selectedSection === section.id
+                                      ? isDark ? 'bg-blue-500/20 text-blue-300' : 'bg-blue-50 text-blue-700'
+                                      : isDark ? 'hover:bg-slate-700 text-slate-300' : 'hover:bg-slate-50 text-slate-600'
+                                    }`}
+                        >
+                          <div className={`w-2 h-2 rounded-full ${selectedSection === section.id ? 'bg-blue-500' : isDark ? 'bg-slate-600' : 'bg-slate-300'}`} />
+                          <div>
+                            <div className="text-sm font-medium">{section.name}</div>
+                            {section.description && (
+                              <div className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                                {section.description}
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                    
+                    {selectedSection !== 'main' && onAnalyzeInDepth && (
+                      <div className={`border-t px-3 py-2 ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
+                        <button
+                          onClick={() => {
+                            setIsAnalyzing(true);
+                            setShowSectionDropdown(false);
+                            onAnalyzeInDepth(selectedSection);
+                            setTimeout(() => setIsAnalyzing(false), 500);
+                          }}
+                          disabled={isAnalyzing}
+                          className="w-full px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-semibold
+                                    bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500
+                                    text-white shadow-lg disabled:opacity-50"
+                        >
+                          {isAnalyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Microscope className="w-4 h-4" />}
+                          Analyze In-Depth
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
             )}
-          </div>
-        )}
-
-        {/* Layout Indicator */}
-        <div className={`px-4 py-2.5 rounded-xl flex items-center gap-3
-                       ${isDark 
-                         ? 'bg-dark-800/80 backdrop-blur-sm border border-dark-700' 
-                         : 'bg-white/80 backdrop-blur-sm border border-dark-200'
-                       }`}>
-          {(() => {
-            const Icon = chartType.icon;
-            return <Icon className="w-4 h-4 text-emerald-400" />;
-          })()}
-          <div>
-            <span className={`text-xs font-semibold ${isDark ? 'text-dark-300' : 'text-dark-600'}`}>
-              {chartType.name}
-            </span>
-            <span className={`text-xs ml-2 ${isDark ? 'text-dark-500' : 'text-dark-400'}`}>
-              Layout
-            </span>
-          </div>
-          
-          {/* Show Pro Diagram Type if active */}
-          {useProStyle && (
-            <>
-              <div className={`w-px h-6 ${isDark ? 'bg-dark-600' : 'bg-dark-300'}`} />
+            
+            {/* Graph Stats */}
+            <div className={`px-4 py-2.5 rounded-xl flex items-center gap-4
+                           ${isDark 
+                             ? 'bg-slate-800/80 backdrop-blur-sm border border-slate-700' 
+                             : 'bg-white/80 backdrop-blur-sm border border-slate-200'
+                           }`}>
               <div className="flex items-center gap-2">
-                <div className="flex gap-0.5">
-                  {Object.values(proPalette.colors).slice(0, 3).map((color, i) => (
-                    <div 
-                      key={i}
-                      className="w-2.5 h-2.5 rounded-full"
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
-                </div>
-                <div>
-                  <span className={`text-xs font-semibold ${isDark ? 'text-dark-300' : 'text-dark-600'}`}>
-                    {diagramType.name}
-                  </span>
-                  <span className={`text-xs ml-1 ${isDark ? 'text-dark-500' : 'text-dark-400'}`}>
-                    • {proPalette.name}
-                  </span>
-                </div>
+                <Network className="w-4 h-4 text-blue-500" />
+                <span className={`text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                  {nodes.length} nodes
+                </span>
               </div>
-            </>
-          )}
-        </div>
-
-        {/* In-Depth Insights */}
-        {data?.insights && data.insights.length > 0 && (
-          <div className={`px-4 py-3 rounded-xl max-w-xs
-                         ${isDark 
-                           ? 'bg-purple-500/10 border border-purple-500/30' 
-                           : 'bg-purple-50 border border-purple-200'
-                         }`}>
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-4 h-4 text-purple-400" />
-              <span className={`text-xs font-bold ${isDark ? 'text-purple-300' : 'text-purple-700'}`}>
-                AI Insights
+              <div className={`w-px h-4 ${isDark ? 'bg-slate-600' : 'bg-slate-300'}`} />
+              <span className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                {edges.length} connections
               </span>
             </div>
-            <ul className="space-y-1">
-              {data.insights.slice(0, 3).map((insight, i) => (
-                <li key={i} className={`text-xs ${isDark ? 'text-dark-400' : 'text-dark-500'}`}>
-                  • {insight}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+            
+            {/* AI Insights */}
+            {data?.insights && data.insights.length > 0 && (
+              <div className={`px-4 py-3 rounded-xl max-w-xs
+                             ${isDark 
+                               ? 'bg-purple-500/10 border border-purple-500/30' 
+                               : 'bg-purple-50 border border-purple-200'
+                             }`}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-4 h-4 text-purple-500" />
+                  <span className={`text-xs font-bold ${isDark ? 'text-purple-300' : 'text-purple-700'}`}>
+                    AI Insights
+                  </span>
+                </div>
+                <ul className="space-y-1">
+                  {data.insights.slice(0, 3).map((insight, i) => (
+                    <li key={i} className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                      • {insight}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </Panel>
+          
+          {/* Bottom Right - Selection Info & Actions */}
+          {(selectedNode || selectedEdge) && (
+            <Panel position="bottom-right">
+              <div className={`p-4 rounded-2xl border-2 w-72 shadow-2xl
+                             ${isDark 
+                               ? 'bg-slate-800/95 border-slate-600 backdrop-blur-xl' 
+                               : 'bg-white/95 border-slate-200 backdrop-blur-xl'
+                             }`}>
+                {selectedNode && (
+                  <div>
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500">
+                          <Network className="w-4 h-4 text-white" />
+                        </div>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editLabel}
+                            onChange={(e) => setEditLabel(e.target.value)}
+                            className={`px-2 py-1 rounded-lg border text-sm font-bold w-36
+                                      ${isDark 
+                                        ? 'bg-slate-700 border-slate-600 text-white' 
+                                        : 'bg-white border-slate-300 text-slate-900'
+                                      }`}
+                            autoFocus
+                          />
+                        ) : (
+                          <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                            {selectedNode.label}
+                          </h3>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => setSelectedNode(null)}
+                        className={`p-1 rounded-lg ${isDark ? 'hover:bg-slate-700' : 'hover:bg-slate-100'}`}
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                    
+                    <div className={`text-sm mb-3 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                      {selectedNode.connections} connection{selectedNode.connections !== 1 ? 's' : ''} • {selectedNode.category}
+                    </div>
+                    
+                    {/* Actions */}
+                    <div className="flex gap-2">
+                      {isEditing ? (
+                        <>
+                          <button
+                            onClick={handleSaveLabel}
+                            className="flex-1 px-3 py-2 rounded-lg bg-emerald-500 text-white text-sm font-semibold flex items-center justify-center gap-1"
+                          >
+                            <Save className="w-4 h-4" /> Save
+                          </button>
+                          <button
+                            onClick={() => setIsEditing(false)}
+                            className={`px-3 py-2 rounded-lg text-sm font-semibold
+                                      ${isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-600'}`}
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={handleEditLabel}
+                            className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1
+                                      ${isDark ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                          >
+                            <Edit3 className="w-4 h-4" /> Edit
+                          </button>
+                          <button
+                            onClick={handleDeleteNode}
+                            className="px-3 py-2 rounded-lg bg-red-500/10 text-red-500 text-sm font-semibold flex items-center justify-center gap-1 hover:bg-red-500/20"
+                          >
+                            <Trash2 className="w-4 h-4" /> Delete
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {selectedEdge && (
+                  <div>
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500">
+                          <Workflow className="w-4 h-4 text-white" />
+                        </div>
+                        <h3 className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                          Relationship
+                        </h3>
+                      </div>
+                      <button
+                        onClick={() => setSelectedEdge(null)}
+                        className={`p-1 rounded-lg ${isDark ? 'hover:bg-slate-700' : 'hover:bg-slate-100'}`}
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 flex-wrap mb-3">
+                      <span className={`px-2 py-1 rounded-lg text-xs font-medium
+                                      ${isDark ? 'bg-blue-500/20 text-blue-300' : 'bg-blue-100 text-blue-700'}`}>
+                        {selectedEdge.source}
+                      </span>
+                      <span className="text-slate-400">→</span>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={editLabel}
+                          onChange={(e) => setEditLabel(e.target.value)}
+                          className={`px-2 py-1 rounded-lg border text-xs font-bold w-20
+                                    ${isDark 
+                                      ? 'bg-slate-700 border-slate-600 text-white' 
+                                      : 'bg-white border-slate-300 text-slate-900'
+                                    }`}
+                          autoFocus
+                        />
+                      ) : (
+                        <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase
+                                        ${isDark ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-700'}`}>
+                          {selectedEdge.label || '→'}
+                        </span>
+                      )}
+                      <span className="text-slate-400">→</span>
+                      <span className={`px-2 py-1 rounded-lg text-xs font-medium
+                                      ${isDark ? 'bg-purple-500/20 text-purple-300' : 'bg-purple-100 text-purple-700'}`}>
+                        {selectedEdge.target}
+                      </span>
+                    </div>
+                    
+                    {/* Actions */}
+                    <div className="flex gap-2">
+                      {isEditing ? (
+                        <>
+                          <button
+                            onClick={handleSaveLabel}
+                            className="flex-1 px-3 py-2 rounded-lg bg-emerald-500 text-white text-sm font-semibold flex items-center justify-center gap-1"
+                          >
+                            <Save className="w-4 h-4" /> Save
+                          </button>
+                          <button
+                            onClick={() => setIsEditing(false)}
+                            className={`px-3 py-2 rounded-lg text-sm font-semibold
+                                      ${isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-600'}`}
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={handleEditLabel}
+                            className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1
+                                      ${isDark ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                          >
+                            <Edit3 className="w-4 h-4" /> Edit Label
+                          </button>
+                          <button
+                            onClick={handleDeleteEdge}
+                            className="px-3 py-2 rounded-lg bg-red-500/10 text-red-500 text-sm font-semibold flex items-center justify-center gap-1 hover:bg-red-500/20"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Panel>
+          )}
+        </ReactFlow>
+      </div>
+      
+      {/* Help Text */}
+      <div className={`absolute bottom-4 right-4 px-4 py-2 rounded-xl text-xs font-medium z-10 pointer-events-none
+                     ${isDark 
+                       ? 'bg-slate-800/80 text-slate-400 backdrop-blur-sm' 
+                       : 'bg-white/80 text-slate-500 backdrop-blur-sm'
+                     }`}>
+        <span>Drag nodes to move</span>
+        <span className="mx-2 opacity-50">•</span>
+        <span>Click to select</span>
+        <span className="mx-2 opacity-50">•</span>
+        <span>Drag handles to connect</span>
       </div>
     </div>
+  );
+}
+
+// ============================================
+// WRAPPER WITH PROVIDER
+// ============================================
+
+function GraphView(props) {
+  if (!props.data?.nodes?.length) {
+    return (
+      <div className="flex items-center justify-center h-96 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700">
+        <div className="text-center">
+          <Network className="w-12 h-12 mx-auto mb-4 text-slate-400" />
+          <p className="text-slate-500 dark:text-slate-400 font-medium">No data to display</p>
+          <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">Generate a mind map to see the visualization</p>
+        </div>
+      </div>
+    );
+  }
+  
+  return (
+    <ReactFlowProvider>
+      <GraphViewInner {...props} />
+    </ReactFlowProvider>
   );
 }
 
