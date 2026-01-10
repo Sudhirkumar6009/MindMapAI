@@ -1,10 +1,17 @@
 # Dependencies
 node_modules/
 
-# Environment variables
+# ======================================
+# ENVIRONMENT FILES - NEVER COMMIT!
+# ======================================
 .env
 .env.*
+*.env
+**/.env
+**/.env.*
+**/config.local.js
 !.env.example
+!**/.env.example
 
 # Logs
 *.log

@@ -3,12 +3,18 @@ node_modules/
 .pnp
 .pnp.js
 
-# Environment variables - IMPORTANT: Never commit these!
+# ======================================
+# ENVIRONMENT FILES - NEVER COMMIT!
+# ======================================
 .env
+.env.*
+*.env
 .env.local
 .env.development
 .env.test
 .env.production
+config.local.js
+!.env.example
 
 # Logs
 logs/
