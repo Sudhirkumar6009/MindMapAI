@@ -21,9 +21,9 @@ connectDB();
 const app = express();
 const PORT = process.env.PORT || process.env.PORT_NAME || 5000;
 
-// CORS Configuration - Allow frontend to connect
+// CORS Configuration - Allow all origins
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: '*',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
