@@ -19,7 +19,9 @@ import {
   MoreVertical,
   Lock,
   Globe,
-  ChevronDown
+  ChevronDown,
+  MousePointer2,
+  Move
 } from 'lucide-react';
 
 function GraphsPage() {
@@ -126,8 +128,8 @@ function GraphsPage() {
             to="/graphs/new"
             className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold rounded-xl transition-colors"
           >
-            <Plus className="w-5 h-5" />
-            New Graph
+            <Move className="w-5 h-5" />
+            Create Custom Graph
           </Link>
         </div>
 
@@ -315,22 +317,28 @@ function GraphsPage() {
         ) : (
           <div className={`p-12 rounded-2xl border text-center
             ${isDark ? 'bg-gray-800/50 border-gray-700/50' : 'bg-white border-gray-200'}`}>
-            <Network className={`w-16 h-16 mx-auto mb-4 ${isDark ? 'text-gray-600' : 'text-gray-400'}`} />
+            <div className={`w-20 h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center
+              ${isDark ? 'bg-gradient-to-br from-blue-500/20 to-purple-500/20' : 'bg-gradient-to-br from-blue-50 to-purple-50'}`}>
+              <Move className={`w-10 h-10 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+            </div>
             <h3 className={`text-xl font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
               {searchQuery ? 'No matching graphs' : 'No custom graphs yet'}
             </h3>
-            <p className={`mb-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               {searchQuery 
                 ? 'Try a different search term'
-                : 'Create your first custom graph from scratch'}
+                : 'Build your own graph with drag & drop'}
+            </p>
+            <p className={`text-sm mb-6 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+              {!searchQuery && 'Add nodes, connect them, and customize your visualization manually'}
             </p>
             {!searchQuery && (
               <Link
                 to="/graphs/new"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-500 hover:to-purple-500 transition-all"
               >
-                <Plus className="w-5 h-5" />
-                Create New Graph
+                <Move className="w-5 h-5" />
+                Create Custom Graph
               </Link>
             )}
           </div>

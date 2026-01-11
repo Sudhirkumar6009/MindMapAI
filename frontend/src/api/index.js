@@ -290,6 +290,60 @@ export const api = {
   },
 
   // ==========================================
+  // NOTIFICATION ENDPOINTS
+  // ==========================================
+  async getNotifications(page = 1, limit = 20, unreadOnly = false) {
+    const response = await axios.get(
+      `${API_BASE}/notifications?page=${page}&limit=${limit}&unreadOnly=${unreadOnly}`, 
+      { headers: getAuthHeader() }
+    );
+    return response.data;
+  },
+
+  async getUnreadNotificationCount() {
+    const response = await axios.get(`${API_BASE}/notifications/unread-count`, {
+      headers: getAuthHeader()
+    });
+    return response.data;
+  },
+
+  async markNotificationAsRead(id) {
+    const response = await axios.put(`${API_BASE}/notifications/${id}/read`, {}, {
+      headers: getAuthHeader()
+    });
+    return response.data;
+  },
+
+  async markAllNotificationsAsRead() {
+    const response = await axios.put(`${API_BASE}/notifications/read-all`, {}, {
+      headers: getAuthHeader()
+    });
+    return response.data;
+  },
+
+  async deleteNotification(id) {
+    const response = await axios.delete(`${API_BASE}/notifications/${id}`, {
+      headers: getAuthHeader()
+    });
+    return response.data;
+  },
+
+  async clearAllNotifications() {
+    const response = await axios.delete(`${API_BASE}/notifications`, {
+      headers: getAuthHeader()
+    });
+    return response.data;
+  },
+
+  async createNotification(type, title, message, link = null, metadata = {}) {
+    const response = await axios.post(`${API_BASE}/notifications`, 
+      { type, title, message, link, metadata },
+      { headers: getAuthHeader() }
+    );
+    return response.data;
+  },
+
+  // ==========================================
   // UTILITY ENDPOINTS
   // ==========================================
   async healthCheck() {

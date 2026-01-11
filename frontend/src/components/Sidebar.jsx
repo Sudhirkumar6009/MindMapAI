@@ -15,16 +15,20 @@ import {
   Sun,
   Moon,
   LogOut,
-  Sparkles
+  Sparkles,
+  Wand2,
+  Move,
+  Home
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
 // Navigation items configuration
 const navItems = [
+  { path: '/', icon: Home, label: 'Home', description: 'Landing page' },
   { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { path: '/create', icon: Plus, label: 'Create' },
-  { path: '/graphs', icon: FolderOpen, label: 'My Graphs' },
+  { path: '/create', icon: Wand2, label: 'AI Generate', description: 'From text or docs' },
+  { path: '/graphs', icon: Move, label: 'Custom Build', description: 'Drag & drop' },
   { path: '/history', icon: Clock, label: 'History' },
 ];
 
@@ -37,9 +41,6 @@ function Sidebar() {
   const { user, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const location = useLocation();
-
-  // Debug: Log when component renders and user changes
-  console.log('🎨 Sidebar RENDER - user.avatar:', user?.avatar ? `exists (${user.avatar.substring(0, 50)}...)` : 'undefined');
   
   // Sidebar states
   const [isCollapsed, setIsCollapsed] = useState(() => {
@@ -112,8 +113,9 @@ function Sidebar() {
   const NavItem = ({ item, showLabel = true }) => (
     <Link
       to={item.path}
-      className={`group relative flex items-center gap-3 px-3 py-2.5 rounded-xl 
+      className={`group relative flex items-center gap-3 rounded-xl 
         transition-all duration-300 ease-out
+        ${showLabel ? 'px-3 py-2.5' : 'px-3 py-2 justify-center'}
         ${isActive(item.path)
           ? isDark 
             ? 'bg-primary-500/20 text-primary-400 shadow-lg shadow-primary-500/10' 
@@ -122,22 +124,25 @@ function Sidebar() {
             ? 'text-gray-400 hover:text-white hover:bg-gray-800/80'
             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
         }`}
-      title={!showLabel ? item.label : undefined}
+      title={!showLabel ? `${item.label}${item.description ? ` - ${item.description}` : ''}` : undefined}
     >
       <item.icon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ease-out
         ${isActive(item.path) ? 'scale-100' : 'group-hover:scale-110 group-hover:text-primary-500'}`} 
       />
-      <span 
-        className={`font-medium text-sm whitespace-nowrap transition-all duration-300 ease-out
+      <div 
+        className={`flex flex-col transition-all duration-300 ease-out
           ${showLabel ? 'opacity-100 translate-x-0 w-auto' : 'opacity-0 -translate-x-3 w-0 overflow-hidden'}`}
       >
-        {item.label}
-      </span>
-      {isActive(item.path) && (
-        <div className={`w-1.5 h-1.5 rounded-full bg-primary-500 transition-all duration-300 ease-out
-          ${showLabel ? 'ml-auto opacity-100' : 'absolute right-2 opacity-100'}`} 
-        />
-      )}
+        <span className="font-medium text-sm whitespace-nowrap">
+          {item.label}
+        </span>
+        {item.description && showLabel && (
+          <span className={`text-[10px] whitespace-nowrap -mt-0.5
+            ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+            {item.description}
+          </span>
+        )}
+      </div>
     </Link>
   );
 
@@ -150,7 +155,7 @@ function Sidebar() {
     <div className={`flex flex-col h-full transition-all duration-300 ease-out ${mobile ? 'p-4' : expanded ? 'p-5' : 'p-3'}`}>
       {/* Logo Section */}
       <div className={`flex items-center gap-3 mb-6 transition-all duration-300 ease-out ${!expanded ? 'justify-center' : ''}`}>
-        <Link to="/dashboard" className="flex items-center gap-3 overflow-hidden">
+        <Link to="/" className="flex items-center gap-3 overflow-hidden">
           <div className="p-2 rounded-xl bg-gradient-to-br from-primary-500 to-purple-500 shadow-lg shadow-primary-500/25 flex-shrink-0 transition-all duration-300 ease-out hover:scale-105 hover:shadow-xl hover:shadow-primary-500/30">
             <Brain className="w-6 h-6 text-white" />
           </div>
@@ -167,9 +172,9 @@ function Sidebar() {
       </div>
 
       {/* Main Navigation */}
-      <nav className="flex-1 space-y-1.5 overflow-hidden">
+      <nav className="flex-1 space-y-1 overflow-hidden">
         <div 
-          className={`mb-3 transition-all duration-300 ease-out overflow-hidden
+          className={`mb-2 transition-all duration-300 ease-out overflow-hidden
             ${!expanded ? 'opacity-0 max-h-0' : 'opacity-100 max-h-10'}`}
         >
           <p className={`text-xs font-semibold uppercase tracking-wider mb-2 px-3
@@ -177,8 +182,16 @@ function Sidebar() {
             Menu
           </p>
         </div>
-        {navItems.map((item) => (
-          <NavItem key={item.path} item={item} showLabel={expanded} />
+        {navItems.map((item, index) => (
+          <div key={item.path}>
+            <NavItem item={item} showLabel={expanded} />
+            {/* Add subtle divider after Home */}
+            {index === 0 && (
+              <div className={`my-1.5 mx-3 border-t transition-opacity duration-300 
+                ${isDark ? 'border-gray-800/60' : 'border-gray-200/60'}`} 
+              />
+            )}
+          </div>
         ))}
       </nav>
 
@@ -199,27 +212,6 @@ function Sidebar() {
         {bottomNavItems.map((item) => (
           <NavItem key={item.path} item={item} showLabel={expanded} />
         ))}
-      </div>
-
-      {/* Theme Toggle */}
-      <div className={`mt-4 transition-all duration-300 ease-out ${!expanded ? 'flex justify-center' : ''}`}>
-        <button
-          onClick={toggleTheme}
-          className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-all duration-300 ease-out
-            ${isDark
-              ? 'text-yellow-400 hover:bg-gray-800/80 hover:shadow-lg hover:shadow-yellow-500/10'
-              : 'text-gray-600 hover:bg-gray-100 hover:shadow-md'
-            }`}
-          title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-        >
-          {isDark ? <Sun className="w-5 h-5 flex-shrink-0 transition-transform duration-300 hover:rotate-12" /> : <Moon className="w-5 h-5 flex-shrink-0 transition-transform duration-300 hover:-rotate-12" />}
-          <span 
-            className={`font-medium text-sm whitespace-nowrap transition-all duration-300 ease-out
-              ${expanded ? 'opacity-100 translate-x-0 w-auto' : 'opacity-0 -translate-x-3 w-0 overflow-hidden'}`}
-          >
-            {isDark ? 'Light Mode' : 'Dark Mode'}
-          </span>
-        </button>
       </div>
 
       {/* User Section */}
@@ -282,36 +274,38 @@ function Sidebar() {
         )}
       </div>
 
-      {/* Pin/Unpin Button (Desktop Only) */}
+      {/* Pin/Unpin Button with Theme Toggle (Desktop Only) */}
       {!mobile && (
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className={`mt-4 flex items-center justify-center gap-2 w-full py-2 rounded-xl 
-            transition-all duration-200 border
-            ${isDark
-              ? 'border-gray-800 text-gray-400 hover:text-white hover:bg-gray-800/80'
-              : 'border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-100'
-            }`}
-          title={isCollapsed ? 'Pin sidebar open' : 'Unpin sidebar (collapse on mouse leave)'}
-        >
-          {expanded ? (
-            <>
-              {isCollapsed ? (
-                <>
-                  <ChevronRight className="w-4 h-4" />
-                  <span className="text-sm font-medium">Pin Open</span>
-                </>
-              ) : (
-                <>
-                  <ChevronLeft className="w-4 h-4" />
-                  <span className="text-sm font-medium">Auto Collapse</span>
-                </>
-              )}
-            </>
-          ) : (
-            <ChevronRight className="w-4 h-4" />
-          )}
-        </button>
+        <div className="mt-4 flex items-center gap-2">
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl 
+              transition-all duration-200 border
+              ${isDark
+                ? 'border-gray-800 text-gray-400 hover:text-white hover:bg-gray-800/80'
+                : 'border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-100'
+              }`}
+            title={isCollapsed ? 'Pin sidebar open' : 'Unpin sidebar (collapse on mouse leave)'}
+          >
+            {expanded ? (
+              <>
+                {isCollapsed ? (
+                  <>
+                    <ChevronRight className="w-4 h-4" />
+                    <span className="text-sm font-medium">Pin Open</span>
+                  </>
+                ) : (
+                  <>
+                    <ChevronLeft className="w-4 h-4" />
+                    <span className="text-sm font-medium">Auto Collapse</span>
+                  </>
+                )}
+              </>
+            ) : (
+              <ChevronRight className="w-4 h-4" />
+            )}
+          </button>
+        </div>
       )}
     </div>
   );

@@ -145,7 +145,7 @@ function DashboardPage() {
       setLoading(true);
       const response = await api.getDashboard();
       if (response.success) {
-        setDashboardData(response);
+        setDashboardData(response.dashboard);
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to load dashboard');

@@ -14,7 +14,13 @@ import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import HistoryPage from './pages/HistoryPage';
 import GraphsPage from './pages/GraphsPage';
+import GraphBuilderPage from './pages/GraphBuilderPage';
 import DemoPage from './pages/DemoPage';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
+import PrivacyPage from './pages/PrivacyPage';
+import TermsPage from './pages/TermsPage';
+import BlogPage from './pages/BlogPage';
 
 // Wrapper for CreatePage - uses AppLayout for authenticated users
 function CreatePageWrapper() {
@@ -47,15 +53,10 @@ function App() {
       <AuthProvider>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Routes>
-            {/* Public Routes */}
-            <Route 
-              path="/" 
-              element={
-                <PublicRoute>
-                  <LandingPage />
-                </PublicRoute>
-              } 
-            />
+            {/* Landing Page - Accessible to everyone */}
+            <Route path="/" element={<LandingPage />} />
+            
+            {/* Auth Routes - Redirect to dashboard if already logged in */}
             <Route 
               path="/login" 
               element={
@@ -130,7 +131,17 @@ function App() {
               element={
                 <ProtectedRoute>
                   <AppLayout>
-                    <CreatePage />
+                    <GraphBuilderPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/graphs/builder" 
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <GraphBuilderPage />
                   </AppLayout>
                 </ProtectedRoute>
               } 
@@ -146,11 +157,43 @@ function App() {
               } 
             />
 
-            {/* Create Page - Works for both authenticated and demo users */}
+             {/* Create Page - Works for both authenticated and demo users */}
             <Route 
               path="/create" 
               element={
                 <CreatePageWrapper />
+              } 
+            />
+
+            {/* Information Pages */}
+            <Route 
+              path="/about" 
+              element={
+                <AboutPage />
+              } 
+            />
+            <Route 
+              path="/contact" 
+              element={
+                <ContactPage />
+              } 
+            />
+            <Route 
+              path="/blog" 
+              element={
+                <BlogPage />
+              } 
+            />
+            <Route 
+              path="/privacy" 
+              element={
+                <PrivacyPage />
+              } 
+            />
+            <Route 
+              path="/terms" 
+              element={
+                <TermsPage />
               } 
             />
 

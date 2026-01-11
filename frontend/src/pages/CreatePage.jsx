@@ -49,16 +49,17 @@ function CreatePage() {
     try {
       setLoading(true);
       setLoadingStatus('Loading graph...');
-      const response = await api.getHistoryById(id);
+      const response = await api.getHistoryItem(id);
       if (response.success) {
-        const data = response.history;
+        const data = response.data;
+        const graphData = data.graphData || {};
         setGraphData({
           success: true,
-          concepts: data.concepts || [],
-          relationships: data.relationships || [],
+          concepts: graphData.concepts || data.concepts || [],
+          relationships: graphData.relationships || data.relationships || [],
           stats: {
-            conceptCount: data.concepts?.length || 0,
-            relationshipCount: data.relationships?.length || 0,
+            conceptCount: data.conceptCount || graphData.concepts?.length || 0,
+            relationshipCount: data.relationshipCount || graphData.relationships?.length || 0,
           }
         });
         setSourceText(data.title || 'Loaded Graph');

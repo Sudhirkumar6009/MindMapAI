@@ -43,7 +43,7 @@ function HistoryPage() {
       setLoading(true);
       const response = await api.getHistory();
       if (response.success) {
-        setHistory(response.history || []);
+        setHistory(response.data || []);
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to load history');
@@ -56,7 +56,7 @@ function HistoryPage() {
     if (!confirm('Are you sure you want to delete this graph?')) return;
 
     try {
-      await api.deleteFromHistory(id);
+      await api.deleteHistoryItem(id);
       setHistory(prev => prev.filter(item => item._id !== id));
     } catch (err) {
       setError('Failed to delete graph');

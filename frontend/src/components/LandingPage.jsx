@@ -1,37 +1,41 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { 
-  Brain, 
-  Sparkles, 
-  FileText, 
-  Github, 
-  Image, 
-  Zap, 
-  ArrowRight, 
-  ChevronDown,
   Network,
-  Lightbulb,
-  Target,
-  Users,
-  Star,
-  Play,
-  CheckCircle2,
-  Workflow,
-  BarChart3,
-  Shield,
-  Clock,
+  FileText,
+  FolderTree,
+  GitBranch,
+  Download,
+  Share2,
+  Layers,
+  Settings,
+  Plus,
+  ArrowRight,
+  MousePointer,
+  Grid,
+  Hexagon,
+  Box,
+  Maximize2,
+  Minimize2,
+  RotateCw,
   Sun,
   Moon,
-  LogIn
+  LogIn,
+  Github,
+  Twitter,
+  Linkedin
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import UserMenu from './UserMenu';
-import { getDemoUsage } from '../utils/demoStorage';
+import { ClickSpark } from './animations/ClickSpark';
+import GridMotion from './animations/GridMotion';
 
-// ============================================
-// LANDING PAGE HEADER COMPONENT
-// ============================================
+// Import assets
+import image1 from '../assets/1.png';
+import image2 from '../assets/2.png';
+import image3 from '../assets/3.png';
+
 const LandingHeader = () => {
   const { isDark, toggleTheme } = useTheme();
   const { isAuthenticated, loading } = useAuth();
@@ -44,37 +48,40 @@ const LandingHeader = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleSignIn = () => {
+    navigate('/login', { replace: false, state: { fromLanding: true } });
+  };
+
   return (
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300
         ${scrolled 
-          ? `${isDark ? 'bg-gray-900/95 border-gray-700' : 'bg-white/95 border-gray-200'} backdrop-blur-xl border-b shadow-lg` 
+          ? `${isDark ? 'bg-gray-900/95 border-gray-700' : 'bg-white/95 border-gray-200'} backdrop-blur-xl border-b` 
           : 'bg-transparent'}`}
     >
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg shadow-blue-500/25">
-              <Brain className="w-7 h-7 text-white" />
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-3 cursor-pointer"
+          >
+            <div className="p-2.5 rounded-xl border-2 flex items-center justify-center">
+              <Network className={`w-7 h-7 ${isDark ? 'text-blue-500' : 'text-blue-600'}`} />
             </div>
             <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">
-                MindMap AI
+              <h1 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                MindMap
               </h1>
               <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                AI-Powered Knowledge Maps
+                Visual Knowledge Mapper
               </p>
             </div>
-          </Link>
+          </button>
 
-          {/* Right side - Theme toggle & Profile/Login */}
           <div className="flex items-center gap-3">
-
-            {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className={`p-2.5 rounded-xl border-2 transition-all duration-300 hover:scale-105
+              className={`p-2.5 rounded-xl border-2 transition-all duration-300
                 ${isDark
                   ? 'bg-gray-800 border-gray-700 hover:border-gray-600 text-yellow-400'
                   : 'bg-white border-gray-200 hover:border-gray-300 text-gray-600'
@@ -84,20 +91,18 @@ const LandingHeader = () => {
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
-            {/* Profile / Login */}
             {!loading && (
               isAuthenticated ? (
                 <UserMenu onNavigate={(path) => navigate(`/${path}`)} />
               ) : (
-                <Link
-                  to="/login"
-                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 
-                           hover:from-blue-500 hover:to-purple-500 rounded-xl font-semibold text-sm 
-                           transition-all shadow-lg shadow-blue-500/25 text-white hover:scale-105"
+                <button
+                  onClick={handleSignIn}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 
+                           rounded-xl font-semibold text-sm transition-all text-white"
                 >
                   <LogIn className="w-4 h-4" />
                   <span>Sign In</span>
-                </Link>
+                </button>
               )
             )}
           </div>
@@ -107,586 +112,705 @@ const LandingHeader = () => {
   );
 };
 
-// ============================================
-// ANIMATED BACKGROUND COMPONENT
-// ============================================
-const AnimatedBackground = () => {
+const FeatureCard = ({ icon: Icon, title, description, items = [], onClick }) => {
   const { isDark } = useTheme();
-  
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {/* Gradient orbs */}
-      <div 
-        className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-30 animate-pulse-slow
-          ${isDark ? 'bg-blue-600' : 'bg-blue-400'}`}
-        style={{ animationDuration: '8s' }}
-      />
-      <div 
-        className={`absolute top-1/2 right-1/4 w-80 h-80 rounded-full blur-3xl opacity-25 animate-pulse-slow
-          ${isDark ? 'bg-purple-600' : 'bg-purple-400'}`}
-        style={{ animationDuration: '10s', animationDelay: '2s' }}
-      />
-      <div 
-        className={`absolute bottom-1/4 left-1/3 w-72 h-72 rounded-full blur-3xl opacity-20 animate-pulse-slow
-          ${isDark ? 'bg-cyan-600' : 'bg-cyan-400'}`}
-        style={{ animationDuration: '12s', animationDelay: '4s' }}
-      />
-      
-      {/* Grid pattern */}
-      <div 
-        className={`absolute inset-0 opacity-[0.03]`}
-        style={{
-          backgroundImage: `linear-gradient(${isDark ? '#fff' : '#000'} 1px, transparent 1px), 
-                           linear-gradient(90deg, ${isDark ? '#fff' : '#000'} 1px, transparent 1px)`,
-          backgroundSize: '60px 60px'
-        }}
-      />
-    </div>
-  );
-};
+  const [isHovered, setIsHovered] = useState(false);
 
-// ============================================
-// FEATURE CARD COMPONENT
-// ============================================
-const FeatureCard = ({ icon: Icon, title, description, gradient, delay = 0 }) => {
-  const { isDark } = useTheme();
-  const [isVisible, setIsVisible] = useState(false);
-  
-  useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), delay);
-    return () => clearTimeout(timer);
-  }, [delay]);
-  
   return (
-    <div 
-      className={`group relative p-6 rounded-2xl border transition-all duration-500 cursor-pointer
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`group relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300
         ${isDark 
-          ? 'bg-gray-800/50 border-gray-700/50 hover:border-gray-600' 
-          : 'bg-white/70 border-gray-200 hover:border-gray-300 hover:shadow-xl'}
-        ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
-        hover:scale-[1.02] hover:-translate-y-1`}
-      style={{ transitionDelay: `${delay}ms` }}
+          ? 'bg-gray-800/50 border-gray-700 hover:border-blue-500' 
+          : 'bg-white border-gray-200 hover:border-blue-500'}
+        ${isHovered ? 'scale-[1.02] shadow-lg' : ''}`}
     >
-      {/* Gradient overlay on hover */}
-      <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-500 ${gradient}`} />
-      
-      {/* Icon */}
-      <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110 ${gradient}`}>
-        <Icon className="w-7 h-7 text-white" />
+      <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-colors
+        ${isDark ? 'bg-gray-700 group-hover:bg-blue-500/20' : 'bg-gray-100 group-hover:bg-blue-50'}`}>
+        <Icon className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
       </div>
-      
-      {/* Content */}
-      <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+
+      <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
         {title}
       </h3>
-      <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+      <p className={`text-sm mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
         {description}
       </p>
-      
-      {/* Arrow indicator */}
-      <div className={`mt-4 flex items-center gap-2 text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-2
-        ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
-        Learn more <ArrowRight className="w-4 h-4" />
+
+      {items.length > 0 && (
+        <ul className="space-y-2">
+          {items.map((item, i) => (
+            <li key={i} className={`flex items-center gap-2 text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <div className={`w-1.5 h-1.5 rounded-full ${isDark ? 'bg-blue-500' : 'bg-blue-600'}`} />
+              {item}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className={`absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity`}>
+        <ArrowRight className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
       </div>
     </div>
   );
 };
 
-// ============================================
-// STAT CARD COMPONENT
-// ============================================
-const StatCard = ({ value, label, icon: Icon, delay = 0 }) => {
-  const { isDark } = useTheme();
-  const [count, setCount] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
-  
-  useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), delay);
-    return () => clearTimeout(timer);
-  }, [delay]);
-  
-  useEffect(() => {
-    if (isVisible) {
-      const numValue = parseInt(value.replace(/\D/g, ''));
-      const duration = 2000;
-      const steps = 60;
-      const increment = numValue / steps;
-      let current = 0;
-      
-      const timer = setInterval(() => {
-        current += increment;
-        if (current >= numValue) {
-          setCount(numValue);
-          clearInterval(timer);
-        } else {
-          setCount(Math.floor(current));
-        }
-      }, duration / steps);
-      
-      return () => clearInterval(timer);
-    }
-  }, [isVisible, value]);
-  
-  const displayValue = value.includes('+') ? `${count}+` : value.includes('K') ? `${count}K` : count.toString();
-  
+const DiagramNode = ({ icon: Icon, color, position, label, isDark, isCenter, delay = 0 }) => {
+  const colorClasses = {
+    blue: { bg: isDark ? 'bg-blue-500/20' : 'bg-blue-50', border: 'border-blue-500', text: isDark ? 'text-blue-400' : 'text-blue-600', shadow: isDark ? 'shadow-blue-500/30' : 'shadow-blue-500/20' },
+    purple: { bg: isDark ? 'bg-purple-500/20' : 'bg-purple-50', border: 'border-purple-500', text: isDark ? 'text-purple-400' : 'text-purple-600', shadow: isDark ? 'shadow-purple-500/30' : 'shadow-purple-500/20' },
+    green: { bg: isDark ? 'bg-green-500/20' : 'bg-green-50', border: 'border-green-500', text: isDark ? 'text-green-400' : 'text-green-600', shadow: isDark ? 'shadow-green-500/30' : 'shadow-green-500/20' },
+    orange: { bg: isDark ? 'bg-orange-500/20' : 'bg-orange-50', border: 'border-orange-500', text: isDark ? 'text-orange-400' : 'text-orange-600', shadow: isDark ? 'shadow-orange-500/30' : 'shadow-orange-500/20' },
+    cyan: { bg: isDark ? 'bg-cyan-500/20' : 'bg-cyan-50', border: 'border-cyan-500', text: isDark ? 'text-cyan-400' : 'text-cyan-600', shadow: isDark ? 'shadow-cyan-500/30' : 'shadow-cyan-500/20' },
+  };
+
+  const classes = colorClasses[color];
+
   return (
     <div 
-      className={`text-center p-6 rounded-2xl transition-all duration-500
-        ${isDark ? 'bg-gray-800/30' : 'bg-white/50'}
-        ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-      style={{ transitionDelay: `${delay}ms` }}
+      className={`absolute ${position} transform -translate-x-1/2 -translate-y-1/2 
+        flex flex-col items-center gap-2 transition-all duration-500 hover:scale-110 
+        animate-in fade-in zoom-in`}
+      style={{ animationDelay: `${delay}ms` }}
     >
-      <Icon className={`w-8 h-8 mx-auto mb-3 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-      <div className={`text-4xl font-bold mb-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-        {displayValue}
+      <div 
+        className={`${isCenter ? 'w-28 h-28' : 'w-20 h-20'} rounded-2xl flex items-center justify-center 
+          border-2 ${classes.bg} ${classes.border} ${classes.shadow} shadow-lg
+          backdrop-blur-sm transition-all duration-300 hover:shadow-2xl group`}
+      >
+        <Icon className={`w-8 h-8 ${isCenter ? 'w-12 h-12' : ''} ${classes.text} transition-transform duration-300 group-hover:scale-110`} />
       </div>
-      <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{label}</div>
-    </div>
-  );
-};
-
-// ============================================
-// HOW IT WORKS STEP
-// ============================================
-const StepCard = ({ number, title, description, icon: Icon, isLast = false }) => {
-  const { isDark } = useTheme();
-  
-  return (
-    <div className="relative flex items-start gap-4">
-      {/* Connector line */}
-      {!isLast && (
-        <div className={`absolute left-6 top-14 w-0.5 h-full ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`} />
+      {label && (
+        <span className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} 
+          px-2 py-1 rounded-md ${isDark ? 'bg-gray-700/50' : 'bg-gray-100'} 
+          transition-all duration-300 hover:scale-105`}>
+          {label}
+        </span>
       )}
-      
-      {/* Step number */}
-      <div className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg shrink-0
-        bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg`}>
-        {number}
-      </div>
-      
-      {/* Content */}
-      <div className="pb-12">
-        <div className="flex items-center gap-3 mb-2">
-          <Icon className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-          <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{title}</h3>
+    </div>
+  );
+};
+
+const DiagramPreview = () => {
+  const { isDark } = useTheme();
+
+  return (
+    <div 
+      className={`relative w-full aspect-square max-w-md mx-auto rounded-3xl overflow-hidden
+        ${isDark ? 'bg-gray-800/80 border-2 border-gray-700' : 'bg-white/80 border-2 border-gray-200'} 
+        backdrop-blur-xl shadow-2xl transition-all duration-500 hover:shadow-blue-500/10 hover:scale-[1.02] 
+        animate-gentle-float`}
+      style={{
+        background: isDark 
+          ? 'linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%)'
+          : 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.95) 100%)'
+      }}
+    >
+      <div className="absolute inset-0 p-10">
+        <div className="relative w-full h-full">
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ opacity: 0.7 }}>
+            <defs>
+              <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor={isDark ? '#60a5fa' : '#3b82f6'} stopOpacity="0.9" />
+                <stop offset="100%" stopColor={isDark ? '#a78bfa' : '#8b5cf6'} stopOpacity="0.9" />
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            <line 
+              x1="50%" y1="28%" x2="50%" y2="50%" 
+              stroke="url(#lineGradient)" 
+              strokeWidth="3" 
+              strokeLinecap="round"
+              filter="url(#glow)"
+              className="transition-all duration-700"
+            />
+            <line 
+              x1="50%" y1="50%" x2="50%" y2="72%" 
+              stroke="url(#lineGradient)" 
+              strokeWidth="3" 
+              strokeLinecap="round"
+              filter="url(#glow)"
+              className="transition-all duration-700"
+            />
+            <line 
+              x1="22%" y1="50%" x2="50%" y2="50%" 
+              stroke="url(#lineGradient)" 
+              strokeWidth="3" 
+              strokeLinecap="round"
+              filter="url(#glow)"
+              className="transition-all duration-700"
+            />
+            <line 
+              x1="50%" y1="50%" x2="78%" y2="50%" 
+              stroke="url(#lineGradient)" 
+              strokeWidth="3" 
+              strokeLinecap="round"
+              filter="url(#glow)"
+              className="transition-all duration-700"
+            />
+          </svg>
+
+          <DiagramNode
+            icon={Network}
+            color="blue"
+            position="top-1/2 left-1/2"
+            label="Mind Map"
+            isDark={isDark}
+            isCenter={true}
+            delay={100}
+          />
+          
+          <DiagramNode
+            icon={Hexagon}
+            color="purple"
+            position="top-8 left-1/2"
+            label="Flowchart"
+            isDark={isDark}
+            isCenter={false}
+            delay={300}
+          />
+          
+          <DiagramNode
+            icon={Box}
+            color="green"
+            position="bottom-8 left-1/2"
+            label="Structure"
+            isDark={isDark}
+            isCenter={false}
+            delay={400}
+          />
+          
+          <DiagramNode
+            icon={FolderTree}
+            color="orange"
+            position="top-1/2 left-8"
+            label="Tree"
+            isDark={isDark}
+            isCenter={false}
+            delay={500}
+          />
+          
+          <DiagramNode
+            icon={GitBranch}
+            color="cyan"
+            position="top-1/2 right-8"
+            label="Network"
+            isDark={isDark}
+            isCenter={false}
+            delay={600}
+          />
+
+          <div 
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+              w-36 h-36 rounded-full border-2 border-dashed animate-spin-slow"
+            style={{ 
+              borderColor: isDark ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.3)'
+            }}
+          />
+          
+          <div 
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+              w-44 h-44 rounded-full border border-dotted animate-pulse-ring"
+            style={{ 
+              borderColor: isDark ? 'rgba(139, 92, 246, 0.2)' : 'rgba(139, 92, 246, 0.2)'
+            }}
+          />
         </div>
-        <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{description}</p>
       </div>
     </div>
   );
 };
 
-// ============================================
-// MAIN LANDING PAGE COMPONENT
-// ============================================
+const Footer = () => {
+  const { isDark } = useTheme();
+  const navigate = useNavigate();
+
+  const handleNavigation = (path) => {
+    navigate(path, { replace: false, state: { fromLanding: true } });
+    window.scrollTo(0, 0);
+  };
+
+  const handleExternalLink = (url) => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  return (
+    <footer className={`py-16 px-6 ${isDark ? 'bg-gray-900 border-t border-gray-800' : 'bg-gray-100 border-t border-gray-200'}`}>
+      <div className="max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-4 gap-12 mb-12">
+          {/* Brand */}
+          <div className="md:col-span-2">
+            <button
+              onClick={() => handleNavigation('/')}
+              className="flex items-center gap-3 mb-4 cursor-pointer"
+            >
+              <div className="w-10 h-10 rounded-xl border-2 flex items-center justify-center">
+                <Network className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+              </div>
+              <span className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                MindMap
+              </span>
+            </button>
+            <p className={`max-w-md mb-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+              Transform complex information into beautiful, interactive mind maps. 
+              Built for students, researchers, and professionals.
+            </p>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => handleExternalLink('https://github.com')}
+                className={`p-2.5 rounded-lg transition-colors cursor-pointer
+                  ${isDark ? 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700' : 'bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-200'}`}
+                title="GitHub"
+              >
+                <Github className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => handleExternalLink('https://twitter.com')}
+                className={`p-2.5 rounded-lg transition-colors cursor-pointer
+                  ${isDark ? 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700' : 'bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-200'}`}
+                title="Twitter"
+              >
+                <Twitter className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => handleExternalLink('https://linkedin.com')}
+                className={`p-2.5 rounded-lg transition-colors cursor-pointer
+                  ${isDark ? 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700' : 'bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-200'}`}
+                title="LinkedIn"
+              >
+                <Linkedin className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+          
+          {/* Product */}
+          <div>
+            <h4 className={`font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Product</h4>
+            <ul className="space-y-2">
+              <li>
+                <button 
+                  onClick={() => handleNavigation('/create')}
+                  className={`text-left transition-colors cursor-pointer ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
+                >
+                  Features
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => handleNavigation('/history')}
+                  className={`text-left transition-colors cursor-pointer ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
+                >
+                  Diagram Types
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => handleNavigation('/dashboard')}
+                  className={`text-left transition-colors cursor-pointer ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
+                >
+                  Use Cases
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => handleNavigation('/settings')}
+                  className={`text-left transition-colors cursor-pointer ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
+                >
+                  Settings
+                </button>
+              </li>
+            </ul>
+          </div>
+          
+          {/* Company */}
+          <div>
+            <h4 className={`font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Company</h4>
+            <ul className="space-y-2">
+              <li>
+                <button 
+                  onClick={() => handleNavigation('/about')}
+                  className={`text-left transition-colors cursor-pointer ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
+                >
+                  About
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => handleNavigation('/blog')}
+                  className={`text-left transition-colors cursor-pointer ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
+                >
+                  Blog
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => handleExternalLink('https://github.com/jobs')}
+                  className={`text-left transition-colors cursor-pointer ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
+                >
+                  Careers
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => handleNavigation('/contact')}
+                  className={`text-left transition-colors cursor-pointer ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
+                >
+                  Contact
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        {/* Bottom */}
+        <div className={`pt-8 border-t ${isDark ? 'border-gray-800' : 'border-gray-200'} flex flex-col md:flex-row items-center justify-between gap-4`}>
+          <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+            © 2026 MindMap. Professional Diagramming Tool.
+          </p>
+          <div className="flex items-center gap-6">
+            <button 
+              onClick={() => handleNavigation('/privacy')}
+              className={`text-sm transition-colors cursor-pointer ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
+            >
+              Privacy Policy
+            </button>
+            <button 
+              onClick={() => handleNavigation('/terms')}
+              className={`text-sm transition-colors cursor-pointer ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
+            >
+              Terms of Service
+            </button>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
 function LandingPage() {
   const { isDark } = useTheme();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [scrollY, setScrollY] = useState(0);
-  const [currentDemoUsage, setCurrentDemoUsage] = useState(0);
 
-  // Sync demo usage from storage
-  useEffect(() => {
-    setCurrentDemoUsage(getDemoUsage());
-  }, []);
+  // Grid motion items for background
+  const gridItems = [
+    'Mind Maps',
+    <div key='jsx-1' className="flex items-center justify-center"><Network className="w-8 h-8" /></div>,
+    image1,
+    'Flowcharts',
+    <div key='jsx-2' className="flex items-center justify-center"><GitBranch className="w-8 h-8" /></div>,
+    'Diagrams',
+    <div key='jsx-3' className="flex items-center justify-center"><FolderTree className="w-8 h-8" /></div>,
+    image2,
+    'Knowledge',
+    <div key='jsx-4' className="flex items-center justify-center"><Layers className="w-8 h-8" /></div>,
+    'Visualize',
+    <div key='jsx-5' className="flex items-center justify-center"><Hexagon className="w-8 h-8" /></div>,
+    image3,
+    'Organize',
+    <div key='jsx-6' className="flex items-center justify-center"><Box className="w-8 h-8" /></div>,
+    'Connect',
+    <div key='jsx-7' className="flex items-center justify-center"><Share2 className="w-8 h-8" /></div>,
+    image1,
+    'Create',
+    <div key='jsx-8' className="flex items-center justify-center"><Plus className="w-8 h-8" /></div>,
+    'Ideas',
+    <div key='jsx-9' className="flex items-center justify-center"><Grid className="w-8 h-8" /></div>,
+    image2,
+    'Structure',
+    <div key='jsx-10' className="flex items-center justify-center"><Settings className="w-8 h-8" /></div>,
+    'Export',
+    <div key='jsx-11' className="flex items-center justify-center"><Download className="w-8 h-8" /></div>,
+  ];
 
-  // Handle try demo - navigate to create page
-  const handleTryDemo = () => {
+  const handleCreateDiagram = () => {
     if (isAuthenticated) {
-      navigate('/dashboard');
+      navigate('/create', { replace: false, state: { fromLanding: true } });
     } else {
-      navigate('/create?mode=demo');
+      navigate('/register', { replace: false, state: { fromLanding: true } });
     }
   };
-  
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-  
-  const features = [
-    {
-      icon: FileText,
-      title: 'Text to Mind Map',
-      description: 'Transform any text, article, or document into a beautiful, interactive mind map in seconds.',
-      gradient: 'bg-gradient-to-br from-blue-500 to-blue-700',
-      delay: 100
-    },
-    {
-      icon: Github,
-      title: 'GitHub Analyzer',
-      description: 'Visualize repository architecture, understand codebases, and explore project structures.',
-      gradient: 'bg-gradient-to-br from-purple-500 to-purple-700',
-      delay: 200
-    },
-    {
-      icon: Image,
-      title: 'PDF Support',
-      description: 'Upload PDF documents and automatically extract key concepts and relationships.',
-      gradient: 'bg-gradient-to-br from-green-500 to-green-700',
-      delay: 300
-    },
-    {
-      icon: Zap,
-      title: 'AI-Powered',
-      description: 'Powered by Google Gemini 2.5 for accurate concept extraction and intelligent analysis.',
-      gradient: 'bg-gradient-to-br from-yellow-500 to-orange-600',
-      delay: 400
-    },
-    {
-      icon: Network,
-      title: 'Interactive Graphs',
-      description: 'Drag, edit, connect, and customize nodes with React Flow for full graph manipulation.',
-      gradient: 'bg-gradient-to-br from-cyan-500 to-cyan-700',
-      delay: 500
-    },
-    {
-      icon: Lightbulb,
-      title: 'In-Depth Analysis',
-      description: 'Click any concept cluster for deeper AI-powered analysis and expanded insights.',
-      gradient: 'bg-gradient-to-br from-pink-500 to-pink-700',
-      delay: 600
-    }
-  ];
-  
-  const stats = [
-    { value: '50+', label: 'Concepts Extracted', icon: Brain },
-    { value: '100+', label: 'Relationships Found', icon: Network },
-    { value: '5', label: 'Export Formats', icon: FileText },
-    { value: '10K', label: 'Graphs Generated', icon: BarChart3 }
-  ];
-  
-  const steps = [
-    {
-      number: 1,
-      title: 'Input Your Content',
-      description: 'Paste text, upload a PDF, or enter a GitHub repository URL to get started.',
-      icon: FileText
-    },
-    {
-      number: 2,
-      title: 'AI Processes Your Data',
-      description: 'Our AI agents extract concepts, identify relationships, and structure your knowledge.',
-      icon: Brain
-    },
-    {
-      number: 3,
-      title: 'Visualize & Explore',
-      description: 'View your interactive mind map with multiple layouts, styles, and color palettes.',
-      icon: Network
-    },
-    {
-      number: 4,
-      title: 'Customize & Export',
-      description: 'Edit nodes, add connections, apply filters, and export in various formats.',
-      icon: Sparkles
-    }
-  ];
-  
-  const remainingDemos = Math.max(0, 3 - currentDemoUsage);
+
+  const handleTryDemo = () => {
+    navigate('/create', { replace: false, state: { fromLanding: true, mode: 'demo' } });
+  };
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      {/* Header */}
+    <div className={`min-h-screen relative overflow-hidden
+      ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
+      
+      {/* Full page GridMotion background */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <GridMotion 
+          items={gridItems}
+          gradientColor={isDark ? '#043000' : '#b6ffb0'}
+          isDark={isDark}
+        />
+      </div>
+
+      {/* Overlay to ensure content readability */}
+      <div className={`fixed inset-0 z-[1] pointer-events-none transition-colors duration-300
+        ${isDark ? 'bg-gray-950/70' : 'bg-gray-50/80'}`} />
+
       <LandingHeader />
-      
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <AnimatedBackground />
-        
-        <div className="relative z-10 max-w-6xl mx-auto px-6 py-20 text-center">
-          {/* Badge */}
-          <div 
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-8
-              ${isDark ? 'bg-blue-500/20 text-blue-300' : 'bg-blue-100 text-blue-700'}
-              animate-fade-in`}
-          >
-            <Sparkles className="w-4 h-4" />
-            Powered by Google Gemini 2.5 AI
-          </div>
-          
-          {/* Main heading */}
-          <h1 
-            className={`text-5xl md:text-7xl font-extrabold mb-6 leading-tight
-              ${isDark ? 'text-white' : 'text-gray-900'}
-              animate-slide-up`}
-            style={{ 
-              transform: `translateY(${scrollY * 0.1}px)`,
-              opacity: 1 - scrollY * 0.002
-            }}
-          >
-            Transform Ideas into
-            <span className="block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">
-              Visual Knowledge Maps
-            </span>
-          </h1>
-          
-          {/* Subtitle */}
-          <p 
-            className={`text-xl md:text-2xl mb-10 max-w-3xl mx-auto
-              ${isDark ? 'text-gray-300' : 'text-gray-600'}
-              animate-slide-up`}
-            style={{ animationDelay: '200ms' }}
-          >
-            AI-powered mind map generator for students, researchers, and professionals. 
-            Extract concepts from text, PDFs, and GitHub repositories instantly.
-          </p>
-          
-          {/* CTA Buttons */}
-          <div 
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-slide-up"
-            style={{ animationDelay: '400ms' }}
-          >
-            <Link
-              to="/login"
-              className="group flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105"
-            >
-              Get Started Free
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            
-            <button
-              onClick={handleTryDemo}
-              disabled={remainingDemos <= 0 && !isAuthenticated}
-              className={`group flex items-center gap-2 px-8 py-4 font-bold text-lg rounded-xl border-2 transition-all duration-300 hover:scale-105
-                ${remainingDemos <= 0 && !isAuthenticated
-                  ? 'opacity-50 cursor-not-allowed border-gray-500 text-gray-500'
-                  : isDark 
-                    ? 'border-gray-600 text-gray-300 hover:border-gray-500 hover:bg-gray-800' 
-                    : 'border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-100'}`}
-            >
-              <Play className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              {isAuthenticated ? 'Open App' : 'Try Demo'}
-              {!isAuthenticated && (
-                <span className={`text-xs px-2 py-0.5 rounded-full ml-1
-                  ${remainingDemos <= 0 
-                    ? 'bg-red-500/20 text-red-400'
-                    : isDark ? 'bg-gray-700 text-gray-400' : 'bg-gray-200 text-gray-600'}`}>
-                  {remainingDemos} left
-                </span>
-              )}
-            </button>
-          </div>
-          
-          {/* Scroll indicator */}
-          <div className="animate-bounce">
-            <ChevronDown className={`w-8 h-8 mx-auto ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
-          </div>
-        </div>
-      </section>
-      
-      {/* Features Section */}
-      <section className={`py-24 ${isDark ? 'bg-gray-800/50' : 'bg-white'}`}>
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className={`text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              Powerful Features for Knowledge Visualization
-            </h2>
-            <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              Everything you need to transform complex information into clear, interactive mind maps.
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, index) => (
-              <FeatureCard key={index} {...feature} />
-            ))}
-          </div>
-        </div>
-      </section>
-      
-      {/* Stats Section */}
-      <section className={`py-20 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
-              <StatCard key={index} {...stat} delay={index * 100} />
-            ))}
-          </div>
-        </div>
-      </section>
-      
-      {/* How It Works Section */}
-      <section className={`py-24 ${isDark ? 'bg-gray-800/50' : 'bg-white'}`}>
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className={`text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              How It Works
-            </h2>
-            <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              Create your mind map in four simple steps
-            </p>
-          </div>
-          
-          <div className="max-w-xl mx-auto">
-            {steps.map((step, index) => (
-              <StepCard key={index} {...step} isLast={index === steps.length - 1} />
-            ))}
-          </div>
-        </div>
-      </section>
-      
-      {/* Use Cases Section */}
-      <section className={`py-24 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className={`text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              Built for Everyone
-            </h2>
-            <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              From students to professionals, MindMapAI adapts to your needs
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Users,
-                title: 'Students',
-                description: 'Summarize lecture notes, research papers, and textbooks into visual study guides.',
-                features: ['Study notes', 'Exam prep', 'Thesis research']
-              },
-              {
-                icon: Target,
-                title: 'Researchers',
-                description: 'Map literature reviews, analyze complex papers, and visualize research connections.',
-                features: ['Literature mapping', 'Data analysis', 'Paper synthesis']
-              },
-              {
-                icon: Workflow,
-                title: 'Developers',
-                description: 'Understand codebases, document architecture, and onboard to new projects faster.',
-                features: ['Code architecture', 'API documentation', 'Project planning']
-              }
-            ].map((useCase, index) => (
-              <div 
-                key={index}
-                className={`p-8 rounded-2xl border transition-all duration-300 hover:scale-[1.02]
-                  ${isDark 
-                    ? 'bg-gray-800/50 border-gray-700 hover:border-gray-600' 
-                    : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-lg'}`}
-              >
-                <useCase.icon className={`w-10 h-10 mb-4 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-                <h3 className={`text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                  {useCase.title}
-                </h3>
-                <p className={`mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                  {useCase.description}
-                </p>
-                <ul className="space-y-2">
-                  {useCase.features.map((feature, i) => (
-                    <li key={i} className={`flex items-center gap-2 text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                      <CheckCircle2 className="w-4 h-4 text-green-500" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
+
+      <main className="relative z-10">
+        <section className="min-h-screen flex items-center justify-center px-6 pt-24 pb-12">
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8 relative">
+              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium relative z-10
+                ${isDark ? 'bg-blue-500/20 text-blue-300' : 'bg-blue-100 text-blue-700'}`}>
+                <Layers className="w-4 h-4" />
+                Visual Knowledge Mapping
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      
-      {/* CTA Section */}
-      <section className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600" />
-        <div className="absolute inset-0 bg-black/20" />
-        
-        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Ready to Visualize Your Ideas?
-          </h2>
-          <p className="text-xl text-white/80 mb-10">
-            Join thousands of users transforming complex information into clear visual maps.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              to="/login"
-              className="group inline-flex items-center gap-2 px-10 py-5 bg-white text-gray-900 font-bold text-lg rounded-xl shadow-2xl hover:shadow-white/25 transition-all duration-300 hover:scale-105"
-            >
-              Start Creating Now
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <button
-              onClick={handleTryDemo}
-              disabled={remainingDemos <= 0 && !isAuthenticated}
-              className={`group flex items-center gap-2 px-8 py-4 font-bold text-lg rounded-xl border-2 border-white/30 text-white hover:bg-white/10 transition-all duration-300 hover:scale-105
-                ${remainingDemos <= 0 && !isAuthenticated
-                  ? 'opacity-50 cursor-not-allowed'
-                  : ''}`}
-            >
-              <Play className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              {isAuthenticated ? 'Open App' : 'Try Demo'}
-              {!isAuthenticated && (
-                <span className={`text-xs px-2 py-0.5 rounded-full ml-1 bg-white/20 text-white`}>
-                  {remainingDemos} left
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
-      </section>
-      
-      {/* Footer */}
-      <footer className={`py-16 ${isDark ? 'bg-gray-900 border-t border-gray-800' : 'bg-gray-100 border-t border-gray-200'}`}>
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
-            {/* Brand */}
-            <div className="md:col-span-2">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                  <Brain className="w-6 h-6 text-white" />
+
+              <h1 className={`text-5xl md:text-6xl font-bold leading-tight
+                ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                Organize Ideas into
+                <br />
+                <span className="text-blue-600">Structured Diagrams</span>
+              </h1>
+
+              <p className={`text-lg max-w-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                Create professional mind maps, flowcharts, and knowledge graphs. 
+                Transform complex information into clear, visual structures.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={handleCreateDiagram}
+                  className="flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 
+                           text-white font-bold rounded-xl transition-all hover:scale-105"
+                >
+                  <Plus className="w-5 h-5" />
+                  Create Diagram
+                </button>
+                
+                <button
+                  onClick={handleTryDemo}
+                  className="flex items-center justify-center gap-2 px-8 py-4 border-2 
+                           rounded-xl font-semibold transition-all hover:scale-105
+                           bg-transparent
+                           hover:bg-blue-600 hover:text-white
+                           hover:border-blue-600
+                           border-blue-600
+                           text-blue-600"
+                >
+                  <MousePointer className="w-5 h-5" />
+                  Try Demo
+                </button>
+              </div>
+
+              <div className={`flex items-center gap-6 pt-4 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                <div className="flex items-center gap-2">
+                  <Grid className="w-5 h-5" />
+                  <span className="text-sm">Grid Layouts</span>
                 </div>
-                <span className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                  MindMapAI
-                </span>
+                <div className="flex items-center gap-2">
+                  <Hexagon className="w-5 h-5" />
+                  <span className="text-sm">Custom Shapes</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Share2 className="w-5 h-5" />
+                  <span className="text-sm">Export Options</span>
+                </div>
               </div>
-              <p className={`max-w-md ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                Transform complex information into beautiful, interactive mind maps using the power of AI. 
-                Built for students, researchers, and professionals.
+            </div>
+
+            <div className="relative">
+              <div className="relative">
+                <DiagramPreview />
+                <div 
+                  style={{ width: '100%', height: '100%', position: 'absolute', inset: 0, borderRadius: '1rem' }}>
+                  <ClickSpark
+                    sparkColor="#2563EB"
+                    sparkSize={8}
+                    sparkRadius={20}
+                    sparkCount={12}
+                    duration={500}
+                    easing="ease-out"
+                    extraScale={1.5}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className={`py-24 px-6 ${isDark ? 'bg-gray-900/50' : 'bg-white'}`}>
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className={`text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                Diagram Types
+              </h2>
+              <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                Choose perfect visualization for your project needs
               </p>
             </div>
-            
-            {/* Links */}
-            <div>
-              <h4 className={`font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Product</h4>
-              <ul className={`space-y-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                <li><a href="#" className="hover:underline">Features</a></li>
-                <li><a href="#" className="hover:underline">Pricing</a></li>
-                <li><a href="#" className="hover:underline">Documentation</a></li>
-                <li><a href="#" className="hover:underline">API</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className={`font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Company</h4>
-              <ul className={`space-y-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                <li><a href="#" className="hover:underline">About</a></li>
-                <li><a href="#" className="hover:underline">Blog</a></li>
-                <li><a href="#" className="hover:underline">Careers</a></li>
-                <li><a href="#" className="hover:underline">Contact</a></li>
-              </ul>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <FeatureCard
+                icon={Network}
+                title="Mind Maps"
+                description="Brainstorm and organize ideas with hierarchical structures"
+                items={[
+                  "Central topic expansion",
+                  "Auto-layout options",
+                  "Color-coded branches"
+                ]}
+                onClick={() => navigate('/create')}
+              />
+              
+              <FeatureCard
+                icon={GitBranch}
+                title="Flowcharts"
+                description="Map processes and decision flows with precision"
+                items={[
+                  "Process mapping",
+                  "Decision nodes",
+                  "Connectors with labels"
+                ]}
+                onClick={() => navigate('/create')}
+              />
+              
+              <FeatureCard
+                icon={Network}
+                title="Network Diagrams"
+                description="Visualize complex relationships and dependencies"
+                items={[
+                  "Node connections",
+                  "Weighted edges",
+                  "Cluster analysis"
+                ]}
+                onClick={() => navigate('/create')}
+              />
+              
+              <FeatureCard
+                icon={FolderTree}
+                title="Tree Diagrams"
+                description="Structure data and information hierarchically"
+                items={[
+                  "Nested relationships",
+                  "Collapsible nodes",
+                  "Level indicators"
+                ]}
+                onClick={() => navigate('/create')}
+              />
+              
+              <FeatureCard
+                icon={GitBranch}
+                title="Organization Charts"
+                description="Create professional organizational structures"
+                items={[
+                  "Role definitions",
+                  "Reporting lines",
+                  "Department grouping"
+                ]}
+                onClick={() => navigate('/create')}
+              />
+              
+              <FeatureCard
+                icon={Box}
+                title="Block Diagrams"
+                description="Design system architectures and layouts"
+                items={[
+                  "Component blocks",
+                  "Port connections",
+                  "Nested containers"
+                ]}
+                onClick={() => navigate('/create')}
+              />
             </div>
           </div>
-          
-          {/* Bottom */}
-          <div className={`pt-8 border-t ${isDark ? 'border-gray-800' : 'border-gray-200'} flex flex-col md:flex-row items-center justify-between gap-4`}>
-            <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-              © 2026 MindMapAI. All rights reserved.
+        </section>
+
+        <section className="py-24 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className={`text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                Diagram Editor Features
+              </h2>
+              <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                Everything you need to create professional diagrams
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                {
+                  icon: Maximize2,
+                  title: "Pan & Zoom",
+                  description: "Navigate large diagrams seamlessly"
+                },
+                {
+                  icon: Layers,
+                  title: "Multiple Layers",
+                  description: "Organize elements by importance"
+                },
+                {
+                  icon: RotateCw,
+                  title: "Auto Layout",
+                  description: "Arrange nodes automatically"
+                },
+                {
+                  icon: Settings,
+                  title: "Custom Styles",
+                  description: "Apply themes and formatting"
+                }
+              ].map((feature, i) => (
+                <div
+                  key={i}
+                  className={`p-6 rounded-xl border-2 transition-all
+                    ${isDark 
+                      ? 'bg-gray-800/50 border-gray-700 hover:border-blue-500' 
+                      : 'bg-white border-gray-200 hover:border-blue-500'}
+                    hover:scale-105 cursor-pointer`}
+                  onClick={() => navigate('/create')}
+                >
+                  <feature.icon className={`w-10 h-10 mb-4 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                  <h3 className={`font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                    {feature.title}
+                  </h3>
+                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {feature.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className={`py-24 px-6 ${isDark ? 'bg-gray-900/50' : 'bg-white'}`}>
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className={`text-4xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              Start Diagramming Today
+            </h2>
+            <p className={`text-lg mb-10 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+              Create professional diagrams in minutes. No learning curve required.
             </p>
-            <div className="flex items-center gap-6">
-              <a href="#" className={`text-sm hover:underline ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Privacy Policy</a>
-              <a href="#" className={`text-sm hover:underline ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Terms of Service</a>
-              <div className="flex items-center gap-2">
-                <Shield className={`w-4 h-4 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
-                <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Secure</span>
-              </div>
-            </div>
+            
+            <button
+              onClick={handleCreateDiagram}
+              className="inline-flex items-center gap-3 px-10 py-5 bg-blue-600 hover:bg-blue-700 
+                       text-white font-bold text-lg rounded-xl transition-all hover:scale-105"
+            >
+              <Plus className="w-6 h-6" />
+              Create Your First Diagram
+              <ArrowRight className="w-5 h-5" />
+            </button>
           </div>
-        </div>
-      </footer>
+        </section>
+
+        <Footer />
+      </main>
     </div>
   );
 }

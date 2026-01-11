@@ -92,12 +92,7 @@ export function AuthProvider({ children }) {
 
   // Update user state directly (for syncing avatar and other changes)
   const updateUser = (updates) => {
-    console.log('🔄 updateUser called with:', Object.keys(updates));
-    setUser(prev => {
-      const newUser = prev ? { ...prev, ...updates } : null;
-      console.log('👤 User state updated, avatar exists:', !!newUser?.avatar);
-      return newUser;
-    });
+    setUser(prev => prev ? { ...prev, ...updates } : null);
   };
 
   return (

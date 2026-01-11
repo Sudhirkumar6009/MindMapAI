@@ -286,6 +286,18 @@ html.light body {
   animation: floatCard 4s ease-in-out infinite;
 }
 
+/* Gentle float animation for diagram */
+@keyframes gentleFloat {
+  0%, 100% { transform: translateY(0px) translateX(0px); }
+  25% { transform: translateY(-3px) translateX(2px); }
+  50% { transform: translateY(0px) translateX(0px); }
+  75% { transform: translateY(3px) translateX(-2px); }
+}
+
+.animate-gentle-float {
+  animation: gentleFloat 6s ease-in-out infinite;
+}
+
 /* Shimmer effect for loading states */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
@@ -339,4 +351,50 @@ html {
 .hover-lift:hover {
   transform: translateY(-4px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Slow spin animation */
+@keyframes spinSlow {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 20s linear infinite;
+}
+
+/* Pulse ring animation */
+@keyframes pulseRing {
+  0%, 100% { 
+    transform: translate(-50%, -50%) scale(1); 
+    opacity: 0.3; 
+  }
+  50% { 
+    transform: translate(-50%, -50%) scale(1.1); 
+    opacity: 0.5; 
+  }
+}
+
+.animate-pulse-ring {
+  animation: pulseRing 3s ease-in-out infinite;
+}
+
+/* Animate in with fade and zoom */
+.animate-in {
+  opacity: 0;
+}
+
+.animate-in.fade-in.zoom-in {
+  animation: fadeInZoom 0.6s ease-out forwards;
+}
+
+@keyframes fadeInZoom {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }

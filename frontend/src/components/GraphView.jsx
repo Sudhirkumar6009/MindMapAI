@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -1130,7 +1130,91 @@ function GraphViewInner({ data, metadata = {}, onAnalyzeInDepth }) {
 // ============================================
 
 function GraphView(props) {
-  if (!props.data?.nodes?.length) {
+  // Transform concepts/relationships to nodes/edges format if needed
+  const normalizedData = React.useMemo(() => {
+    if (!props.data) return null;
+    
+    // If data already has nodes/edges format with labels, use it directly
+    if (props.data.nodes?.length && props.data.nodes[0]?.label) {
+      return props.data;
+    }
+    
+    // Transform concepts/relationships to nodes/edges
+    if (props.data.concepts?.length) {
+      // Handle concepts that might be strings or objects
+      const nodes = props.data.concepts.map((concept, index) => {
+        const label = typeof concept === 'string' ? concept : (concept.label || concept.name || `Concept ${index}`);
+        return {
+          id: concept.id || `node_${index}`,
+          label,
+          connections: concept.connections || 1,
+          category: concept.category || 'concept',
+          section: concept.section || 'main',
+          importance: concept.importance || 3,
+        };
+      });
+      
+      // Create a map for quick lookup of concept index by label
+      const conceptIndexMap = {};
+      props.data.concepts.forEach((concept, index) => {
+        const label = typeof concept === 'string' ? concept : (concept.label || concept.name);
+        conceptIndexMap[label] = index;
+      });
+      
+      // Handle relationships that reference concept labels or indices
+      const edges = (props.data.relationships || []).map((rel, index) => {
+        let sourceId, targetId;
+        
+        // Check if relationship uses source/target as labels or node ids
+        if (typeof rel.source === 'string' && rel.source.startsWith('node_')) {
+          sourceId = rel.source;
+        } else {
+          const sourceLabel = rel.source || rel.from;
+          const sourceIndex = conceptIndexMap[sourceLabel];
+          sourceId = sourceIndex !== undefined ? `node_${sourceIndex}` : null;
+        }
+        
+        if (typeof rel.target === 'string' && rel.target.startsWith('node_')) {
+          targetId = rel.target;
+        } else {
+          const targetLabel = rel.target || rel.to;
+          const targetIndex = conceptIndexMap[targetLabel];
+          targetId = targetIndex !== undefined ? `node_${targetIndex}` : null;
+        }
+        
+        if (!sourceId || !targetId) return null;
+        
+        return {
+          id: rel.id || `edge_${index}`,
+          source: sourceId,
+          target: targetId,
+          label: rel.label || rel.relation || rel.relationship || '',
+        };
+      }).filter(Boolean);
+      
+      // Update connection counts based on edges
+      const connectionCount = {};
+      edges.forEach(edge => {
+        connectionCount[edge.source] = (connectionCount[edge.source] || 0) + 1;
+        connectionCount[edge.target] = (connectionCount[edge.target] || 0) + 1;
+      });
+      
+      nodes.forEach(node => {
+        node.connections = connectionCount[node.id] || 1;
+      });
+      
+      return {
+        ...props.data,
+        nodes,
+        edges,
+        sections: props.data.sections || [{ id: 'main', name: 'All Topics', description: 'Complete overview' }],
+      };
+    }
+    
+    return null;
+  }, [props.data]);
+
+  if (!normalizedData?.nodes?.length) {
     return (
       <div className="flex items-center justify-center h-96 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700">
         <div className="text-center">
@@ -1144,7 +1228,7 @@ function GraphView(props) {
   
   return (
     <ReactFlowProvider>
-      <GraphViewInner {...props} />
+      <GraphViewInner {...props} data={normalizedData} />
     </ReactFlowProvider>
   );
 }
