@@ -79,7 +79,7 @@ function InputPanel({ onTextSubmit, onPDFUpload, onImportMMAI, onGitHubAnalyze, 
             onClick={() => setActiveTab(tab.id)}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-medium transition-all
               ${activeTab === tab.id
-                ? 'bg-gradient-to-r from-primary-600 to-purple-600 text-white shadow-lg'
+                ? 'bg-gradient-to-r from-green-600 to-green-600 text-white shadow-lg'
                 : isDark
                   ? 'text-dark-400 hover:text-dark-200'
                   : 'text-dark-500 hover:text-dark-700'
@@ -116,9 +116,9 @@ function InputPanel({ onTextSubmit, onPDFUpload, onImportMMAI, onGitHubAnalyze, 
           <button
             type="submit"
             disabled={disabled || text.trim().length < 50}
-            className="w-full py-3.5 px-6 bg-gradient-to-r from-primary-600 to-purple-600 
-                     hover:from-primary-500 hover:to-purple-500 rounded-xl font-bold text-white
-                     flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary-500/25
+            className="w-full py-3.5 px-6 bg-gradient-to-r from-green-600 to-green-600 
+                     hover:from-green-500 hover:to-green-500 rounded-xl font-bold text-white
+                     flex items-center justify-center gap-2 transition-all shadow-lg shadow-green-500/25
                      disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Zap className="w-5 h-5" />

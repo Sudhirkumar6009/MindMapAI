@@ -830,8 +830,8 @@ function GraphViewInner({ data, metadata = {}, onAnalyzeInDepth }) {
                 {showSectionDropdown && (
                   <div className={`absolute bottom-full left-0 mb-2 w-64 rounded-xl border-2 shadow-2xl overflow-hidden
                                 ${isDark 
-                                  ? 'bg-slate-800/98 border-slate-600 backdrop-blur-xl' 
-                                  : 'bg-white/98 border-slate-200 backdrop-blur-xl'
+                                  ? 'bg-slate-800/50 border-slate-600 backdrop-blur-xl' 
+                                  : 'bg-white border-slate-200 backdrop-blur-xl'
                                 }`}>
                     <div className={`px-3 py-2 border-b ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
                       <span className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
@@ -876,7 +876,7 @@ function GraphViewInner({ data, metadata = {}, onAnalyzeInDepth }) {
                           }}
                           disabled={isAnalyzing}
                           className="w-full px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-semibold
-                                    bg-gradient-to-r from-purple-600 to-emerald-600 hover:from-purple-500 hover:to-emerald-500
+                                    bg-gradient-to-r from-green-600 to-green-600 hover:from-green-500 hover:to-green-500
                                     text-white shadow-lg disabled:opacity-50"
                         >
                           {isAnalyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Microscope className="w-4 h-4" />}

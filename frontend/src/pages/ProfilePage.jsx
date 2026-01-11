@@ -150,7 +150,7 @@ function ProfilePage() {
                   className="w-full h-full rounded-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-emerald-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold">
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center text-white text-4xl font-bold">
                   {getInitials(profile?.name)}
                 </div>
               )}
@@ -177,7 +177,7 @@ function ProfilePage() {
               ${profile?.plan === 'pro' 
                 ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-500'
                 : profile?.plan === 'enterprise'
-                  ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-500'
+                  ? 'bg-gradient-to-r from-green-500/20 to-pink-500/20 text-green-500'
                   : isDark ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'}`}>
               <Crown className="w-4 h-4" />
               <span className="font-medium capitalize">{profile?.plan || 'Free'} Plan</span>
@@ -316,7 +316,7 @@ function ProfilePage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full py-3 bg-gradient-to-r from-emerald-600 to-purple-600 hover:from-emerald-500 hover:to-purple-500
+                className="w-full py-3 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500
                          text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/25 transition-all
                          disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
