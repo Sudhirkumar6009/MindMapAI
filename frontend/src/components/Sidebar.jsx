@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  Brain, 
+    Network,
   LayoutDashboard, 
   Plus, 
   FolderOpen, 
@@ -157,7 +157,7 @@ function Sidebar() {
       <div className={`flex items-center gap-3 mb-6 transition-all duration-300 ease-out ${!expanded ? 'justify-center' : ''}`}>
         <Link to="/" className="flex items-center gap-3 overflow-hidden">
           <div className="p-2 rounded-xl bg-gradient-to-br from-primary-500 to-green-500 shadow-lg shadow-primary-500/25 flex-shrink-0 transition-all duration-300 ease-out hover:scale-105 hover:shadow-xl hover:shadow-primary-500/30">
-            <Brain className="w-6 h-6 text-white" />
+              <Network className={`w-7 h-7 ${isDark ? 'text-white' : 'text-white'}`} />
           </div>
           <div 
             className={`transition-all duration-300 ease-out overflow-hidden

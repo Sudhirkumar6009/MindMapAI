@@ -58,6 +58,8 @@ router.post('/', upload.single('file'), async (req, res) => {
     }
 
     const options = req.body.options ? JSON.parse(req.body.options) : {};
+    console.log('Diagram type:', options?.diagramType || 'mindmap');
+    
     const result = await processDocument(text.trim(), options);
 
     if (!result.success) {

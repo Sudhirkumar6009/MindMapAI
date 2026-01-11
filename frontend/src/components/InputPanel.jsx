@@ -1,8 +1,60 @@
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { FileText, Upload, Zap, Settings, ChevronDown, ChevronUp, FileUp, Github, Loader2 } from 'lucide-react';
+import { FileText, Upload, Zap, Settings, ChevronDown, ChevronUp, FileUp, Github, Loader2, Network, GitBranch, FolderTree, Box, Users, Workflow } from 'lucide-react';
 import ImportMMAI from './ImportMMAI';
 import { useTheme } from '../context/ThemeContext';
+
+// Diagram type configurations
+const DIAGRAM_TYPES = [
+  {
+    id: 'mindmap',
+    name: 'Mind Map',
+    icon: Network,
+    color: 'emerald',
+    description: 'Brainstorm and organize ideas hierarchically',
+    features: ['Central topic expansion', 'Auto-layout', 'Color-coded branches']
+  },
+  {
+    id: 'flowchart',
+    name: 'Flowchart',
+    icon: Workflow,
+    color: 'purple',
+    description: 'Map processes and decision flows',
+    features: ['Process mapping', 'Decision nodes', 'Labeled connectors']
+  },
+  {
+    id: 'network',
+    name: 'Network Diagram',
+    icon: GitBranch,
+    color: 'cyan',
+    description: 'Visualize complex relationships',
+    features: ['Node connections', 'Weighted edges', 'Cluster analysis']
+  },
+  {
+    id: 'tree',
+    name: 'Tree Diagram',
+    icon: FolderTree,
+    color: 'orange',
+    description: 'Structure data hierarchically',
+    features: ['Nested relationships', 'Collapsible nodes', 'Level indicators']
+  },
+  {
+    id: 'orgchart',
+    name: 'Org Chart',
+    icon: Users,
+    color: 'pink',
+    description: 'Create organizational structures',
+    features: ['Role definitions', 'Reporting lines', 'Department grouping']
+  },
+  {
+    id: 'block',
+    name: 'Block Diagram',
+    icon: Box,
+    color: 'blue',
+    description: 'Design system architectures',
+    features: ['Component blocks', 'Port connections', 'Nested containers']
+  }
+];
 
 function InputPanel({ onTextSubmit, onPDFUpload, onImportMMAI, onGitHubAnalyze, disabled }) {
   const { isDark } = useTheme();
@@ -11,6 +63,7 @@ function InputPanel({ onTextSubmit, onPDFUpload, onImportMMAI, onGitHubAnalyze, 
   const [activeTab, setActiveTab] = useState('text'); // 'text', 'pdf', 'github'
   const [showOptions, setShowOptions] = useState(false);
   const [showImport, setShowImport] = useState(false);
+  const [selectedDiagramType, setSelectedDiagramType] = useState('mindmap');
   const [options, setOptions] = useState({
     refine: true,
     maxIterations: 2
@@ -18,9 +71,9 @@ function InputPanel({ onTextSubmit, onPDFUpload, onImportMMAI, onGitHubAnalyze, 
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length > 0) {
-      onPDFUpload(acceptedFiles[0], options);
+      onPDFUpload(acceptedFiles[0], { ...options, diagramType: selectedDiagramType });
     }
-  }, [onPDFUpload, options]);
+  }, [onPDFUpload, options, selectedDiagramType]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -32,14 +85,14 @@ function InputPanel({ onTextSubmit, onPDFUpload, onImportMMAI, onGitHubAnalyze, 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (text.trim().length >= 50) {
-      onTextSubmit(text, options);
+      onTextSubmit(text, { ...options, diagramType: selectedDiagramType });
     }
   };
 
   const handleGitHubSubmit = (e) => {
     e.preventDefault();
     if (githubUrl.trim() && isValidGitHubUrl(githubUrl)) {
-      onGitHubAnalyze(githubUrl);
+      onGitHubAnalyze(githubUrl, { diagramType: selectedDiagramType });
     }
   };
 
@@ -91,6 +144,111 @@ function InputPanel({ onTextSubmit, onPDFUpload, onImportMMAI, onGitHubAnalyze, 
         ))}
       </div>
 
+      {/* Diagram Type Selector */}
+      <div className="space-y-4">
+        <div className="text-center">
+          <h3 className={`text-lg font-semibold ${isDark ? 'text-dark-200' : 'text-dark-700'}`}>
+            Select Diagram Type
+          </h3>
+          <p className={`text-sm ${isDark ? 'text-dark-500' : 'text-dark-400'}`}>
+            Choose the visualization style for your content
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          {DIAGRAM_TYPES.map((diagram) => {
+            const Icon = diagram.icon;
+            const isSelected = selectedDiagramType === diagram.id;
+            const colorClasses = {
+              emerald: {
+                selected: 'border-emerald-500 bg-emerald-500/10',
+                icon: isDark ? 'text-emerald-400' : 'text-emerald-600',
+                badge: 'bg-emerald-500'
+              },
+              purple: {
+                selected: 'border-purple-500 bg-purple-500/10',
+                icon: isDark ? 'text-purple-400' : 'text-purple-600',
+                badge: 'bg-purple-500'
+              },
+              cyan: {
+                selected: 'border-cyan-500 bg-cyan-500/10',
+                icon: isDark ? 'text-cyan-400' : 'text-cyan-600',
+                badge: 'bg-cyan-500'
+              },
+              orange: {
+                selected: 'border-orange-500 bg-orange-500/10',
+                icon: isDark ? 'text-orange-400' : 'text-orange-600',
+                badge: 'bg-orange-500'
+              },
+              pink: {
+                selected: 'border-pink-500 bg-pink-500/10',
+                icon: isDark ? 'text-pink-400' : 'text-pink-600',
+                badge: 'bg-pink-500'
+              },
+              blue: {
+                selected: 'border-blue-500 bg-blue-500/10',
+                icon: isDark ? 'text-blue-400' : 'text-blue-600',
+                badge: 'bg-blue-500'
+              }
+            };
+            const colors = colorClasses[diagram.color];
+            
+            return (
+              <button
+                key={diagram.id}
+                onClick={() => setSelectedDiagramType(diagram.id)}
+                className={`relative p-4 rounded-xl border-2 transition-all duration-200 text-center group
+                  ${isSelected 
+                    ? colors.selected 
+                    : isDark 
+                      ? 'border-dark-700 hover:border-dark-600 bg-dark-800/50' 
+                      : 'border-dark-200 hover:border-dark-300 bg-white'
+                  }
+                  ${isSelected ? 'scale-[1.02] shadow-lg' : 'hover:scale-[1.02]'}
+                `}
+              >
+                {isSelected && (
+                  <div className={`absolute -top-2 -right-2 w-5 h-5 ${colors.badge} rounded-full flex items-center justify-center`}>
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                )}
+                <Icon className={`w-8 h-8 mx-auto mb-2 transition-transform group-hover:scale-110 ${isSelected ? colors.icon : isDark ? 'text-dark-400' : 'text-dark-500'}`} />
+                <p className={`text-sm font-semibold ${isDark ? 'text-dark-200' : 'text-dark-700'}`}>
+                  {diagram.name}
+                </p>
+                <p className={`text-xs mt-1 line-clamp-2 ${isDark ? 'text-dark-500' : 'text-dark-400'}`}>
+                  {diagram.description}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Selected Diagram Features */}
+        {selectedDiagramType && (
+          <div className={`p-4 rounded-xl border ${isDark ? 'bg-dark-800/50 border-dark-700' : 'bg-dark-50 border-dark-200'}`}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className={`text-sm font-medium ${isDark ? 'text-dark-300' : 'text-dark-600'}`}>
+                ✨ {DIAGRAM_TYPES.find(d => d.id === selectedDiagramType)?.name} Features:
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {DIAGRAM_TYPES.find(d => d.id === selectedDiagramType)?.features.map((feature, i) => (
+                <span 
+                  key={i}
+                  className={`px-3 py-1 rounded-full text-xs font-medium
+                    ${isDark ? 'bg-dark-700 text-dark-300' : 'bg-white text-dark-600 border border-dark-200'}`}
+                >
+                  {feature}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Text Input */}
       {activeTab === 'text' && (
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -122,7 +280,7 @@ function InputPanel({ onTextSubmit, onPDFUpload, onImportMMAI, onGitHubAnalyze, 
                      disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Zap className="w-5 h-5" />
-            Generate Mind Map
+            Generate {DIAGRAM_TYPES.find(d => d.id === selectedDiagramType)?.name || 'Diagram'}
           </button>
         </form>
       )}

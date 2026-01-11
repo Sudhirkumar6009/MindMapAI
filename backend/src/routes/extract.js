@@ -9,6 +9,7 @@ router.post('/', async (req, res) => {
     
     console.log('\n========== Extract Request ==========');
     console.log('Text length:', text?.length || 0, 'characters');
+    console.log('Diagram type:', options?.diagramType || 'mindmap');
     
     if (!text || typeof text !== 'string') {
       console.log('❌ No text provided');
@@ -29,6 +30,7 @@ router.post('/', async (req, res) => {
     console.log('✅ Graph generated successfully');
     console.log('   Concepts:', result.concepts?.length);
     console.log('   Relationships:', result.relationships?.length);
+    console.log('   Diagram Type:', result.diagramType);
     console.log('======================================\n');
     
     res.json(result);

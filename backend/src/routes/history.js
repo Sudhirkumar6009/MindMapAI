@@ -1,5 +1,6 @@
 import express from 'express';
 import History from '../models/History.js';
+import Notification from '../models/Notification.js';
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -122,6 +123,16 @@ router.post('/', protect, async (req, res) => {
       conceptCount: graphData.concepts?.length || 0,
       relationshipCount: graphData.relationships?.length || 0,
       graphData
+    });
+
+    // Create notification for the user
+    await Notification.create({
+      user: req.user._id,
+      type: 'success',
+      title: 'Graph Generated Successfully! ✨',
+      message: `Your graph "${title}" with ${graphData.concepts?.length || 0} concepts has been created.`,
+      link: `/history`,
+      metadata: { historyId: history._id }
     });
 
     console.log('✅ History saved successfully! ID:', history._id);

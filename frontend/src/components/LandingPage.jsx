@@ -640,9 +640,8 @@ function LandingPage() {
               <img 
                 src={landing} 
                 alt="MindMap AI Preview" 
-                className={`w-full max-w-lg rounded-3xl shadow-2xl transition-all duration-500 
-                  hover:scale-[1.02] hover:shadow-emerald-500/20
-                  ${isDark ? 'border-2 border-gray-700' : 'border-2 border-gray-200'}`}
+                className={`w-full max-w-lg rounded-2xl shadow-xl transition-all duration-500 
+                  hover:scale-[1.02] hover:shadow-emerald-500/20`}
               />
             </div>
           </div>
@@ -659,78 +658,204 @@ function LandingPage() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <FeatureCard
-                icon={Network}
-                title="Mind Maps"
-                description="Brainstorm and organize ideas with hierarchical structures"
-                items={[
-                  "Central topic expansion",
-                  "Auto-layout options",
-                  "Color-coded branches"
-                ]}
+            <div className="space-y-10">
+              {/* Mind Maps - Image Left */}
+              <div 
+                className={`flex flex-col md:flex-row items-center gap-8 p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]
+                  ${isDark ? 'bg-gray-800/50 border-gray-700 hover:border-emerald-500' : 'bg-white border-gray-200 hover:border-emerald-500'}`}
                 onClick={() => navigate('/create')}
-              />
-              
-              <FeatureCard
-                icon={GitBranch}
-                title="Flowcharts"
-                description="Map processes and decision flows with precision"
-                items={[
-                  "Process mapping",
-                  "Decision nodes",
-                  "Connectors with labels"
-                ]}
+              >
+                <div className="md:w-1/2">
+                  <img 
+                    src={landing} 
+                    alt="Mind Maps Preview" 
+                    className={`w-full rounded-xl shadow-lg ${isDark ? 'border border-gray-700' : 'border border-gray-200'}`}
+                  />
+                </div>
+                <div className="md:w-1/2 space-y-4">
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center
+                    ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-50'}`}>
+                    <Network className={`w-6 h-6 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
+                  </div>
+                  <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Mind Maps</h3>
+                  <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Brainstorm and organize ideas with hierarchical structures
+                  </p>
+                  <ul className="space-y-2">
+                    {["Central topic expansion", "Auto-layout options", "Color-coded branches"].map((item, i) => (
+                      <li key={i} className={`flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-emerald-500' : 'bg-emerald-600'}`} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Flowcharts - Image Right */}
+              <div 
+                className={`flex flex-col md:flex-row-reverse items-center gap-8 p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]
+                  ${isDark ? 'bg-gray-800/50 border-gray-700 hover:border-emerald-500' : 'bg-white border-gray-200 hover:border-emerald-500'}`}
                 onClick={() => navigate('/create')}
-              />
-              
-              <FeatureCard
-                icon={Network}
-                title="Network Diagrams"
-                description="Visualize complex relationships and dependencies"
-                items={[
-                  "Node connections",
-                  "Weighted edges",
-                  "Cluster analysis"
-                ]}
+              >
+                <div className="md:w-1/2">
+                  <img 
+                    src={landing} 
+                    alt="Flowcharts Preview" 
+                    className={`w-full rounded-xl shadow-lg ${isDark ? 'border border-gray-700' : 'border border-gray-200'}`}
+                  />
+                </div>
+                <div className="md:w-1/2 space-y-4">
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center
+                    ${isDark ? 'bg-purple-500/20' : 'bg-purple-50'}`}>
+                    <GitBranch className={`w-6 h-6 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
+                  </div>
+                  <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Flowcharts</h3>
+                  <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Map processes and decision flows with precision
+                  </p>
+                  <ul className="space-y-2">
+                    {["Process mapping", "Decision nodes", "Connectors with labels"].map((item, i) => (
+                      <li key={i} className={`flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-purple-500' : 'bg-purple-600'}`} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Network Diagrams - Image Left */}
+              <div 
+                className={`flex flex-col md:flex-row items-center gap-8 p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]
+                  ${isDark ? 'bg-gray-800/50 border-gray-700 hover:border-emerald-500' : 'bg-white border-gray-200 hover:border-emerald-500'}`}
                 onClick={() => navigate('/create')}
-              />
-              
-              <FeatureCard
-                icon={FolderTree}
-                title="Tree Diagrams"
-                description="Structure data and information hierarchically"
-                items={[
-                  "Nested relationships",
-                  "Collapsible nodes",
-                  "Level indicators"
-                ]}
+              >
+                <div className="md:w-1/2">
+                  <img 
+                    src={landing} 
+                    alt="Network Diagrams Preview" 
+                    className={`w-full rounded-xl shadow-lg ${isDark ? 'border border-gray-700' : 'border border-gray-200'}`}
+                  />
+                </div>
+                <div className="md:w-1/2 space-y-4">
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center
+                    ${isDark ? 'bg-cyan-500/20' : 'bg-cyan-50'}`}>
+                    <Network className={`w-6 h-6 ${isDark ? 'text-cyan-400' : 'text-cyan-600'}`} />
+                  </div>
+                  <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Network Diagrams</h3>
+                  <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Visualize complex relationships and dependencies
+                  </p>
+                  <ul className="space-y-2">
+                    {["Node connections", "Weighted edges", "Cluster analysis"].map((item, i) => (
+                      <li key={i} className={`flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-cyan-500' : 'bg-cyan-600'}`} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Tree Diagrams - Image Right */}
+              <div 
+                className={`flex flex-col md:flex-row-reverse items-center gap-8 p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]
+                  ${isDark ? 'bg-gray-800/50 border-gray-700 hover:border-emerald-500' : 'bg-white border-gray-200 hover:border-emerald-500'}`}
                 onClick={() => navigate('/create')}
-              />
-              
-              <FeatureCard
-                icon={GitBranch}
-                title="Organization Charts"
-                description="Create professional organizational structures"
-                items={[
-                  "Role definitions",
-                  "Reporting lines",
-                  "Department grouping"
-                ]}
+              >
+                <div className="md:w-1/2">
+                  <img 
+                    src={landing} 
+                    alt="Tree Diagrams Preview" 
+                    className={`w-full rounded-xl shadow-lg ${isDark ? 'border border-gray-700' : 'border border-gray-200'}`}
+                  />
+                </div>
+                <div className="md:w-1/2 space-y-4">
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center
+                    ${isDark ? 'bg-orange-500/20' : 'bg-orange-50'}`}>
+                    <FolderTree className={`w-6 h-6 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
+                  </div>
+                  <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Tree Diagrams</h3>
+                  <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Structure data and information hierarchically
+                  </p>
+                  <ul className="space-y-2">
+                    {["Nested relationships", "Collapsible nodes", "Level indicators"].map((item, i) => (
+                      <li key={i} className={`flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-orange-500' : 'bg-orange-600'}`} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Organization Charts - Image Left */}
+              <div 
+                className={`flex flex-col md:flex-row items-center gap-8 p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]
+                  ${isDark ? 'bg-gray-800/50 border-gray-700 hover:border-emerald-500' : 'bg-white border-gray-200 hover:border-emerald-500'}`}
                 onClick={() => navigate('/create')}
-              />
-              
-              <FeatureCard
-                icon={Box}
-                title="Block Diagrams"
-                description="Design system architectures and layouts"
-                items={[
-                  "Component blocks",
-                  "Port connections",
-                  "Nested containers"
-                ]}
+              >
+                <div className="md:w-1/2">
+                  <img 
+                    src={landing} 
+                    alt="Organization Charts Preview" 
+                    className={`w-full rounded-xl shadow-lg ${isDark ? 'border border-gray-700' : 'border border-gray-200'}`}
+                  />
+                </div>
+                <div className="md:w-1/2 space-y-4">
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center
+                    ${isDark ? 'bg-pink-500/20' : 'bg-pink-50'}`}>
+                    <GitBranch className={`w-6 h-6 ${isDark ? 'text-pink-400' : 'text-pink-600'}`} />
+                  </div>
+                  <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Organization Charts</h3>
+                  <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Create professional organizational structures
+                  </p>
+                  <ul className="space-y-2">
+                    {["Role definitions", "Reporting lines", "Department grouping"].map((item, i) => (
+                      <li key={i} className={`flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-pink-500' : 'bg-pink-600'}`} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Block Diagrams - Image Right */}
+              <div 
+                className={`flex flex-col md:flex-row-reverse items-center gap-8 p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]
+                  ${isDark ? 'bg-gray-800/50 border-gray-700 hover:border-emerald-500' : 'bg-white border-gray-200 hover:border-emerald-500'}`}
                 onClick={() => navigate('/create')}
-              />
+              >
+                <div className="md:w-1/2">
+                  <img 
+                    src={landing} 
+                    alt="Block Diagrams Preview" 
+                    className={`w-full rounded-xl shadow-lg ${isDark ? 'border border-gray-700' : 'border border-gray-200'}`}
+                  />
+                </div>
+                <div className="md:w-1/2 space-y-4">
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center
+                    ${isDark ? 'bg-blue-500/20' : 'bg-blue-50'}`}>
+                    <Box className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                  </div>
+                  <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Block Diagrams</h3>
+                  <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Design system architectures and layouts
+                  </p>
+                  <ul className="space-y-2">
+                    {["Component blocks", "Port connections", "Nested containers"].map((item, i) => (
+                      <li key={i} className={`flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-blue-500' : 'bg-blue-600'}`} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </section>

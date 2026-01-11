@@ -14,7 +14,7 @@ const historySchema = new mongoose.Schema({
   },
   sourceType: {
     type: String,
-    enum: ['text', 'pdf', 'import'],
+    enum: ['text', 'pdf', 'import', 'github'],
     required: true
   },
   sourcePreview: {

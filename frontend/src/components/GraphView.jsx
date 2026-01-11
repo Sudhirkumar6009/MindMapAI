@@ -218,13 +218,32 @@ function GraphViewInner({ data, metadata = {}, onAnalyzeInDepth }) {
   const reactFlowInstance = useReactFlow();
   const containerRef = useRef(null);
   
+  // Get diagram type from data
+  const diagramType = data?.diagramType || 'mindmap';
+  const diagramConfig = data?.diagramConfig || {};
+  
+  // Map diagram types to default layouts and styles
+  const getDefaultSettings = (type) => {
+    const settings = {
+      mindmap: { layout: 'radial', direction: 'TB', nodeStyle: 'mindmap', palette: 'nature' },
+      flowchart: { layout: 'vertical', direction: 'TB', nodeStyle: 'flowchart', palette: 'modern' },
+      network: { layout: 'dagre', direction: 'TB', nodeStyle: 'circle', palette: 'academic' },
+      tree: { layout: 'vertical', direction: 'TB', nodeStyle: 'standard', palette: 'research' },
+      orgchart: { layout: 'vertical', direction: 'TB', nodeStyle: 'standard', palette: 'minimal' },
+      block: { layout: 'horizontal', direction: 'LR', nodeStyle: 'standard', palette: 'modern' }
+    };
+    return settings[type] || settings.mindmap;
+  };
+  
+  const defaultSettings = getDefaultSettings(diagramType);
+  
   // State
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [selectedPalette, setSelectedPalette] = useState('academic');
-  const [nodeStyle, setNodeStyle] = useState('standard');
-  const [layoutType, setLayoutType] = useState('dagre');
-  const [layoutDirection, setLayoutDirection] = useState('TB');
+  const [selectedPalette, setSelectedPalette] = useState(defaultSettings.palette);
+  const [nodeStyle, setNodeStyle] = useState(defaultSettings.nodeStyle);
+  const [layoutType, setLayoutType] = useState(defaultSettings.layout);
+  const [layoutDirection, setLayoutDirection] = useState(defaultSettings.direction);
   const [showStylePanel, setShowStylePanel] = useState(false);
   const [showLayoutPanel, setShowLayoutPanel] = useState(false);
   const [selectedNode, setSelectedNode] = useState(null);
@@ -376,6 +395,17 @@ function GraphViewInner({ data, metadata = {}, onAnalyzeInDepth }) {
   // ============================================
   // EFFECTS
   // ============================================
+  
+  // Update settings when diagram type changes
+  useEffect(() => {
+    if (diagramType) {
+      const settings = getDefaultSettings(diagramType);
+      setSelectedPalette(settings.palette);
+      setNodeStyle(settings.nodeStyle);
+      setLayoutType(settings.layout);
+      setLayoutDirection(settings.direction);
+    }
+  }, [diagramType]);
   
   // Transform data on changes
   useEffect(() => {
@@ -582,6 +612,24 @@ function GraphViewInner({ data, metadata = {}, onAnalyzeInDepth }) {
             className="!bg-white/90 dark:!bg-slate-800/90 !border-2 !border-slate-200 dark:!border-slate-700 !rounded-xl !shadow-lg"
             showInteractive={false}
           />
+          
+          {/* Diagram Type Badge - Top Center */}
+          {diagramType && (
+            <Panel position="top-center">
+              <div className={`px-4 py-2 rounded-xl border-2 shadow-lg flex items-center gap-2
+                             ${isDark 
+                               ? 'bg-slate-800/95 border-slate-600 backdrop-blur-xl' 
+                               : 'bg-white/95 border-slate-200 backdrop-blur-xl'
+                             }`}>
+                <span className={`text-sm font-bold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                  {diagramConfig.name || diagramType.charAt(0).toUpperCase() + diagramType.slice(1)}
+                </span>
+                <span className={`text-xs px-2 py-0.5 rounded-full ${isDark ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-700'}`}>
+                  AI Generated
+                </span>
+              </div>
+            </Panel>
+          )}
           
           {/* Top Left Panel - Style & Layout Controls */}
           <Panel position="top-left" className="flex flex-col gap-2">

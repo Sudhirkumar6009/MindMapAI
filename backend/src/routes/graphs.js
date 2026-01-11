@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import { protect, optionalAuth } from '../middleware/auth.js';
+import Notification from '../models/Notification.js';
 
 const router = express.Router();
 
@@ -115,6 +116,11 @@ router.post('/', optionalAuth, async (req, res) => {
     }
 
     const graph = await CustomGraph.create(graphData);
+
+    // Create notification for authenticated users
+    if (req.user) {
+      await Notification.createGraphNotification(req.user._id, graph.title, graph._id);
+    }
 
     console.log(`📊 Custom graph created: ${graph._id} (${nodes?.length || 0} nodes)`);
 

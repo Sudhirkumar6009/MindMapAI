@@ -177,7 +177,7 @@ function CreatePage() {
     setSourceType('import');
   };
 
-  const handleGitHubAnalyze = async (url) => {
+  const handleGitHubAnalyze = async (url, options = {}) => {
     if (!isAuthenticated && demoUsage >= DEMO_LIMIT) {
       setError('Demo limit reached! Please sign in for unlimited access.');
       navigate('/login');
@@ -188,6 +188,8 @@ function CreatePage() {
     setError(null);
     setErrorDetails(null);
     setSourceType('github');
+    
+    const diagramType = options.diagramType || 'block'; // Default to block for architecture
     
     try {
       setLoadingStatus('Connecting to GitHub...');
@@ -252,6 +254,12 @@ function CreatePage() {
           stats: { ...result.stats, conceptCount: concepts.length, relationshipCount: relationships.length },
           repoInfo: result.repoInfo,
           metadata: result.metadata,
+          diagramType,
+          diagramConfig: {
+            name: diagramType === 'block' ? 'Block Diagram' : diagramType.charAt(0).toUpperCase() + diagramType.slice(1),
+            layout: 'horizontal',
+            edgeStyle: 'straight'
+          }
         };
         
         setGraphData(graphResult);

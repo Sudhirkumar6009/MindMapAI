@@ -1,6 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import Notification from '../models/Notification.js';
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -41,6 +42,17 @@ router.post('/register', async (req, res) => {
       email,
       password
     });
+
+    // Create welcome notification for new user
+    await Notification.createWelcomeNotification(user._id);
+    
+    // Create feature announcement notification
+    await Notification.createSystemNotification(
+      user._id,
+      'Try our Graph Builder! 🛠️',
+      'Build custom graphs with drag & drop. No AI required!',
+      '/graphs/new'
+    );
 
     console.log('✅ User created successfully! ID:', user._id);
     console.log('=========================================\n');

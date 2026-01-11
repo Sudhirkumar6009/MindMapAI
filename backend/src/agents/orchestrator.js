@@ -4,8 +4,58 @@ import { runRefinementLoop } from './refinementAgent.js';
 import { simplifyLabel, simplifyRelationships } from '../utils/labelSimplifier.js';
 import { validateContent, getErrorMessage } from '../utils/contentValidator.js';
 
+// Diagram type configurations for different visualization styles
+const DIAGRAM_CONFIGS = {
+  mindmap: {
+    name: 'Mind Map',
+    nodeTypes: ['central', 'branch', 'leaf'],
+    edgeStyle: 'curved',
+    layout: 'radial',
+    extractionFocus: 'hierarchical concepts and sub-topics'
+  },
+  flowchart: {
+    name: 'Flowchart',
+    nodeTypes: ['start', 'process', 'decision', 'end'],
+    edgeStyle: 'orthogonal',
+    layout: 'vertical',
+    extractionFocus: 'processes, steps, decisions, and outcomes'
+  },
+  network: {
+    name: 'Network Diagram',
+    nodeTypes: ['hub', 'node', 'endpoint'],
+    edgeStyle: 'straight',
+    layout: 'force-directed',
+    extractionFocus: 'entities and their interconnections'
+  },
+  tree: {
+    name: 'Tree Diagram',
+    nodeTypes: ['root', 'parent', 'child', 'leaf'],
+    edgeStyle: 'straight',
+    layout: 'hierarchical',
+    extractionFocus: 'parent-child relationships and categories'
+  },
+  orgchart: {
+    name: 'Organization Chart',
+    nodeTypes: ['executive', 'manager', 'team', 'member'],
+    edgeStyle: 'orthogonal',
+    layout: 'vertical',
+    extractionFocus: 'roles, positions, and reporting structures'
+  },
+  block: {
+    name: 'Block Diagram',
+    nodeTypes: ['system', 'component', 'module', 'interface'],
+    edgeStyle: 'straight',
+    layout: 'grid',
+    extractionFocus: 'components, modules, and their interfaces'
+  }
+};
+
 export async function processDocument(text, options = {}) {
-  const { refine = true, maxIterations = 2 } = options;
+  const { refine = true, maxIterations = 2, diagramType = 'mindmap' } = options;
+  
+  // Get diagram configuration
+  const diagramConfig = DIAGRAM_CONFIGS[diagramType] || DIAGRAM_CONFIGS.mindmap;
+  console.log(`\n📊 Generating ${diagramConfig.name} diagram...`);
   
   // Validate content before processing
   console.log('\n========== Content Validation ==========');
@@ -22,7 +72,8 @@ export async function processDocument(text, options = {}) {
       suggestions: validation.suggestions,
       analysis: validation.analysis,
       concepts: [],
-      relationships: []
+      relationships: [],
+      diagramType
     };
   }
   
@@ -31,7 +82,8 @@ export async function processDocument(text, options = {}) {
   console.log('   Estimated Concepts:', validation.analysis.estimatedConcepts);
   console.log('==========================================\n');
   
-  const concepts = await extractConcepts(text);
+  // Pass diagram type to concept extraction for context-aware extraction
+  const concepts = await extractConcepts(text, diagramType, diagramConfig);
   
   if (concepts.length === 0) {
     return {
@@ -43,7 +95,8 @@ export async function processDocument(text, options = {}) {
         'Include definitions or explanations of key ideas'
       ],
       concepts: [],
-      relationships: []
+      relationships: [],
+      diagramType
     };
   }
 
@@ -57,11 +110,13 @@ export async function processDocument(text, options = {}) {
         'Expand on the existing concepts with more detail'
       ],
       concepts,
-      relationships: []
+      relationships: [],
+      diagramType
     };
   }
 
-  const relationships = await extractRelationships(text, concepts);
+  // Pass diagram type to relationship extraction
+  const relationships = await extractRelationships(text, concepts, diagramType, diagramConfig);
 
   let finalConcepts = concepts;
   let finalRelationships = relationships;
@@ -81,13 +136,52 @@ export async function processDocument(text, options = {}) {
   // Simplify relationship labels for professional visualization
   const simplifiedRelationships = simplifyRelationships(finalRelationships);
 
-  const nodes = finalConcepts.map((concept, index) => ({
-    id: `node_${index}`,
-    label: concept,
-    connections: simplifiedRelationships.filter(
+  // Assign node types based on diagram configuration
+  const nodes = finalConcepts.map((concept, index) => {
+    const connectionCount = simplifiedRelationships.filter(
       r => r.source === concept || r.target === concept
-    ).length
-  }));
+    ).length;
+    
+    // Determine node type based on diagram type and connections
+    let nodeType = diagramConfig.nodeTypes[diagramConfig.nodeTypes.length - 1]; // default to last type
+    if (diagramType === 'mindmap') {
+      if (index === 0 || connectionCount >= 5) nodeType = 'central';
+      else if (connectionCount >= 3) nodeType = 'branch';
+      else nodeType = 'leaf';
+    } else if (diagramType === 'flowchart') {
+      if (connectionCount === 0 || index === 0) nodeType = 'start';
+      else if (connectionCount === 1) nodeType = 'end';
+      else if (connectionCount >= 3) nodeType = 'decision';
+      else nodeType = 'process';
+    } else if (diagramType === 'network') {
+      if (connectionCount >= 5) nodeType = 'hub';
+      else if (connectionCount >= 2) nodeType = 'node';
+      else nodeType = 'endpoint';
+    } else if (diagramType === 'tree') {
+      if (index === 0) nodeType = 'root';
+      else if (connectionCount >= 3) nodeType = 'parent';
+      else if (connectionCount >= 1) nodeType = 'child';
+      else nodeType = 'leaf';
+    } else if (diagramType === 'orgchart') {
+      if (connectionCount >= 5) nodeType = 'executive';
+      else if (connectionCount >= 3) nodeType = 'manager';
+      else if (connectionCount >= 2) nodeType = 'team';
+      else nodeType = 'member';
+    } else if (diagramType === 'block') {
+      if (connectionCount >= 5) nodeType = 'system';
+      else if (connectionCount >= 3) nodeType = 'component';
+      else if (connectionCount >= 1) nodeType = 'module';
+      else nodeType = 'interface';
+    }
+    
+    return {
+      id: `node_${index}`,
+      label: concept,
+      connections: connectionCount,
+      nodeType,
+      diagramType
+    };
+  });
 
   const edges = simplifiedRelationships.map((rel, index) => ({
     id: `edge_${index}`,
@@ -96,7 +190,8 @@ export async function processDocument(text, options = {}) {
     label: rel.relation,
     originalLabel: rel.originalRelation,
     sourceLabel: rel.source,
-    targetLabel: rel.target
+    targetLabel: rel.target,
+    edgeStyle: diagramConfig.edgeStyle
   })).filter(e => !e.source.includes('-1') && !e.target.includes('-1'));
 
   return {
@@ -106,6 +201,12 @@ export async function processDocument(text, options = {}) {
     nodes,
     edges,
     refinementInfo,
+    diagramType,
+    diagramConfig: {
+      name: diagramConfig.name,
+      layout: diagramConfig.layout,
+      edgeStyle: diagramConfig.edgeStyle
+    },
     stats: {
       conceptCount: finalConcepts.length,
       relationshipCount: simplifiedRelationships.length,

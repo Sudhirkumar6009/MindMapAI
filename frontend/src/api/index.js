@@ -1,6 +1,21 @@
 import axios from 'axios';
 
-const API_BASE = '/api';
+// Backend API URL from environment variables
+// In development: uses proxy via /api
+// In production: uses full backend URL
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE = import.meta.env.MODE === 'production' 
+  ? `${API_URL}/api` 
+  : (import.meta.env.VITE_API_BASE || '/api');
+
+// Create axios instance with base configuration
+const axiosInstance = axios.create({
+  baseURL: API_BASE,
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
 
 const getAuthHeader = () => {
   const token = localStorage.getItem('token');
