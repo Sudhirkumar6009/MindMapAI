@@ -1,13 +1,7 @@
 import { generateWithRetry } from '../config/gemini.js';
 
-/**
- * GitHub Repository Analyzer Agent
- * Fetches a GitHub repo and extracts architecture diagram
- */
-
 const GITHUB_API_BASE = 'https://api.github.com';
 
-// File patterns to analyze for understanding project structure
 const IMPORTANT_FILES = [
   'README.md',
   'readme.md',

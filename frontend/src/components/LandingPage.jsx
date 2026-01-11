@@ -658,203 +658,149 @@ function LandingPage() {
               </p>
             </div>
 
-            <div className="space-y-10">
-              {/* Mind Maps - Image Left */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Mind Maps */}
               <div 
-                className={`flex flex-col md:flex-row items-center gap-8 p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]
+                className={`p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]
                   ${isDark ? 'bg-gray-800/50 border-gray-700 hover:border-emerald-500' : 'bg-white border-gray-200 hover:border-emerald-500'}`}
                 onClick={() => navigate('/create')}
               >
-                <div className="md:w-1/2">
-                  <img 
-                    src={landing} 
-                    alt="Mind Maps Preview" 
-                    className={`w-full rounded-xl shadow-lg ${isDark ? 'border border-gray-700' : 'border border-gray-200'}`}
-                  />
+                <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4
+                  ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-50'}`}>
+                  <Network className={`w-6 h-6 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
                 </div>
-                <div className="md:w-1/2 space-y-4">
-                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center
-                    ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-50'}`}>
-                    <Network className={`w-6 h-6 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
-                  </div>
-                  <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Mind Maps</h3>
-                  <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Brainstorm and organize ideas with hierarchical structures
-                  </p>
-                  <ul className="space-y-2">
-                    {["Central topic expansion", "Auto-layout options", "Color-coded branches"].map((item, i) => (
-                      <li key={i} className={`flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                        <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-emerald-500' : 'bg-emerald-600'}`} />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>Mind Maps</h3>
+                <p className={`text-sm mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Brainstorm and organize ideas with hierarchical structures
+                </p>
+                <ul className="space-y-2">
+                  {["Central topic expansion", "Auto-layout options", "Color-coded branches"].map((item, i) => (
+                    <li key={i} className={`flex items-center gap-2 text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <div className={`w-1.5 h-1.5 rounded-full ${isDark ? 'bg-emerald-500' : 'bg-emerald-600'}`} />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
 
-              {/* Flowcharts - Image Right */}
+              {/* Flowcharts */}
               <div 
-                className={`flex flex-col md:flex-row-reverse items-center gap-8 p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]
-                  ${isDark ? 'bg-gray-800/50 border-gray-700 hover:border-emerald-500' : 'bg-white border-gray-200 hover:border-emerald-500'}`}
+                className={`p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]
+                  ${isDark ? 'bg-gray-800/50 border-gray-700 hover:border-purple-500' : 'bg-white border-gray-200 hover:border-purple-500'}`}
                 onClick={() => navigate('/create')}
               >
-                <div className="md:w-1/2">
-                  <img 
-                    src={landing} 
-                    alt="Flowcharts Preview" 
-                    className={`w-full rounded-xl shadow-lg ${isDark ? 'border border-gray-700' : 'border border-gray-200'}`}
-                  />
+                <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4
+                  ${isDark ? 'bg-purple-500/20' : 'bg-purple-50'}`}>
+                  <GitBranch className={`w-6 h-6 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
                 </div>
-                <div className="md:w-1/2 space-y-4">
-                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center
-                    ${isDark ? 'bg-purple-500/20' : 'bg-purple-50'}`}>
-                    <GitBranch className={`w-6 h-6 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
-                  </div>
-                  <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Flowcharts</h3>
-                  <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Map processes and decision flows with precision
-                  </p>
-                  <ul className="space-y-2">
-                    {["Process mapping", "Decision nodes", "Connectors with labels"].map((item, i) => (
-                      <li key={i} className={`flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                        <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-purple-500' : 'bg-purple-600'}`} />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>Flowcharts</h3>
+                <p className={`text-sm mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Map processes and decision flows with precision
+                </p>
+                <ul className="space-y-2">
+                  {["Process mapping", "Decision nodes", "Connectors with labels"].map((item, i) => (
+                    <li key={i} className={`flex items-center gap-2 text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <div className={`w-1.5 h-1.5 rounded-full ${isDark ? 'bg-purple-500' : 'bg-purple-600'}`} />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
 
-              {/* Network Diagrams - Image Left */}
+              {/* Network Diagrams */}
               <div 
-                className={`flex flex-col md:flex-row items-center gap-8 p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]
-                  ${isDark ? 'bg-gray-800/50 border-gray-700 hover:border-emerald-500' : 'bg-white border-gray-200 hover:border-emerald-500'}`}
+                className={`p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]
+                  ${isDark ? 'bg-gray-800/50 border-gray-700 hover:border-cyan-500' : 'bg-white border-gray-200 hover:border-cyan-500'}`}
                 onClick={() => navigate('/create')}
               >
-                <div className="md:w-1/2">
-                  <img 
-                    src={landing} 
-                    alt="Network Diagrams Preview" 
-                    className={`w-full rounded-xl shadow-lg ${isDark ? 'border border-gray-700' : 'border border-gray-200'}`}
-                  />
+                <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4
+                  ${isDark ? 'bg-cyan-500/20' : 'bg-cyan-50'}`}>
+                  <Share2 className={`w-6 h-6 ${isDark ? 'text-cyan-400' : 'text-cyan-600'}`} />
                 </div>
-                <div className="md:w-1/2 space-y-4">
-                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center
-                    ${isDark ? 'bg-cyan-500/20' : 'bg-cyan-50'}`}>
-                    <Network className={`w-6 h-6 ${isDark ? 'text-cyan-400' : 'text-cyan-600'}`} />
-                  </div>
-                  <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Network Diagrams</h3>
-                  <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Visualize complex relationships and dependencies
-                  </p>
-                  <ul className="space-y-2">
-                    {["Node connections", "Weighted edges", "Cluster analysis"].map((item, i) => (
-                      <li key={i} className={`flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                        <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-cyan-500' : 'bg-cyan-600'}`} />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>Network Diagrams</h3>
+                <p className={`text-sm mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Visualize complex relationships and dependencies
+                </p>
+                <ul className="space-y-2">
+                  {["Node connections", "Weighted edges", "Cluster analysis"].map((item, i) => (
+                    <li key={i} className={`flex items-center gap-2 text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <div className={`w-1.5 h-1.5 rounded-full ${isDark ? 'bg-cyan-500' : 'bg-cyan-600'}`} />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
 
-              {/* Tree Diagrams - Image Right */}
+              {/* Tree Diagrams */}
               <div 
-                className={`flex flex-col md:flex-row-reverse items-center gap-8 p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]
-                  ${isDark ? 'bg-gray-800/50 border-gray-700 hover:border-emerald-500' : 'bg-white border-gray-200 hover:border-emerald-500'}`}
+                className={`p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]
+                  ${isDark ? 'bg-gray-800/50 border-gray-700 hover:border-orange-500' : 'bg-white border-gray-200 hover:border-orange-500'}`}
                 onClick={() => navigate('/create')}
               >
-                <div className="md:w-1/2">
-                  <img 
-                    src={landing} 
-                    alt="Tree Diagrams Preview" 
-                    className={`w-full rounded-xl shadow-lg ${isDark ? 'border border-gray-700' : 'border border-gray-200'}`}
-                  />
+                <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4
+                  ${isDark ? 'bg-orange-500/20' : 'bg-orange-50'}`}>
+                  <FolderTree className={`w-6 h-6 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
                 </div>
-                <div className="md:w-1/2 space-y-4">
-                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center
-                    ${isDark ? 'bg-orange-500/20' : 'bg-orange-50'}`}>
-                    <FolderTree className={`w-6 h-6 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
-                  </div>
-                  <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Tree Diagrams</h3>
-                  <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Structure data and information hierarchically
-                  </p>
-                  <ul className="space-y-2">
-                    {["Nested relationships", "Collapsible nodes", "Level indicators"].map((item, i) => (
-                      <li key={i} className={`flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                        <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-orange-500' : 'bg-orange-600'}`} />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>Tree Diagrams</h3>
+                <p className={`text-sm mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Structure data and information hierarchically
+                </p>
+                <ul className="space-y-2">
+                  {["Nested relationships", "Collapsible nodes", "Level indicators"].map((item, i) => (
+                    <li key={i} className={`flex items-center gap-2 text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <div className={`w-1.5 h-1.5 rounded-full ${isDark ? 'bg-orange-500' : 'bg-orange-600'}`} />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
 
-              {/* Organization Charts - Image Left */}
+              {/* Organization Charts */}
               <div 
-                className={`flex flex-col md:flex-row items-center gap-8 p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]
-                  ${isDark ? 'bg-gray-800/50 border-gray-700 hover:border-emerald-500' : 'bg-white border-gray-200 hover:border-emerald-500'}`}
+                className={`p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]
+                  ${isDark ? 'bg-gray-800/50 border-gray-700 hover:border-pink-500' : 'bg-white border-gray-200 hover:border-pink-500'}`}
                 onClick={() => navigate('/create')}
               >
-                <div className="md:w-1/2">
-                  <img 
-                    src={landing} 
-                    alt="Organization Charts Preview" 
-                    className={`w-full rounded-xl shadow-lg ${isDark ? 'border border-gray-700' : 'border border-gray-200'}`}
-                  />
+                <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4
+                  ${isDark ? 'bg-pink-500/20' : 'bg-pink-50'}`}>
+                  <Layers className={`w-6 h-6 ${isDark ? 'text-pink-400' : 'text-pink-600'}`} />
                 </div>
-                <div className="md:w-1/2 space-y-4">
-                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center
-                    ${isDark ? 'bg-pink-500/20' : 'bg-pink-50'}`}>
-                    <GitBranch className={`w-6 h-6 ${isDark ? 'text-pink-400' : 'text-pink-600'}`} />
-                  </div>
-                  <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Organization Charts</h3>
-                  <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Create professional organizational structures
-                  </p>
-                  <ul className="space-y-2">
-                    {["Role definitions", "Reporting lines", "Department grouping"].map((item, i) => (
-                      <li key={i} className={`flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                        <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-pink-500' : 'bg-pink-600'}`} />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>Organization Charts</h3>
+                <p className={`text-sm mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Create professional organizational structures
+                </p>
+                <ul className="space-y-2">
+                  {["Role definitions", "Reporting lines", "Department grouping"].map((item, i) => (
+                    <li key={i} className={`flex items-center gap-2 text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <div className={`w-1.5 h-1.5 rounded-full ${isDark ? 'bg-pink-500' : 'bg-pink-600'}`} />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
 
-              {/* Block Diagrams - Image Right */}
+              {/* Block Diagrams */}
               <div 
-                className={`flex flex-col md:flex-row-reverse items-center gap-8 p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]
-                  ${isDark ? 'bg-gray-800/50 border-gray-700 hover:border-emerald-500' : 'bg-white border-gray-200 hover:border-emerald-500'}`}
+                className={`p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02]
+                  ${isDark ? 'bg-gray-800/50 border-gray-700 hover:border-blue-500' : 'bg-white border-gray-200 hover:border-blue-500'}`}
                 onClick={() => navigate('/create')}
               >
-                <div className="md:w-1/2">
-                  <img 
-                    src={landing} 
-                    alt="Block Diagrams Preview" 
-                    className={`w-full rounded-xl shadow-lg ${isDark ? 'border border-gray-700' : 'border border-gray-200'}`}
-                  />
+                <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4
+                  ${isDark ? 'bg-blue-500/20' : 'bg-blue-50'}`}>
+                  <Box className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
                 </div>
-                <div className="md:w-1/2 space-y-4">
-                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center
-                    ${isDark ? 'bg-blue-500/20' : 'bg-blue-50'}`}>
-                    <Box className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-                  </div>
-                  <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Block Diagrams</h3>
-                  <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Design system architectures and layouts
-                  </p>
-                  <ul className="space-y-2">
-                    {["Component blocks", "Port connections", "Nested containers"].map((item, i) => (
-                      <li key={i} className={`flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                        <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-blue-500' : 'bg-blue-600'}`} />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>Block Diagrams</h3>
+                <p className={`text-sm mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Design system architectures and layouts
+                </p>
+                <ul className="space-y-2">
+                  {["Component blocks", "Port connections", "Nested containers"].map((item, i) => (
+                    <li key={i} className={`flex items-center gap-2 text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <div className={`w-1.5 h-1.5 rounded-full ${isDark ? 'bg-blue-500' : 'bg-blue-600'}`} />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </div>
