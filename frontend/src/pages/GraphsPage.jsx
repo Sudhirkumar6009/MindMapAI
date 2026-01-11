@@ -96,7 +96,7 @@ function GraphsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className={`w-12 h-12 animate-spin ${isDark ? 'text-blue-500' : 'text-blue-600'}`} />
+        <Loader2 className={`w-12 h-12 animate-spin ${isDark ? 'text-emerald-500' : 'text-emerald-600'}`} />
       </div>
     );
   }
@@ -126,7 +126,7 @@ function GraphsPage() {
           
           <Link
             to="/graphs/new"
-            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold rounded-xl transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-purple-600 hover:from-emerald-500 hover:to-purple-500 text-white font-semibold rounded-xl transition-colors"
           >
             <Move className="w-5 h-5" />
             Create Custom Graph
@@ -144,8 +144,8 @@ function GraphsPage() {
               placeholder="Search graphs..."
               className={`w-full pl-11 pr-4 py-3 rounded-xl border transition-all
                 ${isDark 
-                  ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500' 
-                  : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-blue-500'}`}
+                  ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-emerald-500' 
+                  : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-emerald-500'}`}
             />
           </div>
 
@@ -153,7 +153,7 @@ function GraphsPage() {
             <button
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' 
-                ? 'bg-blue-500 text-white' 
+                ? 'bg-emerald-500 text-white' 
                 : isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
             >
               <Grid className="w-5 h-5" />
@@ -161,7 +161,7 @@ function GraphsPage() {
             <button
               onClick={() => setViewMode('list')}
               className={`p-2 rounded-lg transition-colors ${viewMode === 'list' 
-                ? 'bg-blue-500 text-white' 
+                ? 'bg-emerald-500 text-white' 
                 : isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
             >
               <List className="w-5 h-5" />
@@ -296,7 +296,7 @@ function GraphsPage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => navigate(`/graphs/${graph._id}`)}
-                      className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-500 hover:to-purple-500"
+                      className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-purple-600 text-white font-medium rounded-xl hover:from-emerald-500 hover:to-purple-500"
                     >
                       Open
                     </button>
@@ -318,8 +318,8 @@ function GraphsPage() {
           <div className={`p-12 rounded-2xl border text-center
             ${isDark ? 'bg-gray-800/50 border-gray-700/50' : 'bg-white border-gray-200'}`}>
             <div className={`w-20 h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center
-              ${isDark ? 'bg-gradient-to-br from-blue-500/20 to-purple-500/20' : 'bg-gradient-to-br from-blue-50 to-purple-50'}`}>
-              <Move className={`w-10 h-10 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+              ${isDark ? 'bg-gradient-to-br from-emerald-500/20 to-purple-500/20' : 'bg-gradient-to-br from-emerald-50 to-purple-50'}`}>
+              <Move className={`w-10 h-10 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
             </div>
             <h3 className={`text-xl font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
               {searchQuery ? 'No matching graphs' : 'No custom graphs yet'}
@@ -335,7 +335,7 @@ function GraphsPage() {
             {!searchQuery && (
               <Link
                 to="/graphs/new"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-500 hover:to-purple-500 transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-purple-600 text-white font-semibold rounded-xl hover:from-emerald-500 hover:to-purple-500 transition-all"
               >
                 <Move className="w-5 h-5" />
                 Create Custom Graph

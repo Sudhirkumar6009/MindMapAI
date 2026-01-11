@@ -87,7 +87,7 @@ const RecentGraphItem = ({ graph, onLoad }) => {
       <div className={`p-2.5 rounded-lg ${
         graph.sourceType === 'pdf' ? 'bg-green-500/20 text-green-500' :
         graph.sourceType === 'github' ? 'bg-purple-500/20 text-purple-500' :
-        'bg-blue-500/20 text-blue-500'
+        'bg-emerald-500/20 text-emerald-500'
       }`}>
         <SourceIcon className="w-5 h-5" />
       </div>
@@ -178,7 +178,7 @@ function Dashboard({ onNavigate, onLoadGraph }) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>Loading dashboard...</p>
         </div>
       </div>
@@ -192,7 +192,7 @@ function Dashboard({ onNavigate, onLoadGraph }) {
           <p className="text-red-500 mb-4">{error}</p>
           <button
             onClick={loadDashboard}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600"
           >
             Retry
           </button>
@@ -209,7 +209,7 @@ function Dashboard({ onNavigate, onLoadGraph }) {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500 to-purple-600">
               <LayoutDashboard className="w-6 h-6 text-white" />
             </div>
             <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
@@ -228,7 +228,7 @@ function Dashboard({ onNavigate, onLoadGraph }) {
             label="Total Graphs"
             value={stats?.totalGraphs || 0}
             subValue={`${quickStats?.thisWeek || 0} this week`}
-            gradient="bg-gradient-to-br from-blue-500 to-blue-700"
+            gradient="bg-gradient-to-br from-emerald-500 to-emerald-700"
             delay={0}
           />
           <StatCard
@@ -267,7 +267,7 @@ function Dashboard({ onNavigate, onLoadGraph }) {
               <button
                 onClick={() => onNavigate?.('history')}
                 className={`text-sm font-medium flex items-center gap-1 hover:underline
-                  ${isDark ? 'text-blue-400' : 'text-blue-600'}`}
+                  ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}
               >
                 View all <ChevronRight className="w-4 h-4" />
               </button>
@@ -306,7 +306,7 @@ function Dashboard({ onNavigate, onLoadGraph }) {
                 label="New Graph"
                 description="Create from text, PDF, or GitHub"
                 onClick={() => onNavigate?.('create')}
-                gradient="bg-gradient-to-br from-blue-500 to-blue-700"
+                gradient="bg-gradient-to-br from-emerald-500 to-emerald-700"
               />
               <QuickAction
                 icon={Sparkles}
@@ -328,7 +328,7 @@ function Dashboard({ onNavigate, onLoadGraph }) {
             <div className={`mt-6 p-4 rounded-xl border
               ${isDark ? 'bg-gray-800/30 border-gray-700/50' : 'bg-white border-gray-200'}`}>
               <div className="flex items-center gap-2 mb-3">
-                <BarChart3 className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                <BarChart3 className={`w-5 h-5 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
                 <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   Source Types
                 </h3>

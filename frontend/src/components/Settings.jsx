@@ -31,8 +31,8 @@ const TabButton = ({ icon: Icon, label, isActive, onClick }) => {
       className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-left transition-all duration-200
         ${isActive
           ? isDark
-            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-            : 'bg-blue-50 text-blue-600 border border-blue-200'
+            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+            : 'bg-emerald-50 text-emerald-600 border border-emerald-200'
           : isDark
             ? 'text-gray-400 hover:bg-gray-800 hover:text-gray-300'
             : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}
@@ -51,7 +51,7 @@ const Toggle = ({ checked, onChange, disabled = false }) => {
       onClick={() => !disabled && onChange(!checked)}
       disabled={disabled}
       className={`relative w-12 h-6 rounded-full transition-colors duration-200
-        ${checked ? 'bg-blue-500' : 'bg-gray-400'}
+        ${checked ? 'bg-emerald-500' : 'bg-gray-400'}
         ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
     >
       <span
@@ -75,7 +75,7 @@ const Select = ({ value, onChange, options, disabled = false }) => {
         ${isDark
           ? 'bg-gray-800 border-gray-700 text-white'
           : 'bg-white border-gray-200 text-gray-900'}
-        ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-blue-500'}`}
+        ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-emerald-500'}`}
     >
       {options.map((opt) => (
         <option key={opt.value} value={opt.value}>
@@ -355,7 +355,7 @@ function Settings({ onClose }) {
   if (loading) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
-        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -374,7 +374,7 @@ function Settings({ onClose }) {
       <div className="max-w-5xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
-          <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500 to-purple-600">
             <SettingsIcon className="w-6 h-6 text-white" />
           </div>
           <div>
@@ -423,7 +423,7 @@ function Settings({ onClose }) {
                         <User className={`w-10 h-10 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                       )}
                     </div>
-                    <label className="absolute bottom-0 right-0 p-1.5 bg-blue-500 rounded-full cursor-pointer hover:bg-blue-600">
+                    <label className="absolute bottom-0 right-0 p-1.5 bg-emerald-500 rounded-full cursor-pointer hover:bg-emerald-600">
                       <Camera className="w-4 h-4 text-white" />
                       <input type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
                     </label>
@@ -446,8 +446,8 @@ function Settings({ onClose }) {
                       onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
                       className={`w-full px-4 py-2.5 rounded-xl border transition-colors
                         ${isDark
-                          ? 'bg-gray-900 border-gray-700 text-white focus:border-blue-500'
-                          : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-blue-500'}`}
+                          ? 'bg-gray-900 border-gray-700 text-white focus:border-emerald-500'
+                          : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-emerald-500'}`}
                     />
                   </div>
 
@@ -461,8 +461,8 @@ function Settings({ onClose }) {
                       rows={3}
                       className={`w-full px-4 py-2.5 rounded-xl border resize-none transition-colors
                         ${isDark
-                          ? 'bg-gray-900 border-gray-700 text-white focus:border-blue-500'
-                          : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-blue-500'}`}
+                          ? 'bg-gray-900 border-gray-700 text-white focus:border-emerald-500'
+                          : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-emerald-500'}`}
                       placeholder="Tell us about yourself..."
                     />
                   </div>
@@ -478,8 +478,8 @@ function Settings({ onClose }) {
                         onChange={(e) => setProfile(prev => ({ ...prev, profession: e.target.value }))}
                         className={`w-full px-4 py-2.5 rounded-xl border transition-colors
                           ${isDark
-                            ? 'bg-gray-900 border-gray-700 text-white focus:border-blue-500'
-                            : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-blue-500'}`}
+                            ? 'bg-gray-900 border-gray-700 text-white focus:border-emerald-500'
+                            : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-emerald-500'}`}
                         placeholder="e.g., Student, Researcher"
                       />
                     </div>
@@ -493,8 +493,8 @@ function Settings({ onClose }) {
                         onChange={(e) => setProfile(prev => ({ ...prev, organization: e.target.value }))}
                         className={`w-full px-4 py-2.5 rounded-xl border transition-colors
                           ${isDark
-                            ? 'bg-gray-900 border-gray-700 text-white focus:border-blue-500'
-                            : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-blue-500'}`}
+                            ? 'bg-gray-900 border-gray-700 text-white focus:border-emerald-500'
+                            : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-emerald-500'}`}
                         placeholder="e.g., University, Company"
                       />
                     </div>
@@ -505,7 +505,7 @@ function Settings({ onClose }) {
                   <button
                     onClick={handleSaveProfile}
                     disabled={saving}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 disabled:opacity-50"
                   >
                     <Save className="w-4 h-4" />
                     {saving ? 'Saving...' : 'Save Profile'}
@@ -549,7 +549,7 @@ function Settings({ onClose }) {
                   <button
                     onClick={handleSaveSettings}
                     disabled={saving}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 disabled:opacity-50"
                   >
                     <Save className="w-4 h-4" />
                     Save
@@ -622,7 +622,7 @@ function Settings({ onClose }) {
                   <button
                     onClick={handleSaveSettings}
                     disabled={saving}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 disabled:opacity-50"
                   >
                     <Save className="w-4 h-4" />
                     Save
@@ -654,7 +654,7 @@ function Settings({ onClose }) {
                   <button
                     onClick={handleSaveSettings}
                     disabled={saving}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 disabled:opacity-50"
                   >
                     <Save className="w-4 h-4" />
                     Save
@@ -719,7 +719,7 @@ function Settings({ onClose }) {
                   <button
                     onClick={handleChangePassword}
                     disabled={saving || !passwordData.current || !passwordData.new || !passwordData.confirm}
-                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 disabled:opacity-50"
+                    className="mt-4 px-4 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 disabled:opacity-50"
                   >
                     Update Password
                   </button>

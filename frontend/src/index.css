@@ -95,7 +95,7 @@ html.light body {
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 50%, #ec4899 100%);
+  background: linear-gradient(135deg, #10b981 0%, #059669 50%, #34d399 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -118,7 +118,7 @@ html.light body {
   content: '';
   position: absolute;
   inset: -2px;
-  background: linear-gradient(135deg, #0ea5e9, #8b5cf6, #ec4899);
+  background: linear-gradient(135deg, #10b981, #059669, #34d399);
   border-radius: 14px;
   z-index: -1;
 }
@@ -169,7 +169,7 @@ html.light body {
 .dark .graph-container {
   background-color: #0a0f1a;
   background-image: 
-    radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.03) 0%, transparent 50%),
     linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
   background-size: 100% 100%, 40px 40px, 40px 40px;
@@ -178,7 +178,7 @@ html.light body {
 .light .graph-container {
   background-color: #f8fafc;
   background-image: 
-    radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 50%),
     linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
   background-size: 100% 100%, 40px 40px, 40px 40px;
@@ -186,7 +186,7 @@ html.light body {
 
 /* Glow effects */
 .glow-primary {
-  box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
 }
 
 .glow-purple {
@@ -312,8 +312,8 @@ html.light body {
 
 /* Glow pulse for CTA buttons */
 @keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
-  50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.6); }
+  0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+  50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.6); }
 }
 
 .animate-glow-pulse {

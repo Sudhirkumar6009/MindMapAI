@@ -47,8 +47,8 @@ const EXPORT_FORMATS = [
     extension: '.vsdx',
     description: 'Microsoft Visio format',
     icon: FileSpreadsheet,
-    color: 'text-blue-400',
-    bgColor: 'bg-blue-500/20',
+    color: 'text-emerald-400',
+    bgColor: 'bg-emerald-500/20',
     exclusive: false
   },
   {

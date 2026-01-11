@@ -32,7 +32,7 @@ const COLOR_PALETTES = {
   academic: {
     name: 'Academic',
     description: 'Clean scholarly style',
-    primary: '#3B82F6',
+    primary: '#10B981',
     secondary: '#6366F1', 
     accent: '#8B5CF6',
     hub: '#1E40AF',
@@ -45,7 +45,7 @@ const COLOR_PALETTES = {
   research: {
     name: 'Research',
     description: 'Scientific paper style',
-    primary: '#0EA5E9',
+    primary: '#10B981',
     secondary: '#14B8A6',
     accent: '#6366F1',
     hub: '#0369A1',
@@ -63,7 +63,7 @@ const COLOR_PALETTES = {
     accent: '#06B6D4',
     hub: '#DB2777',
     action: '#22C55E',
-    result: '#3B82F6',
+    result: '#10B981',
     decision: '#F97316',
     background: { light: '#FDF2F8', dark: '#1E1B4B' },
     edge: { light: '#A855F7', dark: '#C084FC' }
@@ -816,11 +816,11 @@ function GraphViewInner({ data, metadata = {}, onAnalyzeInDepth }) {
                   onClick={() => setShowSectionDropdown(!showSectionDropdown)}
                   className={`px-4 py-2.5 rounded-xl flex items-center gap-3 transition-all shadow-lg border-2
                             ${isDark 
-                              ? 'bg-slate-800/95 backdrop-blur-sm border-slate-600 hover:border-blue-500' 
-                              : 'bg-white/95 backdrop-blur-sm border-slate-200 hover:border-blue-500'
+                              ? 'bg-slate-800/95 backdrop-blur-sm border-slate-600 hover:border-emerald-500' 
+                              : 'bg-white/95 backdrop-blur-sm border-slate-200 hover:border-emerald-500'
                             }`}
                 >
-                  <Filter className={`w-4 h-4 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                  <Filter className={`w-4 h-4 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
                   <span className={`text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                     {sections.find(s => s.id === selectedSection)?.name || 'All Topics'}
                   </span>
@@ -848,11 +848,11 @@ function GraphViewInner({ data, metadata = {}, onAnalyzeInDepth }) {
                           }}
                           className={`w-full px-4 py-2.5 text-left flex items-center gap-3 transition-all
                                     ${selectedSection === section.id
-                                      ? isDark ? 'bg-blue-500/20 text-blue-300' : 'bg-blue-50 text-blue-700'
+                                      ? isDark ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-50 text-emerald-700'
                                       : isDark ? 'hover:bg-slate-700 text-slate-300' : 'hover:bg-slate-50 text-slate-600'
                                     }`}
                         >
-                          <div className={`w-2 h-2 rounded-full ${selectedSection === section.id ? 'bg-blue-500' : isDark ? 'bg-slate-600' : 'bg-slate-300'}`} />
+                          <div className={`w-2 h-2 rounded-full ${selectedSection === section.id ? 'bg-emerald-500' : isDark ? 'bg-slate-600' : 'bg-slate-300'}`} />
                           <div>
                             <div className="text-sm font-medium">{section.name}</div>
                             {section.description && (
@@ -876,7 +876,7 @@ function GraphViewInner({ data, metadata = {}, onAnalyzeInDepth }) {
                           }}
                           disabled={isAnalyzing}
                           className="w-full px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-semibold
-                                    bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500
+                                    bg-gradient-to-r from-purple-600 to-emerald-600 hover:from-purple-500 hover:to-emerald-500
                                     text-white shadow-lg disabled:opacity-50"
                         >
                           {isAnalyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Microscope className="w-4 h-4" />}
@@ -896,7 +896,7 @@ function GraphViewInner({ data, metadata = {}, onAnalyzeInDepth }) {
                              : 'bg-white/80 backdrop-blur-sm border border-slate-200'
                            }`}>
               <div className="flex items-center gap-2">
-                <Network className="w-4 h-4 text-blue-500" />
+                <Network className="w-4 h-4 text-emerald-500" />
                 <span className={`text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                   {nodes.length} nodes
                 </span>
@@ -943,7 +943,7 @@ function GraphViewInner({ data, metadata = {}, onAnalyzeInDepth }) {
                   <div>
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500">
+                        <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500 to-purple-500">
                           <Network className="w-4 h-4 text-white" />
                         </div>
                         {isEditing ? (
@@ -1036,7 +1036,7 @@ function GraphViewInner({ data, metadata = {}, onAnalyzeInDepth }) {
                     
                     <div className="flex items-center gap-2 flex-wrap mb-3">
                       <span className={`px-2 py-1 rounded-lg text-xs font-medium
-                                      ${isDark ? 'bg-blue-500/20 text-blue-300' : 'bg-blue-100 text-blue-700'}`}>
+                                      ${isDark ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-100 text-emerald-700'}`}>
                         {selectedEdge.source}
                       </span>
                       <span className="text-slate-400">→</span>

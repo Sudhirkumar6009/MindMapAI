@@ -572,13 +572,13 @@ function AppContent() {
         {!isAuthenticated && (
           <div className={`mb-6 p-4 rounded-xl border-2 flex items-center justify-between gap-4 flex-wrap
             ${isDark 
-              ? 'bg-gradient-to-r from-blue-900/30 to-purple-900/30 border-blue-700/50' 
-              : 'bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200'}`}>
+              ? 'bg-gradient-to-r from-emerald-900/30 to-purple-900/30 border-emerald-700/50' 
+              : 'bg-gradient-to-r from-emerald-50 to-purple-50 border-emerald-200'}`}>
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg
                 ${demoUsage >= DEMO_LIMIT 
                   ? 'bg-red-500/20 text-red-400' 
-                  : 'bg-blue-500/20 text-blue-400'}`}>
+                  : 'bg-emerald-500/20 text-emerald-400'}`}>
                 {DEMO_LIMIT - demoUsage}
               </div>
               <div>
@@ -594,7 +594,7 @@ function AppContent() {
             </div>
             <button
               onClick={() => setShowAuthModal(true)}
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:scale-105 transition-transform"
+              className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-purple-600 text-white font-semibold rounded-lg hover:scale-105 transition-transform"
             >
               Sign In
             </button>

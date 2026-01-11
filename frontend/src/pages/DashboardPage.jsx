@@ -81,8 +81,8 @@ const RecentGraphItem = ({ graph, onClick }) => {
       onClick={onClick}
       className={`w-full p-4 rounded-xl border transition-all text-left group
         ${isDark 
-          ? 'bg-gray-800/50 border-gray-700/50 hover:border-blue-500/50 hover:bg-gray-800' 
-          : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-md'}`}
+          ? 'bg-gray-800/50 border-gray-700/50 hover:border-emerald-500/50 hover:bg-gray-800' 
+          : 'bg-white border-gray-200 hover:border-emerald-300 hover:shadow-md'}`}
     >
       <div className="flex items-start gap-3">
         <div className={`p-2 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
@@ -158,7 +158,7 @@ function DashboardPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <Loader2 className={`w-12 h-12 animate-spin mx-auto mb-4 ${isDark ? 'text-blue-500' : 'text-blue-600'}`} />
+          <Loader2 className={`w-12 h-12 animate-spin mx-auto mb-4 ${isDark ? 'text-emerald-500' : 'text-emerald-600'}`} />
           <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>Loading dashboard...</p>
         </div>
       </div>
@@ -187,7 +187,7 @@ function DashboardPage() {
             label="Total Graphs"
             value={stats.totalGraphs || 0}
             subValue="All time"
-            gradient="bg-gradient-to-br from-blue-500 to-blue-600"
+            gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
             delay={0}
           />
           <StatCard
@@ -225,7 +225,7 @@ function DashboardPage() {
               </h2>
               <Link
                 to="/history"
-                className={`text-sm font-medium flex items-center gap-1 ${isDark ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-500'}`}
+                className={`text-sm font-medium flex items-center gap-1 ${isDark ? 'text-emerald-400 hover:text-emerald-300' : 'text-emerald-600 hover:text-emerald-500'}`}
               >
                 View all
                 <ChevronRight className="w-4 h-4" />
@@ -254,7 +254,7 @@ function DashboardPage() {
                 </p>
                 <Link
                   to="/create"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-purple-600 text-white font-medium rounded-xl"
                 >
                   <Plus className="w-4 h-4" />
                   Create Graph
@@ -274,7 +274,7 @@ function DashboardPage() {
                 label="New Graph"
                 description="Create from text or PDF"
                 to="/create"
-                gradient="bg-gradient-to-br from-blue-500 to-blue-600"
+                gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
               />
               <QuickAction
                 icon={Network}

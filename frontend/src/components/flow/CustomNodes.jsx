@@ -42,7 +42,7 @@ const getShadowStyle = (shadowSize, color) => {
 const getBaseClasses = (isDark, selected, customShadow = 'lg') => {
   const base = 'transition-all duration-200 cursor-grab active:cursor-grabbing';
   const shadow = selected 
-    ? 'ring-2 ring-blue-500 ring-offset-2' 
+    ? 'ring-2 ring-emerald-500 ring-offset-2' 
     : '';
   const shadowClass = shadowClasses[customShadow] || 'shadow-lg';
   const hover = 'hover:scale-[1.02]';
@@ -69,7 +69,7 @@ export const StandardNode = memo(({ data, selected }) => {
   const isHub = connections >= 5;
   const isImportant = connections >= 3;
   
-  let bgColor = colors?.primary || '#3B82F6';
+  let bgColor = colors?.primary || '#10B981';
   if (isHub) bgColor = colors?.hub || '#1E40AF';
   else if (isImportant) bgColor = colors?.secondary || '#6366F1';
   
@@ -454,7 +454,7 @@ export const HexagonNode = memo(({ data, selected }) => {
   const width = isHub ? 130 : isImportant ? 115 : 100;
   const height = isHub ? 65 : isImportant ? 55 : 48;
   
-  let bgColor = colors?.primary || '#3B82F6';
+  let bgColor = colors?.primary || '#10B981';
   let defaultTextColor = '#1e293b';
   
   if (isHub) {
@@ -521,7 +521,7 @@ export const OrgNode = memo(({ data, selected }) => {
   if (isTop) {
     bgColor = colors?.hub || colors?.primary || '#1E40AF';
   } else if (isMid) {
-    bgColor = colors?.primary || '#3B82F6';
+    bgColor = colors?.primary || '#10B981';
   } else {
     bgColor = colors?.action || colors?.primary || '#10B981';
   }

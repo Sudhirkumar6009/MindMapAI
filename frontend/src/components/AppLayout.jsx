@@ -119,9 +119,9 @@ function AppLayout({ children }) {
       case 'welcome':
         return <Sparkles className="w-4 h-4 text-purple-500" />;
       case 'system':
-        return <Network className="w-4 h-4 text-blue-500" />;
+        return <Network className="w-4 h-4 text-emerald-500" />;
       default:
-        return <Info className="w-4 h-4 text-blue-500" />;
+        return <Info className="w-4 h-4 text-emerald-500" />;
     }
   };
 

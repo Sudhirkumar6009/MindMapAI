@@ -29,7 +29,7 @@ const Toggle = ({ checked, onChange, disabled = false }) => {
       onClick={() => !disabled && onChange(!checked)}
       disabled={disabled}
       className={`relative w-12 h-6 rounded-full transition-colors duration-200
-        ${checked ? 'bg-blue-500' : 'bg-gray-400'}
+        ${checked ? 'bg-emerald-500' : 'bg-gray-400'}
         ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
     >
       <span
@@ -51,7 +51,7 @@ const Select = ({ value, onChange, options, disabled = false, isDark }) => {
         ${isDark
           ? 'bg-gray-800 border-gray-700 text-white'
           : 'bg-white border-gray-200 text-gray-900'}
-        ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-blue-500'}`}
+        ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-emerald-500'}`}
     >
       {options.map((opt) => (
         <option key={opt.value} value={opt.value}>
@@ -202,7 +202,7 @@ function SettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className={`w-12 h-12 animate-spin ${isDark ? 'text-blue-500' : 'text-blue-600'}`} />
+        <Loader2 className={`w-12 h-12 animate-spin ${isDark ? 'text-emerald-500' : 'text-emerald-600'}`} />
       </div>
     );
   }
@@ -267,7 +267,7 @@ function SettingsPage() {
           <SettingRow label="Theme" description="Choose your preferred color scheme" isDark={isDark}>
             <div className="flex items-center gap-2">
               {settings.theme === 'light' && <Sun className="w-4 h-4 text-yellow-500" />}
-              {settings.theme === 'dark' && <Moon className="w-4 h-4 text-blue-400" />}
+              {settings.theme === 'dark' && <Moon className="w-4 h-4 text-emerald-400" />}
               {settings.theme === 'system' && <Monitor className="w-4 h-4 text-gray-400" />}
               <Select
                 value={settings.theme}
@@ -309,7 +309,7 @@ function SettingsPage() {
         {/* Preferences Section */}
         <div className={`p-6 rounded-2xl border mb-6 ${isDark ? 'bg-gray-800/50 border-gray-700/50' : 'bg-white border-gray-200'}`}>
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500">
               <Settings className="w-5 h-5 text-white" />
             </div>
             <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
@@ -355,8 +355,8 @@ function SettingsPage() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500
-                   text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all
+          className="w-full py-3 bg-gradient-to-r from-emerald-600 to-purple-600 hover:from-emerald-500 hover:to-purple-500
+                   text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/25 transition-all
                    disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mb-8"
         >
           {saving ? (

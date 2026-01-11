@@ -115,7 +115,7 @@ function Sidebar() {
       to={item.path}
       className={`group relative flex items-center gap-3 rounded-xl 
         transition-all duration-300 ease-out
-        ${showLabel ? 'px-3 py-2.5' : 'px-3 py-2 justify-center'}
+        ${showLabel ? 'px-3 py-2.5' : 'px-3 py-3 justify-center'}
         ${isActive(item.path)
           ? isDark 
             ? 'bg-primary-500/20 text-primary-400 shadow-lg shadow-primary-500/10' 
@@ -156,7 +156,7 @@ function Sidebar() {
       {/* Logo Section */}
       <div className={`flex items-center gap-3 mb-6 transition-all duration-300 ease-out ${!expanded ? 'justify-center' : ''}`}>
         <Link to="/" className="flex items-center gap-3 overflow-hidden">
-          <div className="p-2 rounded-xl bg-gradient-to-br from-primary-500 to-purple-500 shadow-lg shadow-primary-500/25 flex-shrink-0 transition-all duration-300 ease-out hover:scale-105 hover:shadow-xl hover:shadow-primary-500/30">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-primary-500 to-green-500 shadow-lg shadow-primary-500/25 flex-shrink-0 transition-all duration-300 ease-out hover:scale-105 hover:shadow-xl hover:shadow-primary-500/30">
             <Brain className="w-6 h-6 text-white" />
           </div>
           <div 
@@ -187,7 +187,7 @@ function Sidebar() {
             <NavItem item={item} showLabel={expanded} />
             {/* Add subtle divider after Home */}
             {index === 0 && (
-              <div className={`my-1.5 mx-3 border-t transition-opacity duration-300 
+              <div className={`my-3 mx-3 border-t transition-opacity duration-300 
                 ${isDark ? 'border-gray-800/60' : 'border-gray-200/60'}`} 
               />
             )}
@@ -255,7 +255,7 @@ function Sidebar() {
               <img 
                 src={user.avatar} 
                 alt={user.name}
-                className="w-10 h-10 rounded-full object-cover ring-2 ring-primary-500/30"
+                className="w-6 h-6 rounded-full object-cover ring-2 ring-primary-500/30"
               />
             ) : (
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-purple-500 
@@ -268,7 +268,7 @@ function Sidebar() {
               className="p-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
               title="Sign Out"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-5 h-5" />
             </button>
           </div>
         )}
@@ -279,7 +279,7 @@ function Sidebar() {
         <div className="mt-4 flex items-center gap-2">
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl 
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl 
               transition-all duration-200 border
               ${isDark
                 ? 'border-gray-800 text-gray-400 hover:text-white hover:bg-gray-800/80'

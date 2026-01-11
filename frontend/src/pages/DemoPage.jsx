@@ -37,7 +37,7 @@ function DemoPage() {
   return (
     <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-dark-950' : 'bg-gray-50'}`}>
       <div className="text-center">
-        <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
         <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>Starting demo...</p>
       </div>
     </div>

@@ -71,7 +71,7 @@ function RegisterPage() {
       {/* Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
       </div>
 
       <div className={`relative w-full max-w-md p-8 rounded-2xl border shadow-2xl
@@ -89,7 +89,7 @@ function RegisterPage() {
 
         {/* Logo */}
         <div className="flex items-center gap-3 mb-8">
-          <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 shadow-lg">
+          <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-emerald-600 shadow-lg">
             <Brain className="w-8 h-8 text-white" />
           </div>
           <div>
@@ -229,7 +229,7 @@ function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500
+            className="w-full py-3 bg-gradient-to-r from-purple-600 to-emerald-600 hover:from-purple-500 hover:to-emerald-500
                      text-white font-semibold rounded-xl shadow-lg shadow-purple-500/25 transition-all
                      disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >

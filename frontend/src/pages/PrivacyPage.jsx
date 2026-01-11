@@ -20,8 +20,8 @@ function PrivacyPage() {
 
         <div className={`p-8 rounded-2xl ${isDark ? 'bg-gray-800/50' : 'bg-white'}`}>
           <div className="flex items-center gap-3 mb-6">
-            <div className={`p-3 rounded-lg ${isDark ? 'bg-blue-500/20' : 'bg-blue-50'}`}>
-              <Shield className={`w-8 h-8 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+            <div className={`p-3 rounded-lg ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-50'}`}>
+              <Shield className={`w-8 h-8 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
             </div>
             <h1 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
               Privacy Policy

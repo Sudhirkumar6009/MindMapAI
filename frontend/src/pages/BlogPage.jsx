@@ -54,8 +54,8 @@ function BlogPage() {
               key={index}
               className={`p-6 rounded-2xl border-2 cursor-pointer transition-all hover:scale-[1.02]
                 ${isDark 
-                  ? 'bg-gray-800/50 border-gray-700 hover:border-blue-500' 
-                  : 'bg-white border-gray-200 hover:border-blue-500 hover:shadow-lg'}`}
+                  ? 'bg-gray-800/50 border-gray-700 hover:border-emerald-500' 
+                  : 'bg-white border-gray-200 hover:border-emerald-500 hover:shadow-lg'}`}
             >
               <div className={`flex items-center gap-2 text-sm mb-3 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                 <Calendar className="w-4 h-4" />

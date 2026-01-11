@@ -111,7 +111,7 @@ const COMPONENT_CATEGORIES = {
     name: 'Shapes',
     icon: Square,
     items: [
-      { id: 'rectangle', name: 'Rectangle', icon: Square, color: '#3B82F6', nodeType: 'standard' },
+      { id: 'rectangle', name: 'Rectangle', icon: Square, color: '#10B981', nodeType: 'standard' },
       { id: 'rounded', name: 'Rounded', icon: Square, color: '#8B5CF6', nodeType: 'mindmap' },
       { id: 'circle', name: 'Circle', icon: Circle, color: '#10B981', nodeType: 'circle' },
       { id: 'diamond', name: 'Diamond', icon: Diamond, color: '#F59E0B', nodeType: 'flowchart' },
@@ -124,7 +124,7 @@ const COMPONENT_CATEGORIES = {
     items: [
       { id: 'start', name: 'Start', icon: Circle, color: '#22C55E', nodeType: 'circle', label: 'Start' },
       { id: 'end', name: 'End', icon: Circle, color: '#EF4444', nodeType: 'circle', label: 'End' },
-      { id: 'process', name: 'Process', icon: Square, color: '#3B82F6', nodeType: 'standard', label: 'Process' },
+      { id: 'process', name: 'Process', icon: Square, color: '#10B981', nodeType: 'standard', label: 'Process' },
       { id: 'decision', name: 'Decision', icon: Diamond, color: '#F59E0B', nodeType: 'flowchart', label: 'Decision?' },
       { id: 'data', name: 'Data', icon: Database, color: '#8B5CF6', nodeType: 'standard', label: 'Data' },
     ]
@@ -133,7 +133,7 @@ const COMPONENT_CATEGORIES = {
     name: 'Icons',
     icon: Star,
     items: [
-      { id: 'user', name: 'User', icon: User, color: '#3B82F6', nodeType: 'circle' },
+      { id: 'user', name: 'User', icon: User, color: '#10B981', nodeType: 'circle' },
       { id: 'users', name: 'Team', icon: Users, color: '#8B5CF6', nodeType: 'circle' },
       { id: 'database', name: 'Database', icon: Database, color: '#10B981', nodeType: 'hexagon' },
       { id: 'server', name: 'Server', icon: Server, color: '#F59E0B', nodeType: 'standard' },
@@ -148,7 +148,7 @@ const COMPONENT_CATEGORIES = {
       { id: 'success', name: 'Success', icon: CheckCircle, color: '#22C55E', nodeType: 'circle' },
       { id: 'error', name: 'Error', icon: XCircle, color: '#EF4444', nodeType: 'circle' },
       { id: 'warning', name: 'Warning', icon: AlertCircle, color: '#F59E0B', nodeType: 'circle' },
-      { id: 'info', name: 'Info', icon: Info, color: '#3B82F6', nodeType: 'circle' },
+      { id: 'info', name: 'Info', icon: Info, color: '#10B981', nodeType: 'circle' },
       { id: 'loading', name: 'Loading', icon: Loader2, color: '#8B5CF6', nodeType: 'circle' },
     ]
   },
@@ -157,7 +157,7 @@ const COMPONENT_CATEGORIES = {
     icon: Building,
     items: [
       { id: 'target', name: 'Goal', icon: Target, color: '#EF4444', nodeType: 'circle' },
-      { id: 'chart', name: 'Analytics', icon: BarChart, color: '#3B82F6', nodeType: 'standard' },
+      { id: 'chart', name: 'Analytics', icon: BarChart, color: '#10B981', nodeType: 'standard' },
       { id: 'growth', name: 'Growth', icon: TrendingUp, color: '#22C55E', nodeType: 'standard' },
       { id: 'idea', name: 'Idea', icon: Lightbulb, color: '#F59E0B', nodeType: 'mindmap' },
       { id: 'task', name: 'Task', icon: CheckCircle, color: '#8B5CF6', nodeType: 'standard' },
@@ -176,9 +176,9 @@ const COMPONENT_CATEGORIES = {
 };
 
 const COLOR_PALETTE = [
-  '#3B82F6', '#8B5CF6', '#EC4899', '#EF4444', '#F59E0B',
+  '#10B981', '#8B5CF6', '#EC4899', '#EF4444', '#F59E0B',
   '#22C55E', '#10B981', '#06B6D4', '#6366F1', '#84CC16',
-  '#F97316', '#14B8A6', '#A855F7', '#0EA5E9', '#64748B',
+  '#F97316', '#14B8A6', '#A855F7', '#34D399', '#64748B',
 ];
 
 // Default styling presets for each shape type
@@ -271,10 +271,10 @@ const DraggableItem = ({ item, isDark, onDragStart }) => {
 // ============================================
 const NodePropertiesPanel = ({ selectedNode, onUpdateNode, onDeleteNode, isDark }) => {
   const [label, setLabel] = useState(selectedNode?.data?.label || '');
-  const [color, setColor] = useState(selectedNode?.data?.colors?.primary || '#3B82F6');
+  const [color, setColor] = useState(selectedNode?.data?.colors?.primary || '#10B981');
   const [colorMode, setColorMode] = useState('palette'); // 'palette', 'hex', 'rgb'
-  const [rgb, setRgb] = useState(() => hexToRgb(selectedNode?.data?.colors?.primary || '#3B82F6'));
-  const [hexInput, setHexInput] = useState(selectedNode?.data?.colors?.primary || '#3B82F6');
+  const [rgb, setRgb] = useState(() => hexToRgb(selectedNode?.data?.colors?.primary || '#10B981'));
+  const [hexInput, setHexInput] = useState(selectedNode?.data?.colors?.primary || '#10B981');
   
   // Style properties
   const [style, setStyle] = useState({
@@ -294,7 +294,7 @@ const NodePropertiesPanel = ({ selectedNode, onUpdateNode, onDeleteNode, isDark 
   React.useEffect(() => {
     if (selectedNode) {
       setLabel(selectedNode.data?.label || '');
-      const nodeColor = selectedNode.data?.colors?.primary || '#3B82F6';
+      const nodeColor = selectedNode.data?.colors?.primary || '#10B981';
       setColor(nodeColor);
       setHexInput(nodeColor);
       setRgb(hexToRgb(nodeColor));
@@ -586,7 +586,7 @@ const NodePropertiesPanel = ({ selectedNode, onUpdateNode, onDeleteNode, isDark 
                 {[
                   { channel: 'r', label: 'Red', color: '#EF4444' },
                   { channel: 'g', label: 'Green', color: '#22C55E' },
-                  { channel: 'b', label: 'Blue', color: '#3B82F6' },
+                  { channel: 'b', label: 'Blue', color: '#10B981' },
                 ].map(({ channel, label, color: channelColor }) => (
                   <div key={channel} className="space-y-1">
                     <div className="flex items-center justify-between">
@@ -682,7 +682,7 @@ const NodePropertiesPanel = ({ selectedNode, onUpdateNode, onDeleteNode, isDark 
                 Border Color
               </label>
               <div className="grid grid-cols-5 gap-2">
-                {['#FFFFFF', '#000000', '#3B82F6', '#EF4444', '#22C55E'].map((c) => (
+                {['#FFFFFF', '#000000', '#10B981', '#EF4444', '#22C55E'].map((c) => (
                   <button
                     key={c}
                     onClick={() => handleStyleChange('borderColor', c)}
@@ -1204,7 +1204,7 @@ const GraphBuilderFlow = () => {
             />
             <MiniMap
               nodeStrokeWidth={3}
-              nodeColor={(node) => node.data?.colors?.primary || '#3B82F6'}
+              nodeColor={(node) => node.data?.colors?.primary || '#10B981'}
               className={`${isDark ? '!bg-dark-800' : '!bg-gray-100'} !rounded-xl`}
             />
             <Background 

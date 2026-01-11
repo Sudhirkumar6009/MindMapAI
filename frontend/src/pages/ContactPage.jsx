@@ -30,7 +30,7 @@ function ContactPage() {
           <div className="space-y-6">
             <div className="flex items-center gap-4">
               <div className={`p-3 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                <Mail className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                <Mail className={`w-6 h-6 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
               </div>
               <div>
                 <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Email</p>
@@ -40,7 +40,7 @@ function ContactPage() {
 
             <div className="flex items-center gap-4">
               <div className={`p-3 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                <Github className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                <Github className={`w-6 h-6 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
               </div>
               <div>
                 <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>GitHub</p>
@@ -48,7 +48,7 @@ function ContactPage() {
                   href="https://github.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className={`font-medium hover:underline ${isDark ? 'text-blue-400' : 'text-blue-600'}`}
+                  className={`font-medium hover:underline ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}
                 >
                   github.com/mindmap
                 </a>
@@ -57,7 +57,7 @@ function ContactPage() {
 
             <div className="flex items-center gap-4">
               <div className={`p-3 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                <Twitter className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                <Twitter className={`w-6 h-6 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
               </div>
               <div>
                 <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Twitter</p>
@@ -65,7 +65,7 @@ function ContactPage() {
                   href="https://twitter.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className={`font-medium hover:underline ${isDark ? 'text-blue-400' : 'text-blue-600'}`}
+                  className={`font-medium hover:underline ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}
                 >
                   @mindmapapp
                 </a>
@@ -74,7 +74,7 @@ function ContactPage() {
 
             <div className="flex items-center gap-4">
               <div className={`p-3 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                <Linkedin className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                <Linkedin className={`w-6 h-6 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
               </div>
               <div>
                 <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>LinkedIn</p>
@@ -82,7 +82,7 @@ function ContactPage() {
                   href="https://linkedin.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className={`font-medium hover:underline ${isDark ? 'text-blue-400' : 'text-blue-600'}`}
+                  className={`font-medium hover:underline ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}
                 >
                   MindMap Company
                 </a>

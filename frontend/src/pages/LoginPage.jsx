@@ -41,7 +41,7 @@ function LoginPage() {
     <div className={`min-h-screen flex items-center justify-center p-4 ${isDark ? 'bg-dark-950' : 'bg-gray-50'}`}>
       {/* Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
       </div>
 
@@ -60,7 +60,7 @@ function LoginPage() {
 
         {/* Logo */}
         <div className="flex items-center gap-3 mb-8">
-          <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
+          <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-purple-600 shadow-lg">
             <Brain className="w-8 h-8 text-white" />
           </div>
           <div>
@@ -96,8 +96,8 @@ function LoginPage() {
                 placeholder="you@example.com"
                 className={`w-full pl-11 pr-4 py-3 rounded-xl border transition-all
                   ${isDark 
-                    ? 'bg-dark-800 border-dark-600 text-white placeholder-gray-500 focus:border-blue-500' 
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500'}`}
+                    ? 'bg-dark-800 border-dark-600 text-white placeholder-gray-500 focus:border-emerald-500' 
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-emerald-500'}`}
               />
             </div>
           </div>
@@ -116,8 +116,8 @@ function LoginPage() {
                 placeholder="••••••••"
                 className={`w-full pl-11 pr-12 py-3 rounded-xl border transition-all
                   ${isDark 
-                    ? 'bg-dark-800 border-dark-600 text-white placeholder-gray-500 focus:border-blue-500' 
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500'}`}
+                    ? 'bg-dark-800 border-dark-600 text-white placeholder-gray-500 focus:border-emerald-500' 
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-emerald-500'}`}
               />
               <button
                 type="button"
@@ -132,8 +132,8 @@ function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500
-                     text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all
+            className="w-full py-3 bg-gradient-to-r from-emerald-600 to-purple-600 hover:from-emerald-500 hover:to-purple-500
+                     text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/25 transition-all
                      disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
@@ -150,7 +150,7 @@ function LoginPage() {
         {/* Register Link */}
         <p className={`mt-6 text-center text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
           Don't have an account?{' '}
-          <Link to="/register" className="text-blue-500 hover:text-blue-400 font-medium">
+          <Link to="/register" className="text-emerald-500 hover:text-emerald-400 font-medium">
             Create one
           </Link>
         </p>

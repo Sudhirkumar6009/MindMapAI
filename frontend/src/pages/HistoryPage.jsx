@@ -79,7 +79,7 @@ function HistoryPage() {
     switch (type) {
       case 'pdf': return 'from-red-500 to-orange-500';
       case 'github': return 'from-gray-600 to-gray-800';
-      default: return 'from-blue-500 to-purple-500';
+      default: return 'from-emerald-500 to-purple-500';
     }
   };
 
@@ -105,7 +105,7 @@ function HistoryPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <Loader2 className={`w-12 h-12 animate-spin mx-auto mb-4 ${isDark ? 'text-blue-500' : 'text-blue-600'}`} />
+          <Loader2 className={`w-12 h-12 animate-spin mx-auto mb-4 ${isDark ? 'text-emerald-500' : 'text-emerald-600'}`} />
           <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>Loading history...</p>
         </div>
       </div>
@@ -147,8 +147,8 @@ function HistoryPage() {
               placeholder="Search graphs..."
               className={`w-full pl-11 pr-4 py-3 rounded-xl border transition-all
                 ${isDark 
-                  ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500' 
-                  : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-blue-500'}`}
+                  ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-emerald-500' 
+                  : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-emerald-500'}`}
             />
           </div>
 
@@ -174,7 +174,7 @@ function HistoryPage() {
                     onClick={() => { setFilterType(type); setShowFilters(false); }}
                     className={`w-full px-4 py-2 text-left first:rounded-t-xl last:rounded-b-xl transition-colors
                       ${filterType === type 
-                        ? 'bg-blue-500/20 text-blue-500' 
+                        ? 'bg-emerald-500/20 text-emerald-500' 
                         : isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-50'}`}
                   >
                     {type === 'all' ? 'All Types' : type.charAt(0).toUpperCase() + type.slice(1)}
@@ -209,7 +209,7 @@ function HistoryPage() {
                 >
                   <div className="flex items-start gap-4">
                     {/* Icon */}
-                    <div className={`p-3 rounded-xl bg-gradient-to-br ${sourceColor} flex-shrink-0`}>
+                    <div className={`p-3 rounded-xl bg-green-600 ${sourceColor} flex-shrink-0`}>
                       <SourceIcon className="w-6 h-6 text-white" />
                     </div>
 
@@ -243,7 +243,7 @@ function HistoryPage() {
                     <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => handleLoadGraph(item)}
-                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-500 hover:to-purple-500 transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-green-600 text-white font-medium rounded-xl hover:from-emerald-500 hover:to-green-500 transition-colors"
                       >
                         <Eye className="w-4 h-4" />
                         Open
@@ -278,7 +278,7 @@ function HistoryPage() {
             {!searchQuery && filterType === 'all' && (
               <Link
                 to="/create"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-purple-600 text-white font-semibold rounded-xl"
               >
                 Create Your First Graph
               </Link>

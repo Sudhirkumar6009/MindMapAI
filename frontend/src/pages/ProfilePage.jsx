@@ -119,7 +119,7 @@ function ProfilePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className={`w-12 h-12 animate-spin ${isDark ? 'text-blue-500' : 'text-blue-600'}`} />
+        <Loader2 className={`w-12 h-12 animate-spin ${isDark ? 'text-emerald-500' : 'text-emerald-600'}`} />
       </div>
     );
   }
@@ -150,11 +150,11 @@ function ProfilePage() {
                   className="w-full h-full rounded-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold">
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-emerald-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold">
                   {getInitials(profile?.name)}
                 </div>
               )}
-              <label className="absolute bottom-0 right-0 p-2 bg-blue-600 rounded-full cursor-pointer hover:bg-blue-500 transition-colors">
+              <label className="absolute bottom-0 right-0 p-2 bg-emerald-600 rounded-full cursor-pointer hover:bg-emerald-500 transition-colors">
                 <Camera className="w-4 h-4 text-white" />
                 <input
                   type="file"
@@ -248,8 +248,8 @@ function ProfilePage() {
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className={`w-full pl-11 pr-4 py-3 rounded-xl border transition-all
                       ${isDark 
-                        ? 'bg-dark-800 border-dark-600 text-white focus:border-blue-500' 
-                        : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'}`}
+                        ? 'bg-dark-800 border-dark-600 text-white focus:border-emerald-500' 
+                        : 'bg-white border-gray-300 text-gray-900 focus:border-emerald-500'}`}
                   />
                 </div>
               </div>
@@ -267,8 +267,8 @@ function ProfilePage() {
                     placeholder="Tell us about yourself..."
                     className={`w-full pl-11 pr-4 py-3 rounded-xl border transition-all resize-none
                       ${isDark 
-                        ? 'bg-dark-800 border-dark-600 text-white placeholder-gray-500 focus:border-blue-500' 
-                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500'}`}
+                        ? 'bg-dark-800 border-dark-600 text-white placeholder-gray-500 focus:border-emerald-500' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-emerald-500'}`}
                   />
                 </div>
               </div>
@@ -287,8 +287,8 @@ function ProfilePage() {
                       placeholder="e.g., Student, Researcher"
                       className={`w-full pl-11 pr-4 py-3 rounded-xl border transition-all
                         ${isDark 
-                          ? 'bg-dark-800 border-dark-600 text-white placeholder-gray-500 focus:border-blue-500' 
-                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500'}`}
+                          ? 'bg-dark-800 border-dark-600 text-white placeholder-gray-500 focus:border-emerald-500' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-emerald-500'}`}
                     />
                   </div>
                 </div>
@@ -306,8 +306,8 @@ function ProfilePage() {
                       placeholder="e.g., University, Company"
                       className={`w-full pl-11 pr-4 py-3 rounded-xl border transition-all
                         ${isDark 
-                          ? 'bg-dark-800 border-dark-600 text-white placeholder-gray-500 focus:border-blue-500' 
-                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500'}`}
+                          ? 'bg-dark-800 border-dark-600 text-white placeholder-gray-500 focus:border-emerald-500' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-emerald-500'}`}
                     />
                   </div>
                 </div>
@@ -316,8 +316,8 @@ function ProfilePage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500
-                         text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all
+                className="w-full py-3 bg-gradient-to-r from-emerald-600 to-purple-600 hover:from-emerald-500 hover:to-purple-500
+                         text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/25 transition-all
                          disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {saving ? (
