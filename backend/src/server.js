@@ -19,7 +19,7 @@ dotenv.config();
 connectDB();
 
 const app = express();
-const PORT = process.env.PORT_NAME || 5000;
+const PORT = process.env.PORT || process.env.PORT_NAME || 5000;
 
 // CORS Configuration - Allow frontend to connect
 const corsOptions = {
@@ -56,7 +56,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🚀 MindMap AI Server running on port ${PORT}`);
   console.log(`📊 API endpoints available at http://localhost:${PORT}/api`);
   console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
