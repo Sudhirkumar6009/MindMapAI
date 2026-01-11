@@ -1,12 +1,12 @@
 import axios from 'axios';
 
 // Backend API URL from environment variables
-// In development: uses proxy via /api
-// In production: uses full backend URL
+// In development: uses localhost
+// In production: uses VITE_API_URL from Vercel environment variables
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-const API_BASE = import.meta.env.MODE === 'production' 
-  ? `${API_URL}/api` 
-  : (import.meta.env.VITE_API_BASE || '/api');
+const API_BASE = `${API_URL}/api`;
+
+console.log('🔗 API Base URL:', API_BASE);
 
 // Create axios instance with base configuration
 const axiosInstance = axios.create({
