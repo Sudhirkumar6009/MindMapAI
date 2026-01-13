@@ -158,38 +158,6 @@ Visit [http://localhost:5173](http://localhost:5173)
 
 ---
 
-## 🏗️ Project Structure
-
-```
-MindMapAI/
-├── backend/
-│   ├── src/
-│   │   ├── agents/          # AI agent system
-│   │   │   ├── conceptAgent.js
-│   │   │   ├── relationshipAgent.js
-│   │   │   ├── refinementAgent.js
-│   │   │   └── orchestrator.js
-│   │   ├── config/          # Database & AI config
-│   │   ├── middleware/      # Auth middleware
-│   │   ├── models/          # MongoDB schemas
-│   │   ├── routes/          # API routes
-│   │   └── server.js        # Entry point
-│   └── package.json
-│
-├── frontend/
-│   ├── src/
-│   │   ├── api/             # API client
-│   │   ├── components/      # React components
-│   │   ├── context/         # Auth & Theme context
-│   │   ├── pages/           # Page components
-│   │   └── utils/           # Helper functions
-│   └── package.json
-│
-└── README.md
-```
-
----
-
 ## 🌐 Deployment
 
 ### Frontend (Vercel)
