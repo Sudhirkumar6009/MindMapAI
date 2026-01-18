@@ -27,12 +27,12 @@ RUN addgroup -g 1001 -S nodejs && \
 
 USER nodejs
 
-# Expose port (Cloud Run uses 8080 by default)
-EXPOSE 8080
+# Expose port (Render uses 10000 by default)
+EXPOSE 10000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/api/health || exit 1
+    CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT:-10000}/api/health || exit 1
 
 # Start the server
 CMD ["node", "src/server.js"]

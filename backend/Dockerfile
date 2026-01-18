@@ -21,12 +21,12 @@ RUN addgroup -g 1001 -S nodejs && \
 
 USER nodejs
 
-# Expose port
-EXPOSE 5000
+# Render uses PORT 10000 by default, but we use env var
+EXPOSE 10000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:5000/api/health || exit 1
+# Health check - uses PORT env var or defaults to 10000
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT:-10000}/api/health || exit 1
 
 # Start the server
 CMD ["node", "src/server.js"]

@@ -22,34 +22,58 @@ const __dirname = dirname(__filename);
 dotenv.config({ path: join(__dirname, '..', '.env') });
 
 const app = express();
-// Cloud Run provides PORT env variable (usually 8080)
-const PORT = parseInt(process.env.PORT, 10) || 8080;
+// Render uses PORT env variable (default 10000), Cloud Run uses 8080
+const PORT = parseInt(process.env.PORT, 10) || 10000;
 
 console.log(`Starting server on port ${PORT}...`);
+console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 
-// CORS Configuration - Allow specific origins
+// CORS Configuration - Dynamic origins from environment
 const allowedOrigins = [
+  // Production frontends
+  process.env.FRONTEND_URL,
+  // Vercel preview deployments (pattern matching handled below)
   'https://mind-map-ai-navy.vercel.app',
-  'https://mindmapai-785639753062.asia-south1.run.app',
+  'https://mindmap-ai.vercel.app',
+  // Development
   'http://localhost:5173',
   'http://localhost:3000',
   'http://127.0.0.1:5173',
   'http://127.0.0.1:3000'
-];
+].filter(Boolean); // Remove undefined values
+
+console.log('Allowed CORS origins:', allowedOrigins);
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // Allow requests with no origin (like mobile apps, curl, Postman)
     if (!origin) return callback(null, true);
     
+    // Check if origin is in allowed list
     if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      // In production, you might want to be stricter
-      // For now, allow all origins but log unknown ones
-      console.log('CORS request from unknown origin:', origin);
-      callback(null, true);
+      return callback(null, true);
     }
+    
+    // Allow Vercel preview deployments (*.vercel.app)
+    if (origin.endsWith('.vercel.app')) {
+      console.log('Allowing Vercel preview deployment:', origin);
+      return callback(null, true);
+    }
+    
+    // Allow Render preview deployments (*.onrender.com)
+    if (origin.endsWith('.onrender.com')) {
+      console.log('Allowing Render deployment:', origin);
+      return callback(null, true);
+    }
+    
+    // Log unknown origins but allow in development
+    console.log('CORS request from origin:', origin);
+    if (process.env.NODE_ENV === 'production') {
+      // In production, be more permissive to avoid issues
+      // You can make this stricter once everything works
+      return callback(null, true);
+    }
+    callback(null, true);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
