@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import connectDB from './config/database.js';
 import extractRoutes from './routes/extract.js';
 import uploadRoutes from './routes/upload.js';
@@ -14,7 +16,10 @@ import profileRoutes from './routes/profile.js';
 import graphsRoutes from './routes/graphs.js';
 import notificationsRoutes from './routes/notifications.js';
 
-dotenv.config();
+// Load .env from backend directory regardless of where the script is run from
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+dotenv.config({ path: join(__dirname, '..', '.env') });
 
 connectDB();
 
@@ -47,6 +52,54 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/refine', refineRoutes);
 app.use('/api/github', githubRoutes);
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    name: 'MindMap AI Backend',
+    version: '1.0.0',
+    status: 'running',
+    documentation: '/api',
+    health: '/api/health'
+  });
+});
+
+// API info route
+app.get('/api', (req, res) => {
+  res.json({
+    name: 'MindMap AI API',
+    version: '1.0.0',
+    endpoints: {
+      auth: {
+        'POST /api/auth/register': 'Create new account',
+        'POST /api/auth/login': 'User login',
+        'GET /api/auth/me': 'Get current user (requires auth)',
+        'PUT /api/auth/password': 'Update password (requires auth)'
+      },
+      profile: {
+        'GET /api/profile': 'Get user profile',
+        'PUT /api/profile': 'Update profile',
+        'PUT /api/profile/avatar': 'Update avatar',
+        'DELETE /api/profile/avatar': 'Remove avatar'
+      },
+      core: {
+        'POST /api/extract': 'Extract concepts from text',
+        'POST /api/upload': 'Process PDF files',
+        'POST /api/refine': 'Refine and optimize graph',
+        'POST /api/github/readme': 'Import from GitHub'
+      },
+      data: {
+        'GET /api/history': 'Get user mind maps',
+        'GET /api/graphs': 'Get saved graphs',
+        'GET /api/dashboard': 'Get dashboard stats',
+        'GET /api/notifications': 'Get notifications'
+      },
+      health: {
+        'GET /api/health': 'Server health check'
+      }
+    }
+  });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok', 
@@ -56,10 +109,32 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// 404 handler for undefined routes
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    error: `Cannot ${req.method} ${req.path}`,
+    message: 'Route not found. Check the API documentation at /api',
+    availableRoutes: {
+      auth: '/api/auth/register (POST), /api/auth/login (POST), /api/auth/me (GET)',
+      extract: '/api/extract (POST)',
+      upload: '/api/upload (POST)',
+      github: '/api/github/readme (POST)',
+      health: '/api/health (GET)'
+    }
+  });
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🚀 MindMap AI Server running on port ${PORT}`);
   console.log(`📊 API endpoints available at http://localhost:${PORT}/api`);
   console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log('\n📋 Available endpoints:');
+  console.log('   POST /api/auth/register - Create account');
+  console.log('   POST /api/auth/login    - Login');
+  console.log('   POST /api/extract       - Extract concepts');
+  console.log('   POST /api/upload        - Upload PDF');
+  console.log('   GET  /api/health        - Health check');
   console.log('');
 });

@@ -679,26 +679,37 @@ function LandingPage() {
           </div>
         </section>
 
-        <section className={`py-24 px-10 ${isDark ? 'bg-gray-900/50' : 'bg-white'}`}>
+        <section className={`py-32 px-6 ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
+          {/* Add floating animation keyframes */}
+          <style>{`
+            @keyframes float-gentle {
+              0%, 100% { transform: translateY(0px); }
+              50% { transform: translateY(-12px); }
+            }
+            .animate-float-gentle {
+              animation: float-gentle 4s ease-in-out infinite;
+            }
+          `}</style>
+          
           <div className="max-w-7xl mx-auto">
             <motion.div 
-              className="text-center mb-20"
+              className="text-center mb-24"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.6 }}
             >
-              <h2 className={`text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              <h2 className={`text-5xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 Diagram Types
               </h2>
-              <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                Choose perfect visualization for your project needs
+              <p className={`text-xl max-w-2xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                Choose the perfect visualization for your project needs
               </p>
             </motion.div>
 
-            <div className="space-y-24">
-              {/* Row 1: Image - Mind Maps */}
-              <div className="grid lg:grid-cols-2 gap-20 items-center">
+            <div className="space-y-32">
+              {/* Row 1: Mind Maps */}
+              <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <motion.div 
                   className="relative group"
                   initial={{ opacity: 0, x: -80 }}
@@ -706,84 +717,106 @@ function LandingPage() {
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.7, ease: "easeOut" }}
                 >
-                  <div className={`relative max-w-lg mx-auto overflow-hidden transition-all duration-500 group-hover:scale-[1.02] `}>
-                    <img 
-                      src={image1} 
-                      alt="Mind Map Preview" 
-                      className="w-full h-auto object-contain"
-                    />
+                  <div className="relative mx-auto w-full max-w-xl animate-float-gentle transition-all duration-500">
+                    <div className="overflow-hidden rounded-2xl transition-transform duration-500 hover:scale-105">
+                      <img 
+                        src={image1} 
+                        alt="Mind Map Preview" 
+                        className="w-full h-full object-cover transition-all duration-500"
+                      />
+                    </div>
                   </div>
                 </motion.div>
+                
                 <motion.div 
-                  className={`p-8 cursor-pointer transition-all duration-300 group/card
-                    ${isDark ? 'hover:bg-gray-800/30' : 'hover:bg-gray-50/80'}`}
+                  className="group/card cursor-pointer flex flex-col justify-center"
                   onClick={() => navigate('/create')}
                   initial={{ opacity: 0, x: 50 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
                 >
-                  <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-5 transition-all duration-300 group-hover/card:scale-110
-                    ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-50'}`}>
-                    <Network className={`w-7 h-7 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
+                  {/* Number + Title on same line */}
+                  <div className="flex items-baseline gap-6 mb-6">
+                    <span className="text-7xl font-bold bg-gradient-to-r from-emerald-400 to-emerald-600 bg-clip-text text-transparent">
+                      01
+                    </span>
+                    <h3 className={`text-4xl font-bold inline-block relative ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                      Mind Maps
+                      <span className={`absolute bottom-0 left-0 w-0 h-1 transition-all duration-500 group-hover/card:w-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full`} />
+                    </h3>
                   </div>
-                  <h3 className={`text-2xl font-bold mb-3 inline-block relative ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    Mind Maps
-                    <span className={`absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-500 group-hover/card:w-full ${isDark ? 'bg-emerald-400' : 'bg-emerald-600'}`} />
-                  </h3>
-                  <p className={`text-base mb-5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Brainstorm and organize ideas with hierarchical structures. Perfect for visual thinkers.
+                  
+                  {/* Description */}
+                  <p className={`text-lg mb-8 leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Brainstorm and organize ideas with hierarchical structures. Perfect for visual thinkers who want to capture complex relationships effortlessly.
                   </p>
-                  <ul className="space-y-3">
-                    {["Central topic expansion", "Auto-layout options", "Color-coded branches", "Export to multiple formats"].map((item, i) => (
-                      <li key={i} className={`flex items-center gap-3 text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                        <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-emerald-500' : 'bg-emerald-600'}`} />
+                  
+                  {/* Checklist */}
+                  <ul className="space-y-4 mb-8">
+                    {["Central topic expansion", "Auto-layout algorithms", "Color-coded branches"].map((item, i) => (
+                      <li key={i} className={`flex items-center gap-4 text-base ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
                         {item}
                       </li>
                     ))}
                   </ul>
-                  <div className="mt-6 flex items-center gap-2 text-emerald-500 font-medium transition-all duration-300 group-hover/card:gap-4">
-                    <span>Try Mind Maps</span>
-                    <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/card:translate-x-1" />
-                  </div>
+                  
+                  {/* CTA Button */}
+                  <button className="px-8 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/25 flex items-center gap-2 group/btn w-fit">
+                    Learn More
+                    <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                  </button>
                 </motion.div>
               </div>
 
               {/* Row 2: Flowcharts */}
-              <div className="grid lg:grid-cols-2 gap-20 items-center">
+              <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <motion.div 
-                  className={`p-8 cursor-pointer transition-all duration-300 group/card order-2 lg:order-1
-                    ${isDark ? 'hover:bg-gray-800/30' : 'hover:bg-gray-50/80'}`}
+                  className="group/card cursor-pointer flex flex-col justify-center order-2 lg:order-1"
                   onClick={() => navigate('/create')}
                   initial={{ opacity: 0, x: -50 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
                 >
-                  <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-5 transition-all duration-300 group-hover/card:scale-110
-                    ${isDark ? 'bg-purple-500/20' : 'bg-purple-50'}`}>
-                    <GitBranch className={`w-7 h-7 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
+                  <div className="flex items-baseline gap-6 mb-6">
+                    <span className="text-7xl font-bold bg-gradient-to-r from-violet-400 to-purple-600 bg-clip-text text-transparent">
+                      02
+                    </span>
+                    <h3 className={`text-4xl font-bold inline-block relative ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                      Flowcharts
+                      <span className={`absolute bottom-0 left-0 w-0 h-1 transition-all duration-500 group-hover/card:w-full bg-gradient-to-r from-violet-400 to-purple-600 rounded-full`} />
+                    </h3>
                   </div>
-                  <h3 className={`text-2xl font-bold mb-3 inline-block relative ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    Flowcharts
-                    <span className={`absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-500 group-hover/card:w-full ${isDark ? 'bg-purple-400' : 'bg-purple-600'}`} />
-                  </h3>
-                  <p className={`text-base mb-5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Map processes and decision flows with precision. Ideal for workflow documentation.
+                  
+                  <p className={`text-lg mb-8 leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Map processes and decision flows with precision. Ideal for workflow documentation and process optimization in any industry.
                   </p>
-                  <ul className="space-y-3">
-                    {["Process mapping", "Decision nodes", "Connectors with labels", "Smart auto-routing"].map((item, i) => (
-                      <li key={i} className={`flex items-center gap-3 text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                        <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-purple-500' : 'bg-purple-600'}`} />
+                  
+                  <ul className="space-y-4 mb-8">
+                    {["Process mapping", "Decision nodes", "Smart auto-routing"].map((item, i) => (
+                      <li key={i} className={`flex items-center gap-4 text-base ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r from-violet-400 to-purple-600 flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
                         {item}
                       </li>
                     ))}
                   </ul>
-                  <div className="mt-6 flex items-center gap-2 text-purple-500 font-medium transition-all duration-300 group-hover/card:gap-4">
-                    <span>Create Flowchart</span>
-                    <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/card:translate-x-1" />
-                  </div>
+                  
+                  <button className="px-8 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 flex items-center gap-2 group/btn w-fit">
+                    Learn More
+                    <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                  </button>
                 </motion.div>
+
                 <motion.div 
                   className="relative group order-1 lg:order-2"
                   initial={{ opacity: 0, x: 80 }}
@@ -791,19 +824,20 @@ function LandingPage() {
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.7, ease: "easeOut" }}
                 >
-                  <div className={`relative max-w-lg mx-auto overflow-hidden transition-all duration-500 group-hover:scale-[1.02]
-                    ${isDark ? 'border-gray-700 shadow-purple-500/10' : 'border-gray-200 shadow-gray-300/50'}`}>
-                    <img 
-                      src={image1} 
-                      alt="Flowchart Preview" 
-                      className="w-full h-auto object-contain"
-                    />
+                  <div className="relative mx-auto w-full max-w-xl animate-float-gentle transition-all duration-500" style={{ animationDelay: '0.5s' }}>
+                    <div className="overflow-hidden rounded-2xl transition-transform duration-500 hover:scale-105">
+                      <img 
+                        src={image1} 
+                        alt="Flowchart Preview" 
+                        className="w-full h-full object-cover transition-all duration-500"
+                      />
+                    </div>
                   </div>
                 </motion.div>
               </div>
 
               {/* Row 3: Network Diagrams */}
-              <div className="grid lg:grid-cols-2 gap-20 items-center">
+              <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <motion.div 
                   className="relative group"
                   initial={{ opacity: 0, x: -80 }}
@@ -811,85 +845,102 @@ function LandingPage() {
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.7, ease: "easeOut" }}
                 >
-                  <div className={`relative max-w-lg mx-auto overflow-hidden transition-all duration-500 group-hover:scale-[1.02]
-                    ${isDark ? 'border-gray-700 shadow-cyan-500/10' : 'border-gray-200 shadow-gray-300/50'}`}>
-                    <img 
-                      src={image1} 
-                      alt="Network Diagram Preview" 
-                      className="w-full h-auto object-contain"
-                    />
+                  <div className="relative mx-auto w-full max-w-xl animate-float-gentle transition-all duration-500" style={{ animationDelay: '1s' }}>
+                    <div className="overflow-hidden rounded-2xl transition-transform duration-500 hover:scale-105">
+                      <img 
+                        src={image1} 
+                        alt="Network Diagram Preview" 
+                        className="w-full h-full object-cover transition-all duration-500"
+                      />
+                    </div>
                   </div>
                 </motion.div>
+                
                 <motion.div 
-                  className={`p-8 cursor-pointer transition-all duration-300 group/card
-                    ${isDark ? 'hover:bg-gray-800/30' : 'hover:bg-gray-50/80'}`}
+                  className="group/card cursor-pointer flex flex-col justify-center"
                   onClick={() => navigate('/create')}
                   initial={{ opacity: 0, x: 50 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
                 >
-                  <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-5 transition-all duration-300 group-hover/card:scale-110
-                    ${isDark ? 'bg-cyan-500/20' : 'bg-cyan-50'}`}>
-                    <Share2 className={`w-7 h-7 ${isDark ? 'text-cyan-400' : 'text-cyan-600'}`} />
+                  <div className="flex items-baseline gap-6 mb-6">
+                    <span className="text-7xl font-bold bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">
+                      03
+                    </span>
+                    <h3 className={`text-4xl font-bold inline-block relative ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                      Network Diagrams
+                      <span className={`absolute bottom-0 left-0 w-0 h-1 transition-all duration-500 group-hover/card:w-full bg-gradient-to-r from-cyan-400 to-blue-600 rounded-full`} />
+                    </h3>
                   </div>
-                  <h3 className={`text-2xl font-bold mb-3 inline-block relative ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    Network Diagrams
-                    <span className={`absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-500 group-hover/card:w-full ${isDark ? 'bg-cyan-400' : 'bg-cyan-600'}`} />
-                  </h3>
-                  <p className={`text-base mb-5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Visualize complex relationships and dependencies. Perfect for system architecture.
+                  
+                  <p className={`text-lg mb-8 leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Visualize complex relationships and dependencies with ease. Perfect for system architecture and infrastructure planning.
                   </p>
-                  <ul className="space-y-3">
-                    {["Node connections", "Weighted edges", "Cluster analysis", "Interactive exploration"].map((item, i) => (
-                      <li key={i} className={`flex items-center gap-3 text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                        <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-cyan-500' : 'bg-cyan-600'}`} />
+                  
+                  <ul className="space-y-4 mb-8">
+                    {["Node connections", "Weighted edges", "Interactive exploration"].map((item, i) => (
+                      <li key={i} className={`flex items-center gap-4 text-base ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r from-cyan-400 to-blue-600 flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
                         {item}
                       </li>
                     ))}
                   </ul>
-                  <div className="mt-6 flex items-center gap-2 text-cyan-500 font-medium transition-all duration-300 group-hover/card:gap-4">
-                    <span>Build Network</span>
-                    <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/card:translate-x-1" />
-                  </div>
+                  
+                  <button className="px-8 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/25 flex items-center gap-2 group/btn w-fit">
+                    Learn More
+                    <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                  </button>
                 </motion.div>
               </div>
 
               {/* Row 4: Tree Diagrams */}
-              <div className="grid lg:grid-cols-2 gap-20 items-center">
+              <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <motion.div 
-                  className={`p-8 cursor-pointer transition-all duration-300 group/card order-2 lg:order-1
-                    ${isDark ? 'hover:bg-gray-800/30' : 'hover:bg-gray-50/80'}`}
+                  className="group/card cursor-pointer flex flex-col justify-center order-2 lg:order-1"
                   onClick={() => navigate('/create')}
                   initial={{ opacity: 0, x: -50 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.7, ease: "easeOut" }}
+                  transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
                 >
-                  <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-5 transition-all duration-300 group-hover/card:scale-110
-                    ${isDark ? 'bg-orange-500/20' : 'bg-orange-50'}`}>
-                    <FolderTree className={`w-7 h-7 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
+                  <div className="flex items-baseline gap-6 mb-6">
+                    <span className="text-7xl font-bold bg-gradient-to-r from-orange-400 to-amber-600 bg-clip-text text-transparent">
+                      04
+                    </span>
+                    <h3 className={`text-4xl font-bold inline-block relative ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                      Tree Diagrams
+                      <span className={`absolute bottom-0 left-0 w-0 h-1 transition-all duration-500 group-hover/card:w-full bg-gradient-to-r from-orange-400 to-amber-600 rounded-full`} />
+                    </h3>
                   </div>
-                  <h3 className={`text-2xl font-bold mb-3 inline-block relative ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    Tree Diagrams
-                    <span className={`absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-500 group-hover/card:w-full ${isDark ? 'bg-orange-400' : 'bg-orange-600'}`} />
-                  </h3>
-                  <p className={`text-base mb-5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Structure data and information hierarchically. Great for taxonomies and classifications.
+                  
+                  <p className={`text-lg mb-8 leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Structure data and information hierarchically. Great for taxonomies, classifications, and decision trees.
                   </p>
-                  <ul className="space-y-3">
-                    {["Nested relationships", "Collapsible nodes", "Level indicators", "Drag & drop reordering"].map((item, i) => (
-                      <li key={i} className={`flex items-center gap-3 text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                        <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-orange-500' : 'bg-orange-600'}`} />
+                  
+                  <ul className="space-y-4 mb-8">
+                    {["Nested relationships", "Collapsible nodes", "Drag & drop reordering"].map((item, i) => (
+                      <li key={i} className={`flex items-center gap-4 text-base ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r from-orange-400 to-amber-600 flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
                         {item}
                       </li>
                     ))}
                   </ul>
-                  <div className="mt-6 flex items-center gap-2 text-orange-500 font-medium transition-all duration-300 group-hover/card:gap-4">
-                    <span>Create Tree</span>
-                    <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/card:translate-x-1" />
-                  </div>
+                  
+                  <button className="px-8 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-orange-500/25 flex items-center gap-2 group/btn w-fit">
+                    Learn More
+                    <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                  </button>
                 </motion.div>
+
                 <motion.div 
                   className="relative group order-1 lg:order-2"
                   initial={{ opacity: 0, x: 80 }}
@@ -897,19 +948,20 @@ function LandingPage() {
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.7, ease: "easeOut" }}
                 >
-                  <div className={`relative max-w-lg mx-auto overflow-hidden transition-all duration-500 group-hover:scale-[1.02]
-                    ${isDark ? 'border-gray-700 shadow-orange-500/10' : 'border-gray-200 shadow-gray-300/50'}`}>
-                    <img 
-                      src={image1} 
-                      alt="Tree Diagram Preview" 
-                      className="w-full h-auto object-contain"
-                    />
+                  <div className="relative mx-auto w-full max-w-xl animate-float-gentle transition-all duration-500" style={{ animationDelay: '1.5s' }}>
+                    <div className="overflow-hidden rounded-2xl transition-transform duration-500 hover:scale-105">
+                      <img 
+                        src={image1} 
+                        alt="Tree Diagram Preview" 
+                        className="w-full h-full object-cover transition-all duration-500"
+                      />
+                    </div>
                   </div>
                 </motion.div>
               </div>
 
               {/* Row 5: Organization Charts */}
-              <div className="grid lg:grid-cols-2 gap-20 items-center">
+              <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <motion.div 
                   className="relative group"
                   initial={{ opacity: 0, x: -80 }}
@@ -917,85 +969,102 @@ function LandingPage() {
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.7, ease: "easeOut" }}
                 >
-                  <div className={`relative max-w-lg mx-auto overflow-hidden transition-all duration-500 group-hover:scale-[1.02]
-                    ${isDark ? 'border-gray-700 shadow-pink-500/10' : 'border-gray-200 shadow-gray-300/50'}`}>
-                    <img 
-                      src={image1} 
-                      alt="Org Chart Preview" 
-                      className="w-full h-auto object-contain"
-                    />
+                  <div className="relative mx-auto w-full max-w-xl animate-float-gentle transition-all duration-500" style={{ animationDelay: '2s' }}>
+                    <div className="overflow-hidden rounded-2xl transition-transform duration-500 hover:scale-105">
+                      <img 
+                        src={image1} 
+                        alt="Org Chart Preview" 
+                        className="w-full h-full object-cover transition-all duration-500"
+                      />
+                    </div>
                   </div>
                 </motion.div>
+                
                 <motion.div 
-                  className={`p-8 cursor-pointer transition-all duration-300 group/card
-                    ${isDark ? 'hover:bg-gray-800/30' : 'hover:bg-gray-50/80'}`}
+                  className="group/card cursor-pointer flex flex-col justify-center"
                   onClick={() => navigate('/create')}
                   initial={{ opacity: 0, x: 50 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
                 >
-                  <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-5 transition-all duration-300 group-hover/card:scale-110
-                    ${isDark ? 'bg-pink-500/20' : 'bg-pink-50'}`}>
-                    <Layers className={`w-7 h-7 ${isDark ? 'text-pink-400' : 'text-pink-600'}`} />
+                  <div className="flex items-baseline gap-6 mb-6">
+                    <span className="text-7xl font-bold bg-gradient-to-r from-pink-400 to-rose-600 bg-clip-text text-transparent">
+                      05
+                    </span>
+                    <h3 className={`text-4xl font-bold inline-block relative ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                      Organization Charts
+                      <span className={`absolute bottom-0 left-0 w-0 h-1 transition-all duration-500 group-hover/card:w-full bg-gradient-to-r from-pink-400 to-rose-600 rounded-full`} />
+                    </h3>
                   </div>
-                  <h3 className={`text-2xl font-bold mb-3 inline-block relative ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    Organization Charts
-                    <span className={`absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-500 group-hover/card:w-full ${isDark ? 'bg-pink-400' : 'bg-pink-600'}`} />
-                  </h3>
-                  <p className={`text-base mb-5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Create professional organizational structures. Perfect for team hierarchies.
+                  
+                  <p className={`text-lg mb-8 leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Create professional organizational structures with ease. Perfect for team hierarchies and corporate documentation.
                   </p>
-                  <ul className="space-y-3">
-                    {["Role definitions", "Reporting lines", "Department grouping", "Photo integration"].map((item, i) => (
-                      <li key={i} className={`flex items-center gap-3 text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                        <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-pink-500' : 'bg-pink-600'}`} />
+                  
+                  <ul className="space-y-4 mb-8">
+                    {["Role definitions", "Reporting lines", "Department grouping"].map((item, i) => (
+                      <li key={i} className={`flex items-center gap-4 text-base ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r from-pink-400 to-rose-600 flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
                         {item}
                       </li>
                     ))}
                   </ul>
-                  <div className="mt-6 flex items-center gap-2 text-pink-500 font-medium transition-all duration-300 group-hover/card:gap-4">
-                    <span>Build Org Chart</span>
-                    <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/card:translate-x-1" />
-                  </div>
+                  
+                  <button className="px-8 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-pink-500/25 flex items-center gap-2 group/btn w-fit">
+                    Learn More
+                    <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                  </button>
                 </motion.div>
               </div>
 
               {/* Row 6: Block Diagrams */}
-              <div className="grid lg:grid-cols-2 gap-20 items-center">
+              <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <motion.div 
-                  className={`p-8 cursor-pointer transition-all duration-300 group/card order-2 lg:order-1
-                    ${isDark ? 'hover:bg-gray-800/30' : 'hover:bg-gray-50/80'}`}
+                  className="group/card cursor-pointer flex flex-col justify-center order-2 lg:order-1"
                   onClick={() => navigate('/create')}
                   initial={{ opacity: 0, x: -50 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.7, ease: "easeOut" }}
+                  transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
                 >
-                  <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-5 transition-all duration-300 group-hover/card:scale-110
-                    ${isDark ? 'bg-blue-500/20' : 'bg-blue-50'}`}>
-                    <Box className={`w-7 h-7 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                  <div className="flex items-baseline gap-6 mb-6">
+                    <span className="text-7xl font-bold bg-gradient-to-r from-blue-400 to-indigo-600 bg-clip-text text-transparent">
+                      06
+                    </span>
+                    <h3 className={`text-4xl font-bold inline-block relative ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                      Block Diagrams
+                      <span className={`absolute bottom-0 left-0 w-0 h-1 transition-all duration-500 group-hover/card:w-full bg-gradient-to-r from-blue-400 to-indigo-600 rounded-full`} />
+                    </h3>
                   </div>
-                  <h3 className={`text-2xl font-bold mb-3 inline-block relative ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    Block Diagrams
-                    <span className={`absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-500 group-hover/card:w-full ${isDark ? 'bg-blue-400' : 'bg-blue-600'}`} />
-                  </h3>
-                  <p className={`text-base mb-5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Design system architectures and layouts. Ideal for technical documentation.
+                  
+                  <p className={`text-lg mb-8 leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Design system architectures and layouts with precision. Ideal for technical documentation and engineering specs.
                   </p>
-                  <ul className="space-y-3">
-                    {["Component blocks", "Port connections", "Nested containers", "Custom styling"].map((item, i) => (
-                      <li key={i} className={`flex items-center gap-3 text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                        <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-blue-500' : 'bg-blue-600'}`} />
+                  
+                  <ul className="space-y-4 mb-8">
+                    {["Component blocks", "Port connections", "Nested containers"].map((item, i) => (
+                      <li key={i} className={`flex items-center gap-4 text-base ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r from-blue-400 to-indigo-600 flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
                         {item}
                       </li>
                     ))}
                   </ul>
-                  <div className="mt-6 flex items-center gap-2 text-blue-500 font-medium transition-all duration-300 group-hover/card:gap-4">
-                    <span>Design Blocks</span>
-                    <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/card:translate-x-1" />
-                  </div>
+                  
+                  <button className="px-8 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 flex items-center gap-2 group/btn w-fit">
+                    Learn More
+                    <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                  </button>
                 </motion.div>
+
                 <motion.div 
                   className="relative group order-1 lg:order-2"
                   initial={{ opacity: 0, x: 80 }}
@@ -1003,13 +1072,14 @@ function LandingPage() {
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.7, ease: "easeOut" }}
                 >
-                  <div className={`relative max-w-lg mx-auto overflow-hidden transition-all duration-500 group-hover:scale-[1.02]
-                    `}>
-                    <img 
-                      src={image1} 
-                      alt="Block Diagram Preview" 
-                      className="w-full h-auto object-contain"
-                    />
+                  <div className="relative mx-auto w-full max-w-xl animate-float-gentle transition-all duration-500" style={{ animationDelay: '2.5s' }}>
+                    <div className="overflow-hidden rounded-2xl transition-transform duration-500 hover:scale-105">
+                      <img 
+                        src={image1} 
+                        alt="Block Diagram Preview" 
+                        className="w-full h-full object-cover transition-all duration-500"
+                      />
+                    </div>
                   </div>
                 </motion.div>
               </div>
