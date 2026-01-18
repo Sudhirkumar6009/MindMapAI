@@ -448,7 +448,7 @@ PORT=5000
 NODE_ENV=development
 
 # Database
-MONGODB_URI=mongodb://localhost:27017/MindMapAI
+MONGODB_URI=mongodb+srv://sudhirkumarkiller1011:Sparrow%4090994575@libraxpert.dplxlzu.mongodb.net/LibraXpert?retryWrites=true&w=majority&appName=LibraXpert
 
 # AI
 GEMINI_API_KEY=your_gemini_api_key
