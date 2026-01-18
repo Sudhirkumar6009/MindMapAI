@@ -1,0 +1,34 @@
+# Google Cloud Build configuration for Backend only
+# Use this when deploying just the backend service
+
+steps:
+  # Build Backend Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/mindmapai-backend:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/mindmapai-backend:latest'
+      - '-f'
+      - 'backend/Dockerfile'
+      - './backend'
+
+  # Push Backend image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push'
+    args:
+      - 'push'
+      - '--all-tags'
+      - 'gcr.io/$PROJECT_ID/mindmapai-backend'
+
+# Images to be pushed
+images:
+  - 'gcr.io/$PROJECT_ID/mindmapai-backend:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/mindmapai-backend:latest'
+
+timeout: '1200s'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

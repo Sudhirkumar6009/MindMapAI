@@ -1,0 +1,34 @@
+# Google Cloud Build configuration for Frontend only
+# Use this when deploying just the frontend service
+
+steps:
+  # Build Frontend Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/mindmapai-frontend:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/mindmapai-frontend:latest'
+      - '-f'
+      - 'frontend/Dockerfile'
+      - './frontend'
+
+  # Push Frontend image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push'
+    args:
+      - 'push'
+      - '--all-tags'
+      - 'gcr.io/$PROJECT_ID/mindmapai-frontend'
+
+# Images to be pushed
+images:
+  - 'gcr.io/$PROJECT_ID/mindmapai-frontend:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/mindmapai-frontend:latest'
+
+timeout: '1200s'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
