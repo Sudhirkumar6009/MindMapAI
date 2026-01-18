@@ -24,9 +24,6 @@ export function ProtectedRoute({ children }) {
   return children;
 }
 
-/**
- * Public Route - Redirects authenticated users to dashboard
- */
 export function PublicRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
 

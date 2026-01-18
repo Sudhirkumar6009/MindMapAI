@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Download, FileDown, ChevronDown, FileJson, FileCode, FileSpreadsheet, Sparkles } from 'lucide-react';
+import { toPng } from 'html-to-image';
 import { 
   exportToMMAI, 
   exportToDrawio, 
@@ -63,7 +64,7 @@ const EXPORT_FORMATS = [
   }
 ];
 
-function ExportMenu({ data, cyRef, metadata = {} }) {
+function ExportMenu({ data, containerRef, metadata = {} }) {
   const [isOpen, setIsOpen] = useState(false);
   const [exporting, setExporting] = useState(null);
   const menuRef = useRef(null);
@@ -107,19 +108,34 @@ function ExportMenu({ data, cyRef, metadata = {} }) {
         }
         
         case 'png': {
-          if (cyRef?.current) {
-            const png = cyRef.current.png({ 
-              output: 'blob', 
-              bg: '#0f172a',
-              scale: 2,
-              full: true
+          if (containerRef?.current) {
+            // Find the React Flow viewport element for cleaner export
+            const reactFlowElement = containerRef.current.querySelector('.react-flow');
+            const elementToExport = reactFlowElement || containerRef.current;
+            
+            const dataUrl = await toPng(elementToExport, {
+              backgroundColor: 'transparent',
+              pixelRatio: 2,
+              filter: (node) => {
+                // Exclude UI elements and background patterns from the export
+                const excludeClasses = [
+                  'react-flow__minimap', 
+                  'react-flow__controls', 
+                  'react-flow__panel',
+                  'react-flow__background'  // Exclude the dots/grid background
+                ];
+                return !excludeClasses.some(className => 
+                  node.classList?.contains(className)
+                );
+              }
             });
-            const url = URL.createObjectURL(png);
+            
             const link = document.createElement('a');
-            link.href = url;
+            link.href = dataUrl;
             link.download = getFilename('.png');
             link.click();
-            URL.revokeObjectURL(url);
+          } else {
+            throw new Error('Graph container not available for export');
           }
           break;
         }
