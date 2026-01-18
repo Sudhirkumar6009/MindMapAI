@@ -21,10 +21,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 dotenv.config({ path: join(__dirname, '..', '.env') });
 
-connectDB();
-
 const app = express();
-const PORT = process.env.PORT || process.env.PORT_NAME || 5000;
+// Cloud Run provides PORT env variable (usually 8080)
+const PORT = parseInt(process.env.PORT, 10) || 8080;
+
+console.log(`Starting server on port ${PORT}...`);
 
 // CORS Configuration - Allow specific origins
 const allowedOrigins = [
@@ -150,16 +151,30 @@ app.use((req, res) => {
   });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+// Start server FIRST, then connect to database
+// This ensures Cloud Run health checks pass while DB connects
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🚀 MindMap AI Server running on port ${PORT}`);
-  console.log(`📊 API endpoints available at http://localhost:${PORT}/api`);
+  console.log(`📊 API endpoints available at http://0.0.0.0:${PORT}/api`);
   console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log('\n📋 Available endpoints:');
-  console.log('   POST /api/auth/register - Create account');
-  console.log('   POST /api/auth/login    - Login');
-  console.log('   POST /api/extract       - Extract concepts');
-  console.log('   POST /api/upload        - Upload PDF');
-  console.log('   GET  /api/health        - Health check');
-  console.log('');
+  
+  // Connect to database after server is listening
+  connectDB()
+    .then(() => {
+      console.log('✅ Database connected successfully');
+    })
+    .catch((err) => {
+      console.error('❌ Database connection failed:', err.message);
+      console.log('Server will continue running. Some features may not work.');
+    });
+});
+
+// Handle graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed.');
+    process.exit(0);
+  });
 });
