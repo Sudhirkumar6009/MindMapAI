@@ -26,14 +26,39 @@ connectDB();
 const app = express();
 const PORT = process.env.PORT || process.env.PORT_NAME || 5000;
 
-// CORS Configuration - Allow all origins
+// CORS Configuration - Allow specific origins
+const allowedOrigins = [
+  'https://mind-map-ai-navy.vercel.app',
+  'https://mindmapai-785639753062.asia-south1.run.app',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:3000'
+];
+
 const corsOptions = {
-  origin: '*',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      // In production, you might want to be stricter
+      // For now, allow all origins but log unknown ones
+      console.log('CORS request from unknown origin:', origin);
+      callback(null, true);
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 86400 // 24 hours - cache preflight requests
 };
 
+// Enable pre-flight requests for all routes
+app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '50mb' }));
 
