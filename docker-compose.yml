@@ -1,26 +1,7 @@
 version: '3.8'
 
+# Uses MongoDB Atlas (cloud) - no local MongoDB needed
 services:
-  # MongoDB Database
-  mongodb:
-    image: mongo:7
-    container_name: mindmapai-mongodb
-    restart: unless-stopped
-    environment:
-      MONGO_INITDB_DATABASE: MindMapAI
-    volumes:
-      - mongodb_data:/data/db
-    ports:
-      - "27017:27017"
-    networks:
-      - mindmapai-network
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
   # Backend API
   backend:
     build:
@@ -31,6 +12,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=5000
+      # MongoDB Atlas connection (cloud database)
       - MONGODB_URI=mongodb+srv://sudhirkumarkiller1011:Sparrow%4090994575@libraxpert.dplxlzu.mongodb.net/LibraXpert?retryWrites=true&w=majority&appName=LibraXpert
       - FRONTEND_URL=http://localhost:3000
       - JWT_SECRET=${JWT_SECRET:-your_super_secure_jwt_secret_here_minimum_32_characters}
@@ -38,9 +20,6 @@ services:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     ports:
       - "5000:5000"
-    depends_on:
-      mongodb:
-        condition: service_healthy
     networks:
       - mindmapai-network
     healthcheck:
@@ -48,7 +27,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 30s
 
   # Frontend
   frontend:
@@ -71,7 +50,3 @@ services:
 networks:
   mindmapai-network:
     driver: bridge
-
-volumes:
-  mongodb_data:
-    driver: local
