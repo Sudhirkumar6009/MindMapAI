@@ -1,0 +1,58 @@
+# Files to ignore when uploading to Google Cloud Build
+# This reduces upload size and build time
+
+# Git
+.git
+.gitignore
+
+# Dependencies (will be installed during build)
+node_modules/
+**/node_modules/
+
+# Environment files
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+
+# Development files
+*.md
+!README.md
+*.log
+logs/
+
+# Build outputs
+dist/
+build/
+
+# Editor/IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+__tests__/
+*.test.js
+*.spec.js
+
+# Temp files
+*.local
+.cache/
+temp/
+tmp/
+
+# Docker development files
+docker-compose.dev.yml
+Dockerfile.dev
+**/Dockerfile.dev
+
+# Frontend (when building backend only - comment out if building both)
+# frontend/
