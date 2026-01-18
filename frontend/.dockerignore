@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+package-lock.json
+.env
+.env.local
+.git
+.gitignore
+README.md
+.dockerignore
+dist
+.vscode
+*.md

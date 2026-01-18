@@ -1,0 +1,71 @@
+version: '3.8'
+
+# Development docker-compose with hot reloading
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7
+    container_name: mindmapai-mongodb-dev
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: MindMapAI
+    volumes:
+      - mongodb_data_dev:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - mindmapai-network-dev
+
+  # Backend API with hot reloading
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: mindmapai-backend-dev
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - MONGODB_URI=mongodb://mongodb:27017/MindMapAI
+      - FRONTEND_URL=http://localhost:5173
+      - JWT_SECRET=${JWT_SECRET:-dev_jwt_secret_for_local_development_only}
+      - JWT_EXPIRE=${JWT_EXPIRE:-30d}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    volumes:
+      - ./backend/src:/app/src:ro
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+    networks:
+      - mindmapai-network-dev
+
+  # Frontend with hot reloading
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: mindmapai-frontend-dev
+    restart: unless-stopped
+    environment:
+      - VITE_API_URL=http://localhost:5000
+      - VITE_API_BASE=/api
+      - VITE_NODE_ENV=development
+    volumes:
+      - ./frontend/src:/app/src:ro
+      - ./frontend/public:/app/public:ro
+      - ./frontend/index.html:/app/index.html:ro
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - mindmapai-network-dev
+
+networks:
+  mindmapai-network-dev:
+    driver: bridge
+
+volumes:
+  mongodb_data_dev:
+    driver: local
