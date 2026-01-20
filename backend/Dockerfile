@@ -1,32 +1,38 @@
-FROM node:20-alpine
+# syntax=docker/dockerfile:1
 
-# Add wget for healthcheck
-RUN apk add --no-cache wget
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Dockerfile reference guide at
+# https://docs.docker.com/go/dockerfile-reference/
 
-WORKDIR /app
+# Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
 
-# Copy package files
-COPY package*.json ./
+ARG NODE_VERSION=22.17.1
 
-# Install production dependencies only
-RUN npm ci --only=production
+FROM node:${NODE_VERSION}-alpine
 
-# Copy source code
+# Use production node environment by default.
+ENV NODE_ENV production
+
+
+WORKDIR /usr/src/app
+
+# Download dependencies as a separate step to take advantage of Docker's caching.
+# Leverage a cache mount to /root/.npm to speed up subsequent builds.
+# Leverage a bind mounts to package.json and package-lock.json to avoid having to copy them into
+# into this layer.
+RUN --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=package-lock.json,target=package-lock.json \
+    --mount=type=cache,target=/root/.npm \
+    npm ci --omit=dev
+
+# Run the application as a non-root user.
+USER node
+
+# Copy the rest of the source files into the image.
 COPY . .
 
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001 -G nodejs && \
-    chown -R nodejs:nodejs /app
+# Expose the port that the application listens on.
+EXPOSE 5000
 
-USER nodejs
-
-# Render uses PORT 10000 by default, but we use env var
-EXPOSE 10000
-
-# Health check - uses PORT env var or defaults to 10000
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT:-10000}/api/health || exit 1
-
-# Start the server
-CMD ["node", "src/server.js"]
+# Run the application.
+CMD npm run dev

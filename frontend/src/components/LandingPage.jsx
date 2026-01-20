@@ -37,6 +37,8 @@ import {
   Star,
   CheckCircle,
   TrendingUp,
+  ExternalLink,
+  Icon,
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
@@ -69,7 +71,7 @@ const LandingHeader = () => {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300
         ${
           scrolled
-            ? `${isDark ? "bg-gray-900/95 border-gray-700" : "bg-white/95 border-gray-200"} backdrop-blur-xl border-b`
+            ? `${isDark ? "bg-gray-900/95 border-emerald-900/30" : "bg-white/95 border-emerald-200"} backdrop-blur-xl border-b`
             : "bg-transparent"
         }`}
     >
@@ -80,20 +82,16 @@ const LandingHeader = () => {
             className="flex items-center gap-3 cursor-pointer"
           >
             <div
-              className={`p-2.5 rounded-xl border-2 ${isDark ? "border-green-700" : "border-green-600"} flex items-center justify-center`}
+              className={`p-2.5 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-500 shadow-lg shadow-emerald-500/25 flex items-center justify-center`}
             >
-              <Network
-                className={`w-7 h-7 ${isDark ? "text-green-500" : "text-emerald-600"}`}
-              />
+              <Network className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1
-                className={`text-xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}
-              >
+              <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent">
                 MindMap
               </h1>
               <p
-                className={`text-xs ${isDark ? "text-gray-400" : "text-gray-500"}`}
+                className={`text-xs ${isDark ? "text-emerald-400/70" : "text-emerald-600/70"}`}
               >
                 Visual Knowledge Mapper
               </p>
@@ -101,36 +99,37 @@ const LandingHeader = () => {
           </button>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={toggleTheme}
-              className={`p-2.5 rounded-xl border-2 transition-all duration-300
-                ${
-                  isDark
-                    ? "bg-gray-800 border-gray-700 hover:border-gray-600 text-yellow-400"
-                    : "bg-white border-gray-200 hover:border-gray-300 text-gray-600"
-                }`}
-              title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            >
-              {isDark ? (
-                <Sun className="w-5 h-5" />
-              ) : (
-                <Moon className="w-5 h-5" />
-              )}
-            </button>
-
             {!loading &&
               (isAuthenticated ? (
                 <UserMenu onNavigate={(path) => navigate(`/${path}`)} />
               ) : (
                 <button
                   onClick={handleSignIn}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 
-                           rounded-xl font-semibold text-sm transition-all text-white"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-700 to-emerald-600 
+                           hover:from-emerald-500 hover:to-emerald-400 rounded-full font-semibold text-sm 
+                           transition-all shadow-lg shadow-emerald-700/25 text-white hover:scale-105"
                 >
                   <LogIn className="w-4 h-4" />
                   <span>Sign In</span>
                 </button>
               ))}
+
+            <button
+              onClick={toggleTheme}
+              className={`p-2.5 rounded-full border-none transition-all duration-300 hover:scale-110
+                ${
+                  isDark
+                    ? "bg-emerald-700 hover:bg-emerald-800"
+                    : "bg-emerald-700 hover:bg-emerald-400"
+                }`}
+              title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {isDark ? (
+                <Sun className="w-5 h-5" color="white" />
+              ) : (
+                <Moon className="w-5 h-5" color="white" />
+              )}
+            </button>
           </div>
         </div>
       </div>
@@ -719,14 +718,17 @@ function LandingPage() {
     </div>,
   ];
 
-  const handleCreateDiagram = () => {
+  const handleDashboard = () => {
     if (isAuthenticated) {
-      navigate("/create", { replace: false, state: { fromLanding: true } });
+      navigate("/dashboard", { replace: false, state: { fromLanding: true } });
     } else {
       navigate("/register", { replace: false, state: { fromLanding: true } });
     }
   };
 
+  const handleCreateDiagram = () => {
+    navigate("/create", { replace: false, state: { fromLanding: true } });
+  };
   const handleTryDemo = () => {
     navigate("/create", {
       replace: false,
@@ -782,12 +784,11 @@ function LandingPage() {
               </div>
 
               <h1
-                className={`text-5xl md:text-6xl font-bold imageleading-tight
+                className={`text-5xl md:text-6xl font-thin imageleading-tight
                 ${isDark ? "text-white" : "text-gray-900"}`}
               >
-                Organize Ideas into
-                <br />
-                <span className="text-emerald-600 font-bold">
+                Organize Ideas into <br />
+                <span className="text-emerald-600 mt-4 block leading-tight font-bold">
                   Structured Diagrams
                 </span>
               </h1>
@@ -800,28 +801,56 @@ function LandingPage() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <button
-                  onClick={handleCreateDiagram}
-                  className="flex items-center justify-center gap-2 px-8 py-4 bg-emerald-600 hover:bg-emerald-700 
-                           text-white font-bold rounded-xl transition-all hover:scale-105"
-                >
-                  <Plus className="w-5 h-5" />
-                  Create Diagram
-                </button>
-
-                <button
-                  onClick={handleTryDemo}
-                  className="flex items-center justify-center gap-2 px-8 py-4 border-2 
-                           rounded-xl font-semibold transition-all hover:scale-105
-                           bg-transparent
-                           hover:bg-emerald-600 hover:text-white
-                           hover:border-emerald-600
-                           border-emerald-600
-                           text-emerald-600"
-                >
-                  <MousePointer className="w-5 h-5" />
-                  Try Demo
-                </button>
+                {isAuthenticated ? (
+                  <>
+                    <button
+                      onClick={handleDashboard}
+                      className="flex items-center justify-center gap-3 px-10 py-5 bg-emerald-600 hover:bg-emerald-700 
+                           text-white font-bold rounded-full transition-all hover:scale-105"
+                    >
+                      Dashboard
+                      <ExternalLink className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={handleCreateDiagram}
+                      className="relative h-15 w-16 rounded-full font-semibold bg-emerald-600 border-2 border-emerald-600 text-white-600
+                           hover:w-60 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 group
+                           transition-all duration-300 ease-in-out flex items-center justify-center overflow-hidden"
+                    >
+                      <Plus
+                        className="w-5 h-5 flex-shrink-0 transition-all duration-300 ease-in-out"
+                        color="white"
+                      />
+                      <span className="max-w-0 opacity-0 group-hover:max-w-40 group-hover:opacity-100 group-hover:ml-2 overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out">
+                        Create Diagram
+                      </span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={handleDashboard}
+                      className="flex items-center justify-center gap-3 px-10 py-5 bg-emerald-600 hover:bg-emerald-700 
+                           text-white font-bold rounded-full transition-all hover:scale-105 tracking-wider"
+                    >
+                      Create Diagram
+                    </button>
+                    <button
+                      onClick={handleTryDemo}
+                      className="relative h-15 w-16 rounded-full font-semibold bg-emerald-600 border-2 border-emerald-600 text-white-600
+                           hover:w-40 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 group
+                           transition-all duration-300 ease-in-out flex items-center justify-center overflow-hidden"
+                    >
+                      <MousePointer
+                        className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ease-in-out`}
+                        color="white"
+                      />
+                      <span className="max-w-0 opacity-0 group-hover:max-w-40 group-hover:opacity-100 group-hover:ml-2 overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out">
+                        Try Demo
+                      </span>
+                    </button>
+                  </>
+                )}
               </div>
 
               <div
@@ -948,19 +977,19 @@ function LandingPage() {
                   number: "50K+",
                   label: "Diagrams Created",
                   icon: Network,
-                  color: "violet",
+                  color: "emerald",
                 },
                 {
                   number: "99.9%",
                   label: "Uptime",
                   icon: Shield,
-                  color: "cyan",
+                  color: "emerald",
                 },
                 {
-                  number: "4.9★",
+                  number: "4.9",
                   label: "User Rating",
                   icon: Star,
-                  color: "amber",
+                  color: "emerald",
                 },
               ].map((stat, i) => (
                 <motion.div

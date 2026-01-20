@@ -7,3 +7,11 @@
 7. Image -> Text -> Graph
 8. Image -> Graph Extractor with having capability for editing
 ✅ 9. Personal Create Graph option (drag and drop based)
+
+
+
+
+------------------------------
+1. Change images of macbook mockups
+2. Working Settings
+3. Custom build improvement
