@@ -87,11 +87,11 @@ const LandingHeader = () => {
               <Network className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent">
+              <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent">
                 MindMap
               </h1>
               <p
-                className={`text-xs ${isDark ? "text-emerald-400/70" : "text-emerald-600/70"}`}
+                className={`hidden sm:block text-xs ${isDark ? "text-emerald-400/70" : "text-emerald-600/70"}`}
               >
                 Visual Knowledge Mapper
               </p>
@@ -105,9 +105,7 @@ const LandingHeader = () => {
               ) : (
                 <button
                   onClick={handleSignIn}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-700 to-emerald-600 
-                           hover:from-emerald-500 hover:to-emerald-400 rounded-full font-semibold text-sm 
-                           transition-all shadow-lg shadow-emerald-700/25 text-white hover:scale-105"
+                  className="flex items-center gap-2 w-full min-h-[44px] px-3 py-2 text-sm rounded-full font-medium sm:text-base bg-gradient-to-r from-emerald-700 to-emerald-600 hover:from-emerald-500 hover:to-emerald-400 font-semibold transition-all shadow-lg shadow-emerald-700/25 text-white hover:scale-105"
                 >
                   <LogIn className="w-4 h-4" />
                   <span>Sign In</span>
@@ -489,16 +487,14 @@ const Footer = () => {
               onClick={() => handleNavigation("/")}
               className="flex items-center gap-3 mb-4 cursor-pointer"
             >
-              <div className="w-10 h-10 rounded-xl border-2 flex items-center justify-center">
-                <Network
-                  className={`w-6 h-6 ${isDark ? "text-emerald-400" : "text-emerald-600"}`}
-                />
-              </div>
-              <span
-                className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+              <div
+                className={`p-2.5 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-500 shadow-lg shadow-emerald-500/25 flex items-center justify-center`}
               >
+                <Network className="w-7 h-7 text-white" />
+              </div>
+              <h1 className="text-3xl sm:text-xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent">
                 MindMap
-              </span>
+              </h1>
             </button>
             <p
               className={`max-w-md mb-6 ${isDark ? "text-gray-400" : "text-gray-600"}`}
@@ -534,101 +530,104 @@ const Footer = () => {
             </div>
           </motion.div>
 
-          {/* Product */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
-            <h4
-              className={`font-bold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-8 md:gap-12">
+            {/* Product */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.6, delay: 0.1 }}
             >
-              Product
-            </h4>
-            <ul className="space-y-2">
-              <li>
-                <button
-                  onClick={() => handleNavigation("/create")}
-                  className={`text-left transition-colors cursor-pointer ${isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
-                >
-                  Features
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleNavigation("/history")}
-                  className={`text-left transition-colors cursor-pointer ${isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
-                >
-                  Diagram Types
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleNavigation("/dashboard")}
-                  className={`text-left transition-colors cursor-pointer ${isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
-                >
-                  Use Cases
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleNavigation("/settings")}
-                  className={`text-left transition-colors cursor-pointer ${isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
-                >
-                  Settings
-                </button>
-              </li>
-            </ul>
-          </motion.div>
-
-          {/* Company */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <h4
-              className={`font-bold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}
+              <h4
+                className={`font-bold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}
+              >
+                Product
+              </h4>
+              <ul className="space-y-2">
+                <li>
+                  <button
+                    onClick={() => handleNavigation("/create")}
+                    className={`text-left transition-colors cursor-pointer ${isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
+                  >
+                    Features
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => handleNavigation("/history")}
+                    className={`text-left transition-colors cursor-pointer ${isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
+                  >
+                    Diagram Types
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => handleNavigation("/dashboard")}
+                    className={`text-left transition-colors cursor-pointer ${isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
+                  >
+                    Use Cases
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => handleNavigation("/settings")}
+                    className={`text-left transition-colors cursor-pointer ${isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
+                  >
+                    Settings
+                  </button>
+                </li>
+              </ul>
+            </motion.div>
+            {/* Company */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.6, delay: 0.2 }}
             >
-              Company
-            </h4>
-            <ul className="space-y-2">
-              <li>
-                <button
-                  onClick={() => handleNavigation("/about")}
-                  className={`text-left transition-colors cursor-pointer ${isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
-                >
-                  About
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleNavigation("/blog")}
-                  className={`text-left transition-colors cursor-pointer ${isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
-                >
-                  Blog
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleExternalLink("https://github.com/jobs")}
-                  className={`text-left transition-colors cursor-pointer ${isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
-                >
-                  Careers
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleNavigation("/contact")}
-                  className={`text-left transition-colors cursor-pointer ${isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
-                >
-                  Contact
-                </button>
-              </li>
-            </ul>
-          </motion.div>
+              <h4
+                className={`font-bold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}
+              >
+                Company
+              </h4>
+              <ul className="space-y-2">
+                <li>
+                  <button
+                    onClick={() => handleNavigation("/about")}
+                    className={`text-left transition-colors cursor-pointer ${isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
+                  >
+                    About
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => handleNavigation("/blog")}
+                    className={`text-left transition-colors cursor-pointer ${isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
+                  >
+                    Blog
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() =>
+                      handleExternalLink("https://github.com/jobs")
+                    }
+                    className={`text-left transition-colors cursor-pointer ${isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
+                  >
+                    Careers
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => handleNavigation("/contact")}
+                    className={`text-left transition-colors cursor-pointer ${isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
+                  >
+                    Contact
+                  </button>
+                </li>
+              </ul>
+            </motion.div>
+          </div>
         </div>
 
         {/* Bottom */}
@@ -768,9 +767,9 @@ function LandingPage() {
 
       <main className="relative z-10">
         <section className="min-h-screen flex items-center justify-center px-4 pt-24 pb-12">
-          <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
+          <div className="max-w-7xl mx-auto mt-3 grid lg:grid-cols-2 gap-20 items-center">
             <motion.div
-              className="space-y-8 relative"
+              className="space-y-8 relative order-2 lg:order-1"
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
@@ -784,11 +783,11 @@ function LandingPage() {
               </div>
 
               <h1
-                className={`text-5xl md:text-6xl font-thin imageleading-tight
+                className={`text-4xl sm:text-5xl lg:5xl md:text-6xl font-thin imageleading-tight
                 ${isDark ? "text-white" : "text-gray-900"}`}
               >
                 Organize Ideas into <br />
-                <span className="text-emerald-600 mt-4 block leading-tight font-bold">
+                <span className="text-6xl sm:3xl text-emerald-600 mt-4 block leading-tight font-bold">
                   Structured Diagrams
                 </span>
               </h1>
@@ -827,18 +826,18 @@ function LandingPage() {
                     </button>
                   </>
                 ) : (
-                  <>
+                  <div className="flex gap-4">
                     <button
                       onClick={handleDashboard}
-                      className="flex items-center justify-center gap-3 px-10 py-5 bg-emerald-600 hover:bg-emerald-700 
+                      className="flex items-center justify-center gap-2 sm:gap-3 w-52 sm:w-auto min-h-[44px] px-6 sm:px-10 py-3 sm:py-5 text-sm sm:text-base bg-emerald-600 hover:bg-emerald-700 
                            text-white font-bold rounded-full transition-all hover:scale-105 tracking-wider"
                     >
                       Create Diagram
                     </button>
                     <button
                       onClick={handleTryDemo}
-                      className="relative h-15 w-16 rounded-full font-semibold bg-emerald-600 border-2 border-emerald-600 text-white-600
-                           hover:w-40 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 group
+                      className="relative h-14 w-14 sm:h-15 sm:w-16 rounded-full font-semibold bg-emerald-600 border-2 border-emerald-600 text-white-600
+                           sm:hover:w-40 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 group
                            transition-all duration-300 ease-in-out flex items-center justify-center overflow-hidden"
                     >
                       <MousePointer
@@ -846,33 +845,38 @@ function LandingPage() {
                         color="white"
                       />
                       <span className="max-w-0 opacity-0 group-hover:max-w-40 group-hover:opacity-100 group-hover:ml-2 overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out">
-                        Try Demo
+                        Try
                       </span>
                     </button>
-                  </>
+                  </div>
                 )}
               </div>
 
               <div
-                className={`flex items-center gap-6 pt-4 ${isDark ? "text-gray-500" : "text-gray-500"}`}
+                className={`flex flex-row
+              items-center justify-center
+              w-full gap-8 pt-4
+              ${isDark ? "text-gray-400" : "text-gray-600"}`}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col items-center justify-center gap-2">
                   <Grid className="w-5 h-5" />
-                  <span className="text-sm">Grid Layouts</span>
+                  <span className="text-sm text-center">Grid Layouts</span>
                 </div>
-                <div className="flex items-center gap-2">
+
+                <div className="flex flex-col items-center justify-center gap-2">
                   <Hexagon className="w-5 h-5" />
-                  <span className="text-sm">Custom Shapes</span>
+                  <span className="text-sm text-center">Custom Shapes</span>
                 </div>
-                <div className="flex items-center gap-2">
+
+                <div className="flex flex-col items-center justify-center gap-2">
                   <Share2 className="w-5 h-5" />
-                  <span className="text-sm">Export Options</span>
+                  <span className="text-sm text-center">Export Options</span>
                 </div>
               </div>
             </motion.div>
 
             <motion.div
-              className="relative flex items-center justify-center"
+              className="relative flex items-center justify-center order-1 lg:order-2"
               initial={{ opacity: 0, x: 50, scale: 0.9 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
@@ -904,7 +908,7 @@ function LandingPage() {
 
               {/* Image Preview */}
               <div className="relative group z-10">
-                <div className={`relative max-w-xl mx-auto overflow-hidden `}>
+                <div className={`relative max-w-lg mx-auto overflow-hidden `}>
                   <img
                     src={image1}
                     alt="MindMap AI Preview"
@@ -942,7 +946,7 @@ function LandingPage() {
               animation: count-up 0.8s ease-out forwards;
             }
           `}</style>
-          <div className="w-32 h-7 m-10 border-2 rounded-full border-emerald-600 bg-emerald-600 mb-20 mx-auto" />
+          <div className="w-20 sm:h-7 sm:w-32 h-2 m-10 border-2 rounded-full border-emerald-600 bg-emerald-600 mb-20 mx-auto" />
 
           {/* Stats Section */}
           <div className="max-w-7xl mx-auto mb-32">
@@ -954,7 +958,7 @@ function LandingPage() {
               transition={{ duration: 0.6 }}
             >
               <h2
-                className={`text-4xl font-bold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`text-3xl sm:text-4xl leading-tight font-bold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}
               >
                 Trusted by Thousands Worldwide
               </h2>
@@ -965,7 +969,7 @@ function LandingPage() {
               </p>
             </motion.div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-5 sm:gap-8">
               {[
                 {
                   number: "10K+",
@@ -994,7 +998,7 @@ function LandingPage() {
               ].map((stat, i) => (
                 <motion.div
                   key={i}
-                  className={`text-center p-8 rounded-2xl border-2 transition-all duration-300 hover:scale-105
+                  className={`text-center p-5 sm:p-8 rounded-2xl border-2 transition-all duration-300 hover:scale-105
                     ${
                       isDark
                         ? "bg-gray-800/50 border-gray-700 hover:border-emerald-500"
@@ -1024,7 +1028,7 @@ function LandingPage() {
           </div>
 
           <div
-            className={`w-full mx-auto my-20 p-2 md:p-16 lg:p-20 rounded-3xl shadow-xl transition-colors duration-300 ${
+            className={`w-full mx-auto my-20 p-6 sm:p-2 md:p-16 lg:p-20 rounded-3xl shadow-xl transition-colors duration-300 ${
               isDark
                 ? "bg-gray-800/50 border border-emerald-500/30"
                 : "bg-white border border-emerald-200"
@@ -1038,21 +1042,21 @@ function LandingPage() {
               transition={{ duration: 0.6 }}
             >
               <h2
-                className={`text-5xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`text-3xl mt-3 sm:text-5xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-900"}`}
               >
                 Powerful Features
               </h2>
               <p
-                className={`text-xl max-w-2xl mx-auto ${isDark ? "text-gray-300" : "text-gray-700"}`}
+                className={`sm:text-xl sm:text-lg max-w-2xl mx-auto ${isDark ? "text-gray-300" : "text-gray-700"}`}
               >
                 Everything you need to visualize ideas and create stunning
                 diagrams
               </p>
             </motion.div>
 
-            <div className="space-y-32 max-w-7xl mx-auto">
+            <div className="space-y-16 sm:space-y-32 max-w-7xl mx-auto">
               {/* Feature 1: Multiple Diagram Types */}
-              <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                 <motion.div
                   className="relative group"
                   initial={{ opacity: 0, x: -80 }}
@@ -1072,16 +1076,26 @@ function LandingPage() {
                 </motion.div>
 
                 <motion.div
-                  className="group/card cursor-pointer flex flex-col justify-center"
+                  className="group/card cursor-pointer flex flex-col justify-center text-center lg:text-left"
                   onClick={() => navigate("/create")}
                   initial={{ opacity: 0, x: 50 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
                 >
-                  <div className="flex items-center gap-3 mb-6">
+                  {/* Mobile icon badge */}
+                  <div className="flex lg:hidden justify-center mb-4">
+                    <div
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${isDark ? "bg-emerald-500/20 text-emerald-300" : "bg-emerald-100 text-emerald-700"}`}
+                    >
+                      <Network className="w-3.5 h-3.5" />
+                      Diagram Types
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-center lg:justify-start gap-3 mb-4 lg:mb-6">
                     <h3
-                      className={`text-3xl font-bold inline-block relative ${
+                      className={`text-xl sm:text-2xl lg:text-3xl font-bold inline-block relative ${
                         isDark ? "text-white" : "text-gray-900"
                       }`}
                     >
@@ -1095,66 +1109,79 @@ function LandingPage() {
                   </div>
 
                   <p
-                    className={`text-lg mb-8 leading-relaxed ${
-                      isDark ? "text-gray-300" : "text-gray-700"
-                    }`}
+                    className={`hidden md:block text-lg mb-8 leading-relaxed
+                      ${isDark ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Choose from Mind Maps, Flowcharts, Network Diagrams, Tree
                     Structures, Org Charts, and Block Diagrams. Each type is
                     optimized for different visualization needs.
                   </p>
 
-                  <ul className="space-y-4 mb-8">
-                    {[
-                      "Mind Maps for brainstorming",
-                      "Flowcharts for processes",
-                      "Network diagrams for relationships",
-                      "Tree & Org charts for hierarchies",
-                    ].map((item, i) => (
-                      <li
-                        key={i}
-                        className="flex items-center gap-4 text-base text-gray-700"
-                      >
-                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 flex items-center justify-center">
-                          <svg
-                            className="w-3 h-3 text-white"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth="3"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                        </div>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="flex justify-center lg:justify-start mb-6 lg:mb-8">
+                    <ul className="space-y-3 lg:space-y-4 inline-block text-left">
+                      {[
+                        "Mind Maps for brainstorming",
+                        "Flowcharts for processes",
+                        "Network diagrams for relationships",
+                        "Tree & Org charts for hierarchies",
+                      ].map((item, i) => (
+                        <li
+                          key={i}
+                          className={`flex items-center gap-3 lg:gap-4 text-sm lg:text-base ${isDark ? "text-gray-300" : "text-gray-700"}`}
+                        >
+                          <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 flex items-center justify-center">
+                            <svg
+                              className="w-3 h-3 text-white"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth="3"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          </div>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-                  <button className="px-8 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/25 flex items-center gap-2 group/btn w-fit">
-                    Explore Diagram Types
-                    <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
-                  </button>
+                  <div className="flex items-center justify-center">
+                    <button className="w-full lg:w-auto px-6 lg:px-8 py-3 lg:py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/25 flex items-center justify-center gap-2 group/btn">
+                      Explore Diagram Types
+                      <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                    </button>
+                  </div>
                 </motion.div>
               </div>
 
               {/* Feature 2: Custom Diagram Builder */}
-              <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                 <motion.div
-                  className="group/card cursor-pointer flex flex-col justify-center order-2 lg:order-1"
+                  className="group/card cursor-pointer flex flex-col justify-center order-2 lg:order-1 text-center lg:text-left"
                   onClick={() => navigate("/graphs/new")}
                   initial={{ opacity: 0, x: -50 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
                 >
-                  <div className="flex items-center gap-3 mb-6">
+                  {/* Mobile icon badge */}
+                  <div className="flex lg:hidden justify-center mb-4">
+                    <div
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${isDark ? "bg-purple-500/20 text-purple-300" : "bg-purple-100 text-purple-700"}`}
+                    >
+                      <PenTool className="w-3.5 h-3.5" />
+                      Custom Builder
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-center lg:justify-start gap-3 mb-4 lg:mb-6">
                     <h3
-                      className={`text-3xl font-bold inline-block relative ${
+                      className={`text-xl sm:text-2xl lg:text-3xl font-bold inline-block relative ${
                         isDark ? "text-white" : "text-gray-900"
                       }`}
                     >
@@ -1168,50 +1195,53 @@ function LandingPage() {
                   </div>
 
                   <p
-                    className={`text-lg mb-8 leading-relaxed ${
-                      isDark ? "text-gray-300" : "text-gray-700"
-                    }`}
+                    className={`hidden md:block text-lg mb-8 leading-relaxed
+                      ${isDark ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Build your own diagrams from scratch with our intuitive
                     drag-and-drop editor. No AI needed—just your creativity and
                     our powerful tools.
                   </p>
 
-                  <ul className="space-y-4 mb-8">
-                    {[
-                      "Drag & drop interface",
-                      "Custom node shapes & colors",
-                      "Flexible connections",
-                      "Real-time collaboration",
-                    ].map((item, i) => (
-                      <li
-                        key={i}
-                        className="flex items-center gap-4 text-base text-gray-700"
-                      >
-                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r from-violet-400 to-purple-600 flex items-center justify-center">
-                          <svg
-                            className="w-3 h-3 text-white"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth="3"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                        </div>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="flex justify-center lg:justify-start mb-6 lg:mb-8">
+                    <ul className="space-y-3 lg:space-y-4 inline-block text-left">
+                      {[
+                        "Drag & drop interface",
+                        "Custom node shapes & colors",
+                        "Flexible connections",
+                        "Real-time collaboration",
+                      ].map((item, i) => (
+                        <li
+                          key={i}
+                          className={`flex items-center gap-3 lg:gap-4 text-sm lg:text-base ${isDark ? "text-gray-300" : "text-gray-700"}`}
+                        >
+                          <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r from-violet-400 to-purple-600 flex items-center justify-center">
+                            <svg
+                              className="w-3 h-3 text-white"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth="3"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          </div>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-                  <button className="px-8 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 flex items-center gap-2 group/btn w-fit">
-                    Open Graph Builder
-                    <PenTool className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
-                  </button>
+                  <div className="flex items-center justify-center">
+                    <button className="w-full lg:w-auto px-6 lg:px-8 py-3 lg:py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 flex items-center justify-center gap-2 group/btn">
+                      Open Graph Builder
+                      <PenTool className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                    </button>
+                  </div>
                 </motion.div>
 
                 <motion.div
@@ -1237,7 +1267,7 @@ function LandingPage() {
               </div>
 
               {/* Feature 3: AI-Powered Generation */}
-              <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                 <motion.div
                   className="relative group"
                   initial={{ opacity: 0, x: -80 }}
@@ -1260,16 +1290,26 @@ function LandingPage() {
                 </motion.div>
 
                 <motion.div
-                  className="group/card cursor-pointer flex flex-col justify-center"
+                  className="group/card cursor-pointer flex flex-col justify-center text-center lg:text-left"
                   onClick={() => navigate("/create")}
                   initial={{ opacity: 0, x: 50 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
                 >
-                  <div className="flex items-center gap-3 mb-6">
+                  {/* Mobile icon badge */}
+                  <div className="flex lg:hidden justify-center mb-4">
+                    <div
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${isDark ? "bg-cyan-500/20 text-cyan-300" : "bg-cyan-100 text-cyan-700"}`}
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      AI Powered
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-center lg:justify-start gap-3 mb-4 lg:mb-6">
                     <h3
-                      className={`text-3xl font-bold inline-block relative ${
+                      className={`text-xl sm:text-2xl lg:text-3xl font-bold inline-block relative ${
                         isDark ? "text-white" : "text-gray-900"
                       }`}
                     >
@@ -1283,66 +1323,78 @@ function LandingPage() {
                   </div>
 
                   <p
-                    className={`text-lg mb-8 leading-relaxed ${
-                      isDark ? "text-gray-300" : "text-gray-700"
-                    }`}
+                    className={`hidden md:block text-lg mb-8 leading-relaxed
+                      ${isDark ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Leverage Google Gemini AI to automatically extract concepts
                     from text, PDFs, or GitHub repositories and generate
                     beautiful diagrams instantly.
                   </p>
 
-                  <ul className="space-y-4 mb-8">
-                    {[
-                      "Text to diagram in seconds",
-                      "PDF document analysis",
-                      "GitHub repo visualization",
-                      "Smart concept extraction",
-                    ].map((item, i) => (
-                      <li
-                        key={i}
-                        className="flex items-center gap-4 text-base text-gray-700"
-                      >
-                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r from-cyan-400 to-blue-600 flex items-center justify-center">
-                          <svg
-                            className="w-3 h-3 text-white"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth="3"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                        </div>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <button className="px-8 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/25 flex items-center gap-2 group/btn w-fit">
-                    Try AI Generation
-                    <Sparkles className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
-                  </button>
+                  <div className="flex justify-center lg:justify-start mb-6 lg:mb-8">
+                    <ul className="space-y-3 lg:space-y-4 inline-block text-left">
+                      {[
+                        "Text to diagram in seconds",
+                        "PDF document analysis",
+                        "GitHub repo visualization",
+                        "Smart concept extraction",
+                      ].map((item, i) => (
+                        <li
+                          key={i}
+                          className={`flex items-center gap-3 lg:gap-4 text-sm lg:text-base ${isDark ? "text-gray-300" : "text-gray-700"}`}
+                        >
+                          <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r from-cyan-400 to-blue-600 flex items-center justify-center">
+                            <svg
+                              className="w-3 h-3 text-white"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth="3"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          </div>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <button className="w-full lg:w-auto px-6 lg:px-8 py-3 lg:py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/25 flex items-center justify-center gap-2 group/btn">
+                      Try AI Generation
+                      <Sparkles className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                    </button>
+                  </div>
                 </motion.div>
               </div>
 
               {/* Feature 4: Multiple Export Formats */}
-              <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                 <motion.div
-                  className="group/card cursor-pointer flex flex-col justify-center order-2 lg:order-1"
+                  className="group/card cursor-pointer flex flex-col justify-center order-2 lg:order-1 text-center lg:text-left"
                   onClick={() => navigate("/create")}
                   initial={{ opacity: 0, x: -50 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
                 >
-                  <div className="flex items-center gap-3 mb-6">
+                  {/* Mobile icon badge */}
+                  <div className="flex lg:hidden justify-center mb-4">
+                    <div
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${isDark ? "bg-amber-500/20 text-amber-300" : "bg-amber-100 text-amber-700"}`}
+                    >
+                      <FileDown className="w-3.5 h-3.5" />
+                      Export Options
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-center lg:justify-start gap-3 mb-4 lg:mb-6">
                     <h3
-                      className={`text-3xl font-bold inline-block relative ${
+                      className={`text-xl sm:text-2xl lg:text-3xl font-bold inline-block relative ${
                         isDark ? "text-white" : "text-gray-900"
                       }`}
                     >
@@ -1356,50 +1408,52 @@ function LandingPage() {
                   </div>
 
                   <p
-                    className={`text-lg mb-8 leading-relaxed ${
-                      isDark ? "text-gray-300" : "text-gray-700"
-                    }`}
+                    className={`hidden md:block text-lg mb-8 leading-relaxed
+                      ${isDark ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Export your diagrams in 6+ formats including PNG, SVG,
                     Draw.io, Visio, Gliffy, and our native .mmai format with
                     integrity checksums.
                   </p>
 
-                  <ul className="space-y-4 mb-8">
-                    {[
-                      "PNG & SVG images",
-                      "Draw.io compatible",
-                      "Microsoft Visio (.vsdx)",
-                      "Native .mmai format",
-                    ].map((item, i) => (
-                      <li
-                        key={i}
-                        className="flex items-center gap-4 text-base text-gray-700"
-                      >
-                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r from-orange-400 to-amber-600 flex items-center justify-center">
-                          <svg
-                            className="w-3 h-3 text-white"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth="3"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                        </div>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <button className="px-8 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-orange-500/25 flex items-center gap-2 group/btn w-fit">
-                    See Export Options
-                    <FileDown className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
-                  </button>
+                  <div className="flex justify-center lg:justify-start mb-6 lg:mb-8">
+                    <ul className="space-y-3 lg:space-y-4 inline-block text-left">
+                      {[
+                        "PNG & SVG images",
+                        "Draw.io compatible",
+                        "Microsoft Visio (.vsdx)",
+                        "Native .mmai format",
+                      ].map((item, i) => (
+                        <li
+                          key={i}
+                          className={`flex items-center gap-3 lg:gap-4 text-sm lg:text-base ${isDark ? "text-gray-300" : "text-gray-700"}`}
+                        >
+                          <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r from-orange-400 to-amber-600 flex items-center justify-center">
+                            <svg
+                              className="w-3 h-3 text-white"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth="3"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          </div>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <button className="w-full lg:w-auto px-6 lg:px-8 py-3 lg:py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-orange-500/25 flex items-center justify-center gap-2 group/btn">
+                      See Export Options
+                      <FileDown className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                    </button>
+                  </div>
                 </motion.div>
 
                 <motion.div
@@ -1425,7 +1479,7 @@ function LandingPage() {
               </div>
 
               {/* Feature 5: History & Dashboard */}
-              <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                 <motion.div
                   className="relative group"
                   initial={{ opacity: 0, x: -80 }}
@@ -1448,16 +1502,26 @@ function LandingPage() {
                 </motion.div>
 
                 <motion.div
-                  className="group/card cursor-pointer flex flex-col justify-center"
+                  className="group/card cursor-pointer flex flex-col justify-center text-center lg:text-left"
                   onClick={() => navigate("/dashboard")}
                   initial={{ opacity: 0, x: 50 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
                 >
-                  <div className="flex items-center gap-3 mb-6">
+                  {/* Mobile icon badge */}
+                  <div className="flex lg:hidden justify-center mb-4">
+                    <div
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${isDark ? "bg-rose-500/20 text-rose-300" : "bg-rose-100 text-rose-700"}`}
+                    >
+                      <TrendingUp className="w-3.5 h-3.5" />
+                      Dashboard
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-center lg:justify-start gap-3 mb-4 lg:mb-6">
                     <h3
-                      className={`text-3xl font-bold inline-block relative ${
+                      className={`text-xl sm:text-2xl lg:text-3xl font-bold inline-block relative ${
                         isDark ? "text-white" : "text-gray-900"
                       }`}
                     >
@@ -1471,50 +1535,52 @@ function LandingPage() {
                   </div>
 
                   <p
-                    className={`text-lg mb-8 leading-relaxed ${
-                      isDark ? "text-gray-300" : "text-gray-700"
-                    }`}
+                    className={`hidden md:block text-lg mb-8 leading-relaxed
+                      ${isDark ? "text-gray-300" : "text-gray-700"}`}
                   >
                     Track your progress with a personalized dashboard. Auto-save
                     ensures you never lose work, and history lets you revisit
                     any diagram.
                   </p>
 
-                  <ul className="space-y-4 mb-8">
-                    {[
-                      "Auto-save functionality",
-                      "Version history",
-                      "Usage analytics",
-                      "Quick access to recent work",
-                    ].map((item, i) => (
-                      <li
-                        key={i}
-                        className="flex items-center gap-4 text-base text-gray-700"
-                      >
-                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r from-pink-400 to-rose-600 flex items-center justify-center">
-                          <svg
-                            className="w-3 h-3 text-white"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth="3"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                        </div>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <button className="px-8 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-pink-500/25 flex items-center gap-2 group/btn w-fit">
-                    View Dashboard
-                    <TrendingUp className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
-                  </button>
+                  <div className="flex justify-center lg:justify-start mb-6 lg:mb-8">
+                    <ul className="space-y-3 lg:space-y-4 inline-block text-left">
+                      {[
+                        "Auto-save functionality",
+                        "Version history",
+                        "Usage analytics",
+                        "Quick access to recent work",
+                      ].map((item, i) => (
+                        <li
+                          key={i}
+                          className={`flex items-center gap-3 lg:gap-4 text-sm lg:text-base ${isDark ? "text-gray-300" : "text-gray-700"}`}
+                        >
+                          <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r from-pink-400 to-rose-600 flex items-center justify-center">
+                            <svg
+                              className="w-3 h-3 text-white"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth="3"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          </div>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <button className="w-full lg:w-auto px-6 lg:px-8 py-3 lg:py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-pink-500/25 flex items-center justify-center gap-2 group/btn">
+                      View Dashboard
+                      <TrendingUp className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                    </button>
+                  </div>
                 </motion.div>
               </div>
             </div>
@@ -1534,7 +1600,7 @@ function LandingPage() {
               transition={{ duration: 0.6 }}
             >
               <h2
-                className={`text-4xl font-bold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`sm:text-4xl text-3xl font-bold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}
               >
                 Loved by Professionals
               </h2>
