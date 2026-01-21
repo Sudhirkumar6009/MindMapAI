@@ -48,7 +48,18 @@ import GridMotion from "./animations/GridMotion";
 import LightRays from "./animations/LightRays";
 
 // Import assets
-import image1 from "../assets/image1.png";
+import top_dark from "../assets/top-dark.png";
+import top_light from "../assets/top-light.png";
+import ai_dark from "../assets/ai-dark.png";
+import ai_light from "../assets/ai-light.png";
+import dash_dark from "../assets/dashboard-dark.png";
+import dash_light from "../assets/dashboard-light.png";
+import export_dark from "../assets/export-dark.png";
+import export_light from "../assets/export-light.png";
+import graph_dark from "../assets/graph-dark.png";
+import graph_light from "../assets/graph-light.png";
+import types_dark from "../assets/types-dark.png";
+import types_light from "../assets/types-light.png";
 
 const LandingHeader = () => {
   const { isDark, toggleTheme } = useTheme();
@@ -664,59 +675,6 @@ function LandingPage() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  // Grid motion items for background
-  const gridItems = [
-    "Mind Maps",
-    <div key="jsx-1" className="flex items-center justify-center">
-      <Network className="w-8 h-8" />
-    </div>,
-    image1,
-    "Flowcharts",
-    <div key="jsx-2" className="flex items-center justify-center">
-      <GitBranch className="w-8 h-8" />
-    </div>,
-    "Diagrams",
-    <div key="jsx-3" className="flex items-center justify-center">
-      <FolderTree className="w-8 h-8" />
-    </div>,
-    image1,
-    "Knowledge",
-    <div key="jsx-4" className="flex items-center justify-center">
-      <Layers className="w-8 h-8" />
-    </div>,
-    "Visualize",
-    <div key="jsx-5" className="flex items-center justify-center">
-      <Hexagon className="w-8 h-8" />
-    </div>,
-    image1,
-    "Organize",
-    <div key="jsx-6" className="flex items-center justify-center">
-      <Box className="w-8 h-8" />
-    </div>,
-    "Connect",
-    <div key="jsx-7" className="flex items-center justify-center">
-      <Share2 className="w-8 h-8" />
-    </div>,
-    image1,
-    "Create",
-    <div key="jsx-8" className="flex items-center justify-center">
-      <Plus className="w-8 h-8" />
-    </div>,
-    "Ideas",
-    <div key="jsx-9" className="flex items-center justify-center">
-      <Grid className="w-8 h-8" />
-    </div>,
-    image1,
-    "Structure",
-    <div key="jsx-10" className="flex items-center justify-center">
-      <Settings className="w-8 h-8" />
-    </div>,
-    "Export",
-    <div key="jsx-11" className="flex items-center justify-center">
-      <Download className="w-8 h-8" />
-    </div>,
-  ];
-
   const handleDashboard = () => {
     if (isAuthenticated) {
       navigate("/dashboard", { replace: false, state: { fromLanding: true } });
@@ -802,28 +760,30 @@ function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 {isAuthenticated ? (
                   <>
-                    <button
-                      onClick={handleDashboard}
-                      className="flex items-center justify-center gap-3 px-10 py-5 bg-emerald-600 hover:bg-emerald-700 
-                           text-white font-bold rounded-full transition-all hover:scale-105"
-                    >
-                      Dashboard
-                      <ExternalLink className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={handleCreateDiagram}
-                      className="relative h-15 w-16 rounded-full font-semibold bg-emerald-600 border-2 border-emerald-600 text-white-600
-                           hover:w-60 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 group
+                    <div className="flex gap-4">
+                      <button
+                        onClick={handleDashboard}
+                        className="flex items-center justify-center gap-2 sm:gap-3 w-52 sm:w-auto min-h-[44px] px-6 sm:px-10 py-3 sm:py-5 text-sm sm:text-base bg-emerald-600 hover:bg-emerald-700 
+                           text-white font-bold rounded-full transition-all hover:scale-105 tracking-wider"
+                      >
+                        Dashboard
+                        <ExternalLink className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={handleCreateDiagram}
+                        className="relative h-14 w-14 sm:h-16 sm:w-16 rounded-full font-semibold bg-emerald-600 border-2 border-emerald-600 text-white-600
+                           sm:hover:w-40 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 group
                            transition-all duration-300 ease-in-out flex items-center justify-center overflow-hidden"
-                    >
-                      <Plus
-                        className="w-5 h-5 flex-shrink-0 transition-all duration-300 ease-in-out"
-                        color="white"
-                      />
-                      <span className="max-w-0 opacity-0 group-hover:max-w-40 group-hover:opacity-100 group-hover:ml-2 overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out">
-                        Create Diagram
-                      </span>
-                    </button>
+                      >
+                        <Plus
+                          className="w-5 h-5 flex-shrink-0 transition-all duration-300 ease-in-out"
+                          color="white"
+                        />
+                        <span className="max-w-0 opacity-0 group-hover:max-w-40 group-hover:opacity-100 group-hover:ml-2 overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out">
+                          Create Diagram
+                        </span>
+                      </button>
+                    </div>
                   </>
                 ) : (
                   <div className="flex gap-4">
@@ -910,7 +870,7 @@ function LandingPage() {
               <div className="relative group z-10">
                 <div className={`relative max-w-lg mx-auto overflow-hidden `}>
                   <img
-                    src={image1}
+                    src={`${isDark ? top_dark : top_light}`}
                     alt="MindMap AI Preview"
                     className="w-full h-auto object-contain transition-transform duration-500"
                   />
@@ -1067,7 +1027,7 @@ function LandingPage() {
                   <div className="relative mx-auto w-full max-w-xl animate-float-gentle transition-all duration-500">
                     <div className="overflow-hidden rounded-2xl transition-transform duration-500 hover:scale-105">
                       <img
-                        src={image1}
+                        src={`${isDark ? types_dark : types_light}`}
                         alt="Multiple Diagram Types"
                         className="w-full h-full object-cover transition-all duration-500"
                       />
@@ -1257,7 +1217,7 @@ function LandingPage() {
                   >
                     <div className="overflow-hidden rounded-2xl transition-transform duration-500 hover:scale-105">
                       <img
-                        src={image1}
+                        src={`${isDark ? graph_dark : graph_light}`}
                         alt="Custom Diagram Builder"
                         className="w-full h-full object-cover transition-all duration-500"
                       />
@@ -1281,7 +1241,7 @@ function LandingPage() {
                   >
                     <div className="overflow-hidden rounded-2xl transition-transform duration-500 hover:scale-105">
                       <img
-                        src={image1}
+                        src={`${isDark ? ai_dark : ai_light}`}
                         alt="AI-Powered Generation"
                         className="w-full h-full object-cover transition-all duration-500"
                       />
@@ -1469,7 +1429,7 @@ function LandingPage() {
                   >
                     <div className="overflow-hidden rounded-2xl transition-transform duration-500 hover:scale-105">
                       <img
-                        src={image1}
+                        src={`${isDark ? export_dark : export_light}`}
                         alt="Export Options"
                         className="w-full h-full object-cover transition-all duration-500"
                       />
@@ -1493,7 +1453,7 @@ function LandingPage() {
                   >
                     <div className="overflow-hidden rounded-2xl transition-transform duration-500 hover:scale-105">
                       <img
-                        src={image1}
+                        src={`${isDark ? dash_dark : dash_light}`}
                         alt="Dashboard & History"
                         className="w-full h-full object-cover transition-all duration-500"
                       />

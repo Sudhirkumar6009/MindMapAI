@@ -29,36 +29,40 @@ Structure: Interconnected blocks representing system architecture.`,
 
 const CONCEPT_EXTRACTION_PROMPT = `{{DIAGRAM_CONTEXT}}
 
-Your task is to identify and extract key concepts from the provided text optimized for {{DIAGRAM_TYPE}} visualization.
+Your task is to identify and extract KEY concepts from the provided text optimized for {{DIAGRAM_TYPE}} visualization.
+
+**CRITICAL: CREATE A SMALL, READABLE GRAPH - NOT A COMPLEX ONE**
 
 RULES:
-1. Extract only meaningful concepts appropriate for {{DIAGRAM_TYPE}} diagrams
+1. Extract only THE MOST IMPORTANT concepts - be very selective!
 2. Focus on: {{EXTRACTION_FOCUS}}
 3. Do not summarize or explain
 4. Return concepts as a flat JSON array of strings
-5. Maximum 30 concepts
-6. **CRITICAL: Concepts MUST be 2-5 words each - NO LONG SENTENCES**
-7. Use concise noun phrases, not full sentences
+5. **MAXIMUM 8-12 concepts ONLY** - Pick only the essential ones!
+6. **Each concept MUST be 1-4 words (under 30 characters)**
+7. Use SHORT noun phrases: "AI Engine", "Data Input", "User Query"
 8. No duplicates
-9. No generic words like "the", "example", "thing"
-10. Order concepts by importance (most central/important first)
+9. No filler words like "the", "a", "example", "layer"
+10. Order by importance (central concept first)
+11. For simple patterns like "A shows B", extract entities: A, B
+12. Merge similar concepts into one
 
-GOOD CONCEPT EXAMPLES:
-- "Machine Learning" ✓
-- "User Authentication" ✓
-- "Data Processing Pipeline" ✓
-- "API Security Layer" ✓
+GOOD (SHORT):
+- "LLM Engine" ✓
+- "Vector DB" ✓  
+- "User Input" ✓
+- "AI Response" ✓
 
-BAD CONCEPT EXAMPLES (too long):
-- "The process of authenticating users in the system" ✗
-- "How data flows from the server to the client application" ✗
-- "Implementation of machine learning algorithms for predictions" ✗
+BAD (TOO LONG):
+- "Large Language Model Foundation" ✗
+- "Vector Database Storage System" ✗
+- "User Prompts and Queries" ✗
 
 TEXT:
 {{TEXT}}
 
-Return ONLY a valid JSON array of SHORT concepts. No markdown, no explanation.
-Example output: ["Machine Learning", "Neural Networks", "Data Training", "Model Accuracy"]`;
+Return ONLY a valid JSON array with 8-12 SHORT concepts. No markdown.
+Example: ["AI Engine", "Data Input", "Vector DB", "Response"]`;
 
 export async function extractConcepts(
   text,

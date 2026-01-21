@@ -4,14 +4,7 @@ import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import connectDB from "./config/database.js";
-import {
-  connectRedis,
-  closeRedis,
-  isRedisConnected,
-  pingRedis,
-} from "./config/redis.js";
 import { apiRateLimiter } from "./middleware/rateLimit.js";
-import { cacheTracker } from "./utils/cacheStatsTracker.js";
 import extractRoutes from "./routes/extract.js";
 import uploadRoutes from "./routes/upload.js";
 import refineRoutes from "./routes/refine.js";
@@ -173,47 +166,6 @@ app.get("/api/health", (req, res) => {
     timestamp: new Date().toISOString(),
     frontend: process.env.FRONTEND_URL || "http://localhost:5173",
     environment: process.env.NODE_ENV || "development",
-    redis: isRedisConnected() ? "connected" : "disconnected",
-  });
-});
-
-// Redis health + latency check
-app.get("/api/redis/health", async (req, res) => {
-  const result = await pingRedis();
-
-  if (!result.ok) {
-    return res.status(503).json({
-      status: "unhealthy",
-      redis: "disconnected",
-      error: result.error || "Redis not reachable",
-    });
-  }
-
-  res.json({
-    status: "healthy",
-    redis: "connected",
-    reply: result.reply,
-    latencyMs: result.latencyMs,
-    timestamp: new Date().toISOString(),
-  });
-});
-
-// Cache stats monitoring endpoint
-app.get("/api/cache/stats", (req, res) => {
-  res.json({
-    status: "ok",
-    cacheStats: cacheTracker.getStats(),
-    timestamp: new Date().toISOString(),
-  });
-});
-
-// Reset cache stats (for testing)
-app.post("/api/cache/stats/reset", (req, res) => {
-  cacheTracker.reset();
-  cacheTracker.printReport();
-  res.json({
-    status: "ok",
-    message: "Cache stats reset",
   });
 });
 
@@ -233,7 +185,7 @@ app.use((req, res) => {
   });
 });
 
-// Start server FIRST, then connect to database and Redis
+// Start server FIRST, then connect to database
 // This ensures Cloud Run health checks pass while services connect
 const server = app.listen(PORT, "0.0.0.0", async () => {
   console.log(`\n🚀 MindMap AI Server running on port ${PORT}`);
@@ -242,14 +194,6 @@ const server = app.listen(PORT, "0.0.0.0", async () => {
     `🔗 Frontend URL: ${process.env.FRONTEND_URL || "http://localhost:5173"}`,
   );
   console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
-
-  // Connect to Redis
-  try {
-    await connectRedis();
-  } catch (err) {
-    console.error("❌ Redis connection failed:", err.message);
-    console.log("Server will continue without Redis caching.");
-  }
 
   // Connect to database after server is listening
   connectDB()
@@ -265,7 +209,6 @@ const server = app.listen(PORT, "0.0.0.0", async () => {
 // Handle graceful shutdown
 process.on("SIGTERM", async () => {
   console.log("SIGTERM received. Shutting down gracefully...");
-  await closeRedis();
   server.close(() => {
     console.log("Server closed.");
     process.exit(0);
@@ -274,7 +217,6 @@ process.on("SIGTERM", async () => {
 
 process.on("SIGINT", async () => {
   console.log("SIGINT received. Shutting down gracefully...");
-  await closeRedis();
   server.close(() => {
     console.log("Server closed.");
     process.exit(0);

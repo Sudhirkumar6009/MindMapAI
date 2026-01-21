@@ -1,33 +1,33 @@
-import axios from 'axios';
+import axios from "axios";
 
 // Backend API URL from environment variables
 // In development: uses localhost
 // In production: uses VITE_API_URL from Vercel environment variables
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const API_BASE = `${API_URL}/api`;
 
-console.log('🔗 API Base URL:', API_BASE);
+console.log("🔗 API Base URL:", API_BASE);
 
 // Create axios instance with base configuration
 const axiosInstance = axios.create({
   baseURL: API_BASE,
   timeout: 30000,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    "Content-Type": "application/json",
+  },
 });
 
 const getAuthHeader = () => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
 // Generate demo session ID for offline users
 const getDemoSessionId = () => {
-  let sessionId = localStorage.getItem('demo_session_id');
+  let sessionId = localStorage.getItem("demo_session_id");
   if (!sessionId) {
     sessionId = `demo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    localStorage.setItem('demo_session_id', sessionId);
+    localStorage.setItem("demo_session_id", sessionId);
   }
   return sessionId;
 };
@@ -37,26 +37,36 @@ export const api = {
   // AUTH ENDPOINTS
   // ==========================================
   async register(name, email, password) {
-    const response = await axios.post(`${API_BASE}/auth/register`, { name, email, password });
+    const response = await axios.post(
+      `${API_BASE}/auth/register`,
+      { name, email, password },
+      { timeout: 10000 },
+    );
     return response.data;
   },
 
   async login(email, password) {
-    const response = await axios.post(`${API_BASE}/auth/login`, { email, password });
+    const response = await axios.post(
+      `${API_BASE}/auth/login`,
+      { email, password },
+      { timeout: 10000 },
+    );
     return response.data;
   },
 
   async getMe() {
     const response = await axios.get(`${API_BASE}/auth/me`, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
+      timeout: 10000,
     });
     return response.data;
   },
 
   async updatePassword(currentPassword, newPassword) {
-    const response = await axios.put(`${API_BASE}/auth/password`, 
+    const response = await axios.put(
+      `${API_BASE}/auth/password`,
       { currentPassword, newPassword },
-      { headers: getAuthHeader() }
+      { headers: getAuthHeader() },
     );
     return response.data;
   },
@@ -66,29 +76,30 @@ export const api = {
   // ==========================================
   async getProfile() {
     const response = await axios.get(`${API_BASE}/profile`, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   },
 
   async updateProfile(updates) {
     const response = await axios.put(`${API_BASE}/profile`, updates, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   },
 
   async updateAvatar(avatarData) {
-    const response = await axios.put(`${API_BASE}/profile/avatar`, 
+    const response = await axios.put(
+      `${API_BASE}/profile/avatar`,
       { avatar: avatarData },
-      { headers: getAuthHeader() }
+      { headers: getAuthHeader() },
     );
     return response.data;
   },
 
   async removeAvatar() {
     const response = await axios.delete(`${API_BASE}/profile/avatar`, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   },
@@ -96,7 +107,7 @@ export const api = {
   async deleteAccount(confirmEmail) {
     const response = await axios.delete(`${API_BASE}/profile`, {
       headers: getAuthHeader(),
-      data: { confirmEmail }
+      data: { confirmEmail },
     });
     return response.data;
   },
@@ -106,22 +117,26 @@ export const api = {
   // ==========================================
   async getSettings() {
     const response = await axios.get(`${API_BASE}/settings`, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   },
 
   async updateSettings(settings) {
     const response = await axios.put(`${API_BASE}/settings`, settings, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   },
 
   async resetSettings() {
-    const response = await axios.put(`${API_BASE}/settings/reset`, {}, {
-      headers: getAuthHeader()
-    });
+    const response = await axios.put(
+      `${API_BASE}/settings/reset`,
+      {},
+      {
+        headers: getAuthHeader(),
+      },
+    );
     return response.data;
   },
 
@@ -130,14 +145,14 @@ export const api = {
   // ==========================================
   async getDashboard() {
     const response = await axios.get(`${API_BASE}/dashboard`, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   },
 
   async getQuickStats() {
     const response = await axios.get(`${API_BASE}/dashboard/quick-stats`, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   },
@@ -146,44 +161,48 @@ export const api = {
   // HISTORY ENDPOINTS
   // ==========================================
   async getHistory(page = 1, limit = 10) {
-    const response = await axios.get(`${API_BASE}/history?page=${page}&limit=${limit}`, {
-      headers: getAuthHeader()
-    });
+    const response = await axios.get(
+      `${API_BASE}/history?page=${page}&limit=${limit}`,
+      {
+        headers: getAuthHeader(),
+      },
+    );
     return response.data;
   },
 
   async getHistoryStats() {
     const response = await axios.get(`${API_BASE}/history/stats`, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   },
 
   async getHistoryItem(id) {
     const response = await axios.get(`${API_BASE}/history/${id}`, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   },
 
   async saveToHistory(title, sourceType, sourcePreview, graphData) {
-    const response = await axios.post(`${API_BASE}/history`, 
+    const response = await axios.post(
+      `${API_BASE}/history`,
       { title, sourceType, sourcePreview, graphData },
-      { headers: getAuthHeader() }
+      { headers: getAuthHeader() },
     );
     return response.data;
   },
 
   async deleteHistoryItem(id) {
     const response = await axios.delete(`${API_BASE}/history/${id}`, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   },
 
   async clearHistory() {
     const response = await axios.delete(`${API_BASE}/history`, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   },
@@ -193,17 +212,21 @@ export const api = {
   // ==========================================
   async createGraph(graphData) {
     const sessionId = getDemoSessionId();
-    const response = await axios.post(`${API_BASE}/graphs`, 
+    const response = await axios.post(
+      `${API_BASE}/graphs`,
       { ...graphData, sessionId },
-      { headers: getAuthHeader() }
+      { headers: getAuthHeader() },
     );
     return response.data;
   },
 
   async getGraphs(page = 1, limit = 20) {
-    const response = await axios.get(`${API_BASE}/graphs?page=${page}&limit=${limit}`, {
-      headers: getAuthHeader()
-    });
+    const response = await axios.get(
+      `${API_BASE}/graphs?page=${page}&limit=${limit}`,
+      {
+        headers: getAuthHeader(),
+      },
+    );
     return response.data;
   },
 
@@ -215,29 +238,33 @@ export const api = {
 
   async getGraph(id) {
     const response = await axios.get(`${API_BASE}/graphs/${id}`, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   },
 
   async updateGraph(id, updates) {
     const response = await axios.put(`${API_BASE}/graphs/${id}`, updates, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   },
 
   async deleteGraph(id) {
     const response = await axios.delete(`${API_BASE}/graphs/${id}`, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   },
 
   async duplicateGraph(id) {
-    const response = await axios.post(`${API_BASE}/graphs/${id}/duplicate`, {}, {
-      headers: getAuthHeader()
-    });
+    const response = await axios.post(
+      `${API_BASE}/graphs/${id}/duplicate`,
+      {},
+      {
+        headers: getAuthHeader(),
+      },
+    );
     return response.data;
   },
 
@@ -245,35 +272,43 @@ export const api = {
   // CORE EXTRACTION ENDPOINTS
   // ==========================================
   async extractFromText(text, options = {}) {
-    const response = await axios.post(`${API_BASE}/extract`, { text, options }, {
-      headers: getAuthHeader()
-    });
+    const response = await axios.post(
+      `${API_BASE}/extract`,
+      { text, options },
+      {
+        headers: getAuthHeader(),
+      },
+    );
     return response.data;
   },
 
   async uploadPDF(file, options = {}) {
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('options', JSON.stringify(options));
-    
+    formData.append("file", file);
+    formData.append("options", JSON.stringify(options));
+
     const response = await axios.post(`${API_BASE}/upload`, formData, {
-      headers: { 
-        'Content-Type': 'multipart/form-data',
-        ...getAuthHeader()
-      }
+      headers: {
+        "Content-Type": "multipart/form-data",
+        ...getAuthHeader(),
+      },
     });
     return response.data;
   },
 
   async refineGraph(text, concepts, relationships, maxIterations = 2) {
-    const response = await axios.post(`${API_BASE}/refine`, {
-      text,
-      concepts,
-      relationships,
-      maxIterations
-    }, {
-      headers: getAuthHeader()
-    });
+    const response = await axios.post(
+      `${API_BASE}/refine`,
+      {
+        text,
+        concepts,
+        relationships,
+        maxIterations,
+      },
+      {
+        headers: getAuthHeader(),
+      },
+    );
     return response.data;
   },
 
@@ -281,26 +316,36 @@ export const api = {
   // GITHUB ENDPOINTS
   // ==========================================
   async analyzeGitHub(url) {
-    const response = await axios.post(`${API_BASE}/github/analyze`, { url }, {
-      headers: getAuthHeader()
-    });
+    const response = await axios.post(
+      `${API_BASE}/github/analyze`,
+      { url },
+      {
+        headers: getAuthHeader(),
+      },
+    );
     return response.data;
   },
 
   async analyzeInDepth(sectionName, concepts, relationships, repoInfo) {
-    const response = await axios.post(`${API_BASE}/github/analyze-depth`, {
-      sectionName,
-      concepts,
-      relationships,
-      repoInfo,
-    }, {
-      headers: getAuthHeader()
-    });
+    const response = await axios.post(
+      `${API_BASE}/github/analyze-depth`,
+      {
+        sectionName,
+        concepts,
+        relationships,
+        repoInfo,
+      },
+      {
+        headers: getAuthHeader(),
+      },
+    );
     return response.data;
   },
 
   async validateGitHubUrl(url) {
-    const response = await axios.get(`${API_BASE}/github/validate?url=${encodeURIComponent(url)}`);
+    const response = await axios.get(
+      `${API_BASE}/github/validate?url=${encodeURIComponent(url)}`,
+    );
     return response.data;
   },
 
@@ -309,51 +354,60 @@ export const api = {
   // ==========================================
   async getNotifications(page = 1, limit = 20, unreadOnly = false) {
     const response = await axios.get(
-      `${API_BASE}/notifications?page=${page}&limit=${limit}&unreadOnly=${unreadOnly}`, 
-      { headers: getAuthHeader() }
+      `${API_BASE}/notifications?page=${page}&limit=${limit}&unreadOnly=${unreadOnly}`,
+      { headers: getAuthHeader() },
     );
     return response.data;
   },
 
   async getUnreadNotificationCount() {
     const response = await axios.get(`${API_BASE}/notifications/unread-count`, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   },
 
   async markNotificationAsRead(id) {
-    const response = await axios.put(`${API_BASE}/notifications/${id}/read`, {}, {
-      headers: getAuthHeader()
-    });
+    const response = await axios.put(
+      `${API_BASE}/notifications/${id}/read`,
+      {},
+      {
+        headers: getAuthHeader(),
+      },
+    );
     return response.data;
   },
 
   async markAllNotificationsAsRead() {
-    const response = await axios.put(`${API_BASE}/notifications/read-all`, {}, {
-      headers: getAuthHeader()
-    });
+    const response = await axios.put(
+      `${API_BASE}/notifications/read-all`,
+      {},
+      {
+        headers: getAuthHeader(),
+      },
+    );
     return response.data;
   },
 
   async deleteNotification(id) {
     const response = await axios.delete(`${API_BASE}/notifications/${id}`, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   },
 
   async clearAllNotifications() {
     const response = await axios.delete(`${API_BASE}/notifications`, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   },
 
   async createNotification(type, title, message, link = null, metadata = {}) {
-    const response = await axios.post(`${API_BASE}/notifications`, 
+    const response = await axios.post(
+      `${API_BASE}/notifications`,
       { type, title, message, link, metadata },
-      { headers: getAuthHeader() }
+      { headers: getAuthHeader() },
     );
     return response.data;
   },
@@ -367,7 +421,7 @@ export const api = {
   },
 
   // Helper to get demo session ID
-  getDemoSessionId
+  getDemoSessionId,
 };
 
 export default api;

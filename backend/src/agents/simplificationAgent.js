@@ -3,62 +3,61 @@ import { generateWithRetry } from "../config/gemini.js";
 /**
  * Simplification Agent
  * Condenses verbose concepts and labels into concise, graph-friendly text
- * Target: 3-8 words per label for clean visualization
+ * Target: 1-4 words per label (max 30 chars) for clean, readable visualization
  */
 
 const SIMPLIFICATION_PROMPT = `You are a text simplification expert for graph visualization.
 
-Your task is to condense each concept into a SHORT, CLEAR label suitable for display in a diagram node.
+Your task is to condense each concept into a VERY SHORT label for diagram nodes.
+
+**CRITICAL: LABELS MUST BE READABLE WITHOUT ZOOMING**
 
 RULES:
-1. Each label MUST be 3-8 words maximum (ideally 3-5 words)
-2. Keep the core meaning - don't lose important context
-3. Remove filler words (the, a, an, very, basically, actually, etc.)
-4. Use simple, common words over complex ones
-5. Keep technical terms if they're essential to the meaning
-6. Use title case (capitalize main words)
-7. No sentences - just key phrases
-8. No punctuation except hyphens for compound terms
+1. **MAXIMUM 30 characters per label** (ideally 15-25 chars)
+2. **1-4 words ONLY** - shorter is better!
+3. Remove ALL filler words (the, a, an, of, for, with, etc.)
+4. Use abbreviations: Database→DB, Application→App, Information→Info
+5. Keep essential meaning only
+6. Title case (AI Engine, User Input)
+7. No sentences, no punctuation
+8. Single letters (A, B, C) stay as-is
 
-EXAMPLES of good simplification:
-- "The process of machine learning algorithms" → "Machine Learning Process"
-- "How users interact with the system interface" → "User System Interaction"
-- "Implementation details of the authentication module" → "Auth Module Implementation"
-- "Data flows from the server to the client" → "Server-Client Data Flow"
-- "Managing user permissions and access control" → "User Access Control"
-- "The relationship between AI and human decision making" → "AI-Human Decision Making"
+EXAMPLES:
+- "Large Language Model Foundation" → "LLM"
+- "Vector Database Storage" → "Vector DB"
+- "User Prompts and Queries" → "User Query"
+- "Data Processing Pipeline" → "Data Pipeline"
+- "Authentication Module" → "Auth Module"
+- "Machine Learning Algorithm" → "ML Algorithm"
 
 CONCEPTS TO SIMPLIFY:
 {{CONCEPTS}}
 
-Return ONLY a valid JSON object mapping original concepts to simplified versions.
-Format: {"original concept 1": "Simplified Label 1", "original concept 2": "Simplified Label 2"}
-No markdown, no explanation.`;
+Return ONLY a valid JSON object. No markdown.
+Format: {"original": "Short Label"}`;
 
-const RELATIONSHIP_SIMPLIFICATION_PROMPT = `You are simplifying relationship labels for a graph visualization.
+const RELATIONSHIP_SIMPLIFICATION_PROMPT = `Simplify relationship labels for graph edges.
 
-Simplify each relationship label to 1-3 words maximum.
+**CRITICAL: EDGE LABELS MUST BE VERY SHORT**
 
 RULES:
-1. Maximum 3 words, ideally 1-2
-2. Use simple verbs: uses, has, needs, creates, enables, controls, contains, triggers, etc.
-3. Remove filler words entirely
-4. Keep it professional and clear
+1. **MAXIMUM 1 WORD (10 characters)** - single verb only!
+2. Use: uses, has, feeds, sends, gets, creates, needs, enables
+3. NO phrases like "part of", "leads to" - too long!
 
 EXAMPLES:
-- "is responsible for managing" → "manages"
-- "has the capability to" → "can"
-- "is directly connected to" → "connects"
-- "is a fundamental part of" → "part of"
-- "depends heavily upon" → "needs"
-- "is used to implement" → "implements"
+- "is responsible for" → "manages"
+- "connects to" → "links"
+- "leads to" → "causes"
+- "is part of" → "in"
+- "depends on" → "needs"
+- "outputs to" → "feeds"
 
 RELATIONSHIPS TO SIMPLIFY:
 {{RELATIONSHIPS}}
 
-Return ONLY a valid JSON object mapping original to simplified.
-Format: {"original relation": "simplified"}
-No markdown, no explanation.`;
+Return ONLY a valid JSON object. No markdown.
+Format: {"original": "verb"}`;
 
 /**
  * Simplify an array of concepts to graph-friendly labels
@@ -68,9 +67,9 @@ No markdown, no explanation.`;
 export async function simplifyConcepts(concepts) {
   if (!concepts || concepts.length === 0) return {};
 
-  // Filter out already short concepts (≤5 words)
-  const needsSimplification = concepts.filter((c) => c.split(/\s+/).length > 5);
-  const alreadySimple = concepts.filter((c) => c.split(/\s+/).length <= 5);
+  // Filter out already short concepts (≤30 characters)
+  const needsSimplification = concepts.filter((c) => c.length > 30);
+  const alreadySimple = concepts.filter((c) => c.length <= 30);
 
   // Create identity mapping for already simple concepts
   const result = {};
@@ -99,9 +98,9 @@ export async function simplifyConcepts(concepts) {
       .trim();
     const simplifiedMap = JSON.parse(cleaned);
 
-    // Merge with already simple concepts
+    // Merge with already simple concepts - enforce 30 char limit
     Object.entries(simplifiedMap).forEach(([original, simplified]) => {
-      result[original] = enforceWordLimit(simplified, 8);
+      result[original] = enforceCharLimit(simplified, 30);
     });
 
     console.log(`✅ Simplified ${Object.keys(simplifiedMap).length} concepts`);
@@ -125,8 +124,9 @@ export async function simplifyRelationLabels(relationships) {
   if (!relationships || relationships.length === 0) return {};
 
   const uniqueRelations = [...new Set(relationships.map((r) => r.relation))];
+  // Simplify any relation longer than 10 chars or more than 1 word
   const needsSimplification = uniqueRelations.filter(
-    (r) => r.split(/\s+/).length > 3,
+    (r) => r.length > 10 || r.split(/\s+/).length > 1,
   );
 
   const result = {};
@@ -205,7 +205,7 @@ export function applyRelationshipSimplification(
 }
 
 /**
- * Format a concept label (title case, clean)
+ * Format a concept label (title case, clean, max 30 chars)
  * @param {string} label - Raw label
  * @returns {string} - Formatted label
  */
@@ -226,20 +226,26 @@ function formatConceptLabel(label) {
     })
     .join(" ");
 
-  return enforceWordLimit(formatted, 8);
+  return enforceCharLimit(formatted, 30);
 }
 
 /**
- * Enforce maximum word limit on a label
+ * Enforce maximum character limit on a label
  * @param {string} label - Label to limit
- * @param {number} maxWords - Maximum words allowed
+ * @param {number} maxChars - Maximum characters allowed (default 30)
  * @returns {string} - Limited label
  */
-function enforceWordLimit(label, maxWords) {
+function enforceCharLimit(label, maxChars = 30) {
   if (!label) return "";
-  const words = label.trim().split(/\s+/);
-  if (words.length <= maxWords) return label.trim();
-  return words.slice(0, maxWords).join(" ") + "...";
+  const trimmed = label.trim();
+  if (trimmed.length <= maxChars) return trimmed;
+  // Cut at word boundary if possible
+  const cut = trimmed.substring(0, maxChars - 2);
+  const lastSpace = cut.lastIndexOf(" ");
+  if (lastSpace > maxChars * 0.5) {
+    return cut.substring(0, lastSpace) + "..";
+  }
+  return cut + "..";
 }
 
 /**

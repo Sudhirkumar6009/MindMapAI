@@ -93,22 +93,24 @@ const RELATIONSHIP_EXTRACTION_PROMPT = `You are a relationship mapping agent for
 
 Your task is to identify relationships between the given concepts optimized for {{DIAGRAM_TYPE}} visualization.
 
+**CRITICAL: CREATE SIMPLE, READABLE CONNECTIONS - NOT COMPLEX ONES**
+
 DIAGRAM-SPECIFIC GUIDANCE:
 {{STRUCTURE_GUIDANCE}}
-Preferred relationship types: {{PREFERRED_RELATIONS}}
+Preferred relations: {{PREFERRED_RELATIONS}}
 
 RULES:
-1. Only create relationships that are explicitly or strongly implied in the text
-2. Each relationship must have: source, relation, target
-3. **CRITICAL: Relation MUST be 1-2 words ONLY** (e.g., "uses", "has", "enables", "part of")
-4. Use simple, professional verbs for relations:
-   - GOOD: uses, has, enables, needs, creates, contains, triggers, manages, controls
-   - AVOID: "is_associated_with", "is_related_to", "is responsible for managing"
-5. Never use underscores - use spaces if needed (e.g., "part of" not "part_of")
-6. Do not invent relationships not supported by the text
-7. IMPORTANT: Only ONE relationship per source-target pair! Do not create multiple edges between same nodes
-8. Maximum 40 relationships total
-9. Return as JSON array
+1. Only create relationships EXPLICITLY stated or strongly implied
+2. Each relationship: source, relation, target
+3. **RELATION MUST BE 1 WORD ONLY** (max 10 chars): "uses", "has", "feeds", "creates"
+4. Simple verbs ONLY:
+   - GOOD: uses, has, feeds, creates, enables, needs, sends, gets
+   - BAD: "connects to", "is part of", "leads to" (too long!)
+5. NO underscores, NO long phrases
+6. **MAXIMUM 10-15 relationships** - only essential connections!
+7. ONE-WAY direction - no circular loops back to start
+8. One relationship per node pair
+9. Skip weak/implied relationships - keep only strong ones
 
 CONCEPTS:
 {{CONCEPTS}}
@@ -116,8 +118,8 @@ CONCEPTS:
 TEXT:
 {{TEXT}}
 
-Return ONLY a valid JSON array. No markdown, no explanation.
-Example output: [{"source": "API", "relation": "uses", "target": "Database"}, {"source": "User", "relation": "triggers", "target": "Event"}]`;
+Return ONLY a valid JSON array with 10-15 relationships. No markdown.
+Example: [{"source": "User", "relation": "sends", "target": "Query"}, {"source": "LLM", "relation": "creates", "target": "Response"}]`;
 
 export async function extractRelationships(
   text,
@@ -154,15 +156,35 @@ export async function extractRelationships(
     relationships = Array.isArray(relationships) ? relationships : [];
 
     // Deduplicate: Keep only one relationship per source-target pair
+    // Also prevent cycles that go back to earlier nodes
     const seen = new Set();
     const deduplicated = [];
+    const nodeOrder = []; // Track order nodes appear as sources
 
     for (const rel of relationships) {
-      // Create a unique key for each source-target pair (bidirectional check)
-      const key1 = `${rel.source?.toLowerCase()}->${rel.target?.toLowerCase()}`;
-      const key2 = `${rel.target?.toLowerCase()}->${rel.source?.toLowerCase()}`;
+      const source = rel.source?.toLowerCase();
+      const target = rel.target?.toLowerCase();
 
-      if (!seen.has(key1) && !seen.has(key2)) {
+      // Skip if source equals target (self-loop)
+      if (source === target) continue;
+
+      // Track node order
+      if (!nodeOrder.includes(source)) nodeOrder.push(source);
+
+      // Check if this creates a backward cycle (target appears before source in order)
+      const sourceIndex = nodeOrder.indexOf(source);
+      const targetIndex = nodeOrder.indexOf(target);
+
+      // Allow forward edges or edges to new nodes, but prevent backward cycles to much earlier nodes
+      // Exception: allow edges to the immediate previous node (targetIndex === sourceIndex - 1)
+      const isBackwardCycle =
+        targetIndex !== -1 && targetIndex < sourceIndex - 1;
+
+      // Create a unique key for each source-target pair
+      const key1 = `${source}->${target}`;
+      const key2 = `${target}->${source}`;
+
+      if (!seen.has(key1) && !seen.has(key2) && !isBackwardCycle) {
         seen.add(key1);
         deduplicated.push(rel);
       }
@@ -176,13 +198,27 @@ export async function extractRelationships(
     const match = cleaned.match(/\[[\s\S]*\]/);
     if (match) {
       const relationships = JSON.parse(match[0]);
-      // Apply same deduplication
+      // Apply same deduplication with cycle detection
       const seen = new Set();
       const deduplicated = [];
+      const nodeOrder = [];
+
       for (const rel of relationships) {
-        const key1 = `${rel.source?.toLowerCase()}->${rel.target?.toLowerCase()}`;
-        const key2 = `${rel.target?.toLowerCase()}->${rel.source?.toLowerCase()}`;
-        if (!seen.has(key1) && !seen.has(key2)) {
+        const source = rel.source?.toLowerCase();
+        const target = rel.target?.toLowerCase();
+
+        if (source === target) continue;
+        if (!nodeOrder.includes(source)) nodeOrder.push(source);
+
+        const sourceIndex = nodeOrder.indexOf(source);
+        const targetIndex = nodeOrder.indexOf(target);
+        const isBackwardCycle =
+          targetIndex !== -1 && targetIndex < sourceIndex - 1;
+
+        const key1 = `${source}->${target}`;
+        const key2 = `${target}->${source}`;
+
+        if (!seen.has(key1) && !seen.has(key2) && !isBackwardCycle) {
           seen.add(key1);
           deduplicated.push(rel);
         }

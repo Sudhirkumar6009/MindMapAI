@@ -2,44 +2,17 @@ import express from "express";
 import History from "../models/History.js";
 import Notification from "../models/Notification.js";
 import { protect } from "../middleware/auth.js";
-import {
-  getCachedHistoryList,
-  cacheHistoryList,
-  invalidateHistoryListCache,
-  getCachedHistoryCount,
-  cacheHistoryCount,
-  invalidateHistoryStatsCache,
-} from "../utils/historyCacheManager.js";
 
 const router = express.Router();
 
-// GET all histories with pagination (Redis cached)
+// GET all histories with pagination (Direct MongoDB)
 router.get("/", protect, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const userId = req.user._id.toString();
 
-    // Try to get from Redis cache first
-    const cachedList = await getCachedHistoryList(userId, page, limit);
-    if (cachedList) {
-      console.log(
-        `✅ Cache HIT: History list for user ${userId} (page ${page})`,
-      );
-      return res.json({
-        success: true,
-        data: cachedList.data,
-        pagination: cachedList.pagination,
-        cached: true,
-      });
-    }
-
-    console.log(
-      `📝 Cache MISS: Querying database for user ${userId} (page ${page})`,
-    );
-
-    // Query database
+    // Query database directly
     const histories = await History.find({ user: req.user._id })
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -48,7 +21,8 @@ router.get("/", protect, async (req, res) => {
 
     const total = await History.countDocuments({ user: req.user._id });
 
-    const responseData = {
+    res.json({
+      success: true,
       data: histories,
       pagination: {
         page,
@@ -56,17 +30,9 @@ router.get("/", protect, async (req, res) => {
         total,
         pages: Math.ceil(total / limit),
       },
-    };
-
-    // Cache the result for 60 seconds
-    await cacheHistoryList(userId, page, limit, responseData, 60);
-
-    res.json({
-      success: true,
-      ...responseData,
-      cached: false,
     });
   } catch (error) {
+    console.error("Get history error:", error.message);
     res.status(500).json({
       success: false,
       error: error.message,
@@ -74,24 +40,9 @@ router.get("/", protect, async (req, res) => {
   }
 });
 
-// GET stats (Redis cached for 120 seconds)
+// GET stats
 router.get("/stats", protect, async (req, res) => {
   try {
-    const userId = req.user._id.toString();
-
-    // Try cache first
-    const cachedStats = await getCachedHistoryStats(userId);
-    if (cachedStats) {
-      console.log(`✅ Cache HIT: History stats for user ${userId}`);
-      return res.json({
-        success: true,
-        ...cachedStats,
-        cached: true,
-      });
-    }
-
-    console.log(`📝 Cache MISS: Computing stats for user ${userId}`);
-
     const totalGraphs = await History.countDocuments({ user: req.user._id });
 
     const stats = await History.aggregate([
@@ -112,7 +63,8 @@ router.get("/stats", protect, async (req, res) => {
       .limit(5)
       .select("title sourceType conceptCount createdAt");
 
-    const responseData = {
+    res.json({
+      success: true,
       stats: {
         totalGraphs,
         totalConcepts: stats[0]?.totalConcepts || 0,
@@ -121,17 +73,9 @@ router.get("/stats", protect, async (req, res) => {
         avgRelationships: Math.round(stats[0]?.avgRelationships || 0),
       },
       recentActivity,
-    };
-
-    // Cache for 120 seconds
-    await cacheHistoryStats(userId, responseData, 120);
-
-    res.json({
-      success: true,
-      ...responseData,
-      cached: false,
     });
   } catch (error) {
+    console.error("Get history stats error:", error.message);
     res.status(500).json({
       success: false,
       error: error.message,
@@ -139,25 +83,9 @@ router.get("/stats", protect, async (req, res) => {
   }
 });
 
-// GET single history item (Redis cached for 5 minutes)
+// GET single history item
 router.get("/:id", protect, async (req, res) => {
   try {
-    const userId = req.user._id.toString();
-    const historyId = req.params.id;
-
-    // Try cache first
-    const cachedItem = await getCachedHistoryItem(userId, historyId);
-    if (cachedItem) {
-      console.log(`✅ Cache HIT: History item ${historyId} for user ${userId}`);
-      return res.json({
-        success: true,
-        data: cachedItem,
-        cached: true,
-      });
-    }
-
-    console.log(`📝 Cache MISS: Fetching item ${historyId} from database`);
-
     const history = await History.findOne({
       _id: req.params.id,
       user: req.user._id,
@@ -170,15 +98,12 @@ router.get("/:id", protect, async (req, res) => {
       });
     }
 
-    // Cache for 5 minutes
-    await cacheHistoryItem(userId, historyId, history, 300);
-
     res.json({
       success: true,
       data: history,
-      cached: false,
     });
   } catch (error) {
+    console.error("Get history item error:", error.message);
     res.status(500).json({
       success: false,
       error: error.message,
@@ -186,13 +111,13 @@ router.get("/:id", protect, async (req, res) => {
   }
 });
 
+// POST - Create new history
 router.post("/", protect, async (req, res) => {
   try {
     const { title, sourceType, sourcePreview, graphData } = req.body;
-    const userId = req.user._id.toString();
 
     console.log("\n========== Saving History ==========");
-    console.log("User ID:", userId);
+    console.log("User ID:", req.user._id);
     console.log("Title:", title);
     console.log("Source Type:", sourceType);
     console.log("Concepts:", graphData.concepts?.length || 0);
@@ -207,11 +132,6 @@ router.post("/", protect, async (req, res) => {
       relationshipCount: graphData.relationships?.length || 0,
       graphData,
     });
-
-    // Invalidate all history caches for this user (list + stats)
-    await invalidateHistoryListCache(userId);
-    await invalidateHistoryStatsCache(userId);
-    console.log(`🔄 Cache invalidated for user: ${userId}`);
 
     // Create notification for the user
     await Notification.create({
@@ -241,11 +161,9 @@ router.post("/", protect, async (req, res) => {
   }
 });
 
+// DELETE single history item
 router.delete("/:id", protect, async (req, res) => {
   try {
-    const userId = req.user._id.toString();
-    const historyId = req.params.id;
-
     const history = await History.findOneAndDelete({
       _id: req.params.id,
       user: req.user._id,
@@ -258,17 +176,12 @@ router.delete("/:id", protect, async (req, res) => {
       });
     }
 
-    // Invalidate all user history caches
-    await invalidateHistoryItemCache(userId, historyId);
-    await invalidateHistoryListCache(userId);
-    await invalidateHistoryStatsCache(userId);
-    console.log(`🔄 Cache invalidated for user: ${userId} (item deleted)`);
-
     res.json({
       success: true,
       message: "History deleted successfully",
     });
   } catch (error) {
+    console.error("Delete history error:", error.message);
     res.status(500).json({
       success: false,
       error: error.message,
@@ -276,24 +189,17 @@ router.delete("/:id", protect, async (req, res) => {
   }
 });
 
+// DELETE all history for user
 router.delete("/", protect, async (req, res) => {
   try {
-    const userId = req.user._id.toString();
-
     await History.deleteMany({ user: req.user._id });
-
-    // Invalidate all user history caches
-    await invalidateHistoryListCache(userId);
-    await invalidateHistoryStatsCache(userId);
-    console.log(
-      `🔄 Cache invalidated for user: ${userId} (all history cleared)`,
-    );
 
     res.json({
       success: true,
       message: "All history cleared",
     });
   } catch (error) {
+    console.error("Delete all history error:", error.message);
     res.status(500).json({
       success: false,
       error: error.message,

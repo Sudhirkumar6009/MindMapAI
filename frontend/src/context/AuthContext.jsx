@@ -1,12 +1,12 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import api from '../api';
+import { createContext, useContext, useState, useEffect } from "react";
+import api from "../api";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(() => localStorage.getItem('token'));
+  const [token, setToken] = useState(() => localStorage.getItem("token"));
 
   useEffect(() => {
     if (token) {
@@ -25,7 +25,7 @@ export function AuthProvider({ children }) {
         logout();
       }
     } catch (error) {
-      console.error('Failed to fetch user:', error);
+      console.error("Failed to fetch user:", error);
       logout();
     } finally {
       setLoading(false);
@@ -36,16 +36,30 @@ export function AuthProvider({ children }) {
     try {
       const data = await api.login(email, password);
       if (data.success) {
-        localStorage.setItem('token', data.token);
+        localStorage.setItem("token", data.token);
         setToken(data.token);
         setUser(data.user);
       }
       return data;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
+      // Handle different error types
+      if (error.code === "ERR_NETWORK" || error.message === "Network Error") {
+        return {
+          success: false,
+          error:
+            "Cannot connect to server. Please check if the backend is running.",
+        };
+      }
+      if (error.code === "ECONNABORTED" || error.message?.includes("timeout")) {
+        return {
+          success: false,
+          error: "Connection timed out. Server may be down.",
+        };
+      }
       return {
         success: false,
-        error: error.response?.data?.error || 'Login failed. Please try again.'
+        error: error.response?.data?.error || "Login failed. Please try again.",
       };
     }
   };
@@ -54,22 +68,38 @@ export function AuthProvider({ children }) {
     try {
       const data = await api.register(name, email, password);
       if (data.success) {
-        localStorage.setItem('token', data.token);
+        localStorage.setItem("token", data.token);
         setToken(data.token);
         setUser(data.user);
       }
       return data;
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error("Registration error:", error);
+      // Handle different error types
+      if (error.code === "ERR_NETWORK" || error.message === "Network Error") {
+        return {
+          success: false,
+          error:
+            "Cannot connect to server. Please check if the backend is running.",
+        };
+      }
+      if (error.code === "ECONNABORTED" || error.message?.includes("timeout")) {
+        return {
+          success: false,
+          error: "Connection timed out. Server may be down.",
+        };
+      }
       return {
         success: false,
-        error: error.response?.data?.error || 'Registration failed. Please try again.'
+        error:
+          error.response?.data?.error ||
+          "Registration failed. Please try again.",
       };
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
     setToken(null);
     setUser(null);
   };
@@ -82,31 +112,34 @@ export function AuthProvider({ children }) {
       }
       return data;
     } catch (error) {
-      console.error('Profile update error:', error);
+      console.error("Profile update error:", error);
       return {
         success: false,
-        error: error.response?.data?.error || 'Update failed. Please try again.'
+        error:
+          error.response?.data?.error || "Update failed. Please try again.",
       };
     }
   };
 
   // Update user state directly (for syncing avatar and other changes)
   const updateUser = (updates) => {
-    setUser(prev => prev ? { ...prev, ...updates } : null);
+    setUser((prev) => (prev ? { ...prev, ...updates } : null));
   };
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      token,
-      loading,
-      isAuthenticated: !!user,
-      login,
-      register,
-      logout,
-      updateProfile,
-      updateUser
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        loading,
+        isAuthenticated: !!user,
+        login,
+        register,
+        logout,
+        updateProfile,
+        updateUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -115,7 +148,7 @@ export function AuthProvider({ children }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

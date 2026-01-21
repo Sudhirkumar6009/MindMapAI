@@ -1,12 +1,5 @@
-import {
-  incrementCache,
-  getCache,
-  setCache,
-  isRedisConnected,
-} from "../config/redis.js";
-
 /**
- * Redis-based rate limiting middleware
+ * In-memory rate limiting middleware
  * @param {Object} options - Rate limit options
  * @param {number} options.windowMs - Time window in milliseconds (default: 60000 = 1 minute)
  * @param {number} options.max - Maximum requests per window (default: 100)
@@ -23,9 +16,7 @@ export const rateLimiter = (options = {}) => {
     skipFailedRequests = false,
   } = options;
 
-  const windowSeconds = Math.ceil(windowMs / 1000);
-
-  // In-memory fallback when Redis is not available
+  // In-memory store for rate limiting
   const memoryStore = new Map();
 
   const getMemoryCount = (key) => {
@@ -72,86 +63,36 @@ export const rateLimiter = (options = {}) => {
       key = `ratelimit:${identifier}:${req.path}`;
     }
 
-    try {
-      let currentCount;
-      let remaining;
+    // Check current count
+    const currentCount = getMemoryCount(key);
 
-      if (isRedisConnected()) {
-        // Use Redis for distributed rate limiting
-        const countKey = `${key}:count`;
-
-        // Get current count
-        const cached = await getCache(countKey);
-        currentCount = cached ? cached.count : 0;
-
-        if (currentCount >= max) {
-          res.set("X-RateLimit-Limit", max);
-          res.set("X-RateLimit-Remaining", 0);
-          res.set("Retry-After", windowSeconds);
-
-          return res.status(429).json({
-            success: false,
-            error: "Rate limit exceeded",
-            message,
-            retryAfter: windowSeconds,
-          });
-        }
-
-        // Increment count
-        currentCount++;
-        await setCache(countKey, { count: currentCount }, windowSeconds);
-        remaining = Math.max(0, max - currentCount);
-      } else {
-        // Fallback to in-memory rate limiting
-        currentCount = getMemoryCount(key);
-
-        if (currentCount >= max) {
-          res.set("X-RateLimit-Limit", max);
-          res.set("X-RateLimit-Remaining", 0);
-          res.set("Retry-After", windowSeconds);
-
-          return res.status(429).json({
-            success: false,
-            error: "Rate limit exceeded",
-            message,
-            retryAfter: windowSeconds,
-          });
-        }
-
-        currentCount = incrementMemoryCount(key);
-        remaining = Math.max(0, max - currentCount);
-      }
-
-      // Set rate limit headers
-      res.set("X-RateLimit-Limit", max);
-      res.set("X-RateLimit-Remaining", remaining);
-
-      // Handle skipFailedRequests
-      if (skipFailedRequests) {
-        const originalJson = res.json.bind(res);
-        res.json = async (data) => {
-          // Decrement count for failed requests
-          if (res.statusCode >= 400 && isRedisConnected()) {
-            const countKey = `${key}:count`;
-            const cached = await getCache(countKey);
-            if (cached && cached.count > 0) {
-              await setCache(
-                countKey,
-                { count: cached.count - 1 },
-                windowSeconds,
-              );
-            }
-          }
-          return originalJson(data);
-        };
-      }
-
-      next();
-    } catch (error) {
-      console.error("Rate limiter error:", error.message);
-      // On error, allow the request through
-      next();
+    if (currentCount >= max) {
+      return res.status(429).json({
+        success: false,
+        error: message,
+      });
     }
+
+    // Increment count
+    const newCount = incrementMemoryCount(key);
+
+    // Add rate limit headers
+    res.setHeader("X-RateLimit-Limit", max);
+    res.setHeader("X-RateLimit-Remaining", Math.max(0, max - newCount));
+
+    // If skipFailedRequests, decrement on error response
+    if (skipFailedRequests) {
+      res.on("finish", () => {
+        if (res.statusCode >= 400) {
+          const record = memoryStore.get(key);
+          if (record && record.count > 0) {
+            record.count--;
+          }
+        }
+      });
+    }
+
+    next();
   };
 };
 
