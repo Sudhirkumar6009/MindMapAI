@@ -1,4 +1,4 @@
-import { generateWithRetry } from '../config/gemini.js';
+import { generateWithRetry } from "../config/gemini.js";
 
 // Diagram-specific extraction prompts
 const DIAGRAM_PROMPTS = {
@@ -24,7 +24,7 @@ Structure: Top-down hierarchy showing who reports to whom.`,
 
   block: `You are a block diagram extraction agent. Extract system components, modules, and their interfaces.
 Focus on: systems, subsystems, components, modules, interfaces, and connections.
-Structure: Interconnected blocks representing system architecture.`
+Structure: Interconnected blocks representing system architecture.`,
 };
 
 const CONCEPT_EXTRACTION_PROMPT = `{{DIAGRAM_CONTEXT}}
@@ -37,33 +37,58 @@ RULES:
 3. Do not summarize or explain
 4. Return concepts as a flat JSON array of strings
 5. Maximum 30 concepts
-6. Concepts should be 1-4 words each
-7. No duplicates
-8. No generic words like "the", "example", "thing"
-9. Order concepts by importance (most central/important first)
+6. **CRITICAL: Concepts MUST be 2-5 words each - NO LONG SENTENCES**
+7. Use concise noun phrases, not full sentences
+8. No duplicates
+9. No generic words like "the", "example", "thing"
+10. Order concepts by importance (most central/important first)
+
+GOOD CONCEPT EXAMPLES:
+- "Machine Learning" ✓
+- "User Authentication" ✓
+- "Data Processing Pipeline" ✓
+- "API Security Layer" ✓
+
+BAD CONCEPT EXAMPLES (too long):
+- "The process of authenticating users in the system" ✗
+- "How data flows from the server to the client application" ✗
+- "Implementation of machine learning algorithms for predictions" ✗
 
 TEXT:
 {{TEXT}}
 
-Return ONLY a valid JSON array. No markdown, no explanation.
-Example output: ["Concept A", "Concept B", "Concept C"]`;
+Return ONLY a valid JSON array of SHORT concepts. No markdown, no explanation.
+Example output: ["Machine Learning", "Neural Networks", "Data Training", "Model Accuracy"]`;
 
-export async function extractConcepts(text, diagramType = 'mindmap', diagramConfig = {}) {
-  const diagramContext = DIAGRAM_PROMPTS[diagramType] || DIAGRAM_PROMPTS.mindmap;
-  const extractionFocus = diagramConfig.extractionFocus || 'hierarchical concepts and sub-topics';
-  
-  const prompt = CONCEPT_EXTRACTION_PROMPT
-    .replace('{{DIAGRAM_CONTEXT}}', diagramContext)
-    .replace(/{{DIAGRAM_TYPE}}/g, diagramConfig.name || 'Mind Map')
-    .replace('{{EXTRACTION_FOCUS}}', extractionFocus)
-    .replace('{{TEXT}}', text);
-  
-  console.log(`🧠 Extracting concepts for ${diagramConfig.name || 'Mind Map'}...`);
-  
+export async function extractConcepts(
+  text,
+  diagramType = "mindmap",
+  diagramConfig = {},
+) {
+  const diagramContext =
+    DIAGRAM_PROMPTS[diagramType] || DIAGRAM_PROMPTS.mindmap;
+  const extractionFocus =
+    diagramConfig.extractionFocus || "hierarchical concepts and sub-topics";
+
+  const prompt = CONCEPT_EXTRACTION_PROMPT.replace(
+    "{{DIAGRAM_CONTEXT}}",
+    diagramContext,
+  )
+    .replace(/{{DIAGRAM_TYPE}}/g, diagramConfig.name || "Mind Map")
+    .replace("{{EXTRACTION_FOCUS}}", extractionFocus)
+    .replace("{{TEXT}}", text);
+
+  console.log(
+    `🧠 Extracting concepts for ${diagramConfig.name || "Mind Map"}...`,
+  );
+
   const response = await generateWithRetry(prompt);
-  
-  const cleaned = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-  
+
+  const cleaned = response
+    .replace(/```json\n?/g, "")
+    .replace(/```\n?/g, "")
+    .trim();
+
   try {
     const concepts = JSON.parse(cleaned);
     return Array.isArray(concepts) ? concepts : [];
