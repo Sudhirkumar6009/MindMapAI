@@ -769,7 +769,7 @@ function LandingPage() {
         <section className="min-h-screen flex items-center justify-center px-4 pt-24 pb-12">
           <div className="max-w-7xl mx-auto mt-3 grid lg:grid-cols-2 gap-20 items-center">
             <motion.div
-              className="space-y-8 relative order-2 lg:order-1"
+              className="space-y-8 relative"
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
@@ -836,7 +836,7 @@ function LandingPage() {
                     </button>
                     <button
                       onClick={handleTryDemo}
-                      className="relative h-14 w-14 sm:h-15 sm:w-16 rounded-full font-semibold bg-emerald-600 border-2 border-emerald-600 text-white-600
+                      className="relative h-14 w-14 sm:h-16 sm:w-16 rounded-full font-semibold bg-emerald-600 border-2 border-emerald-600 text-white-600
                            sm:hover:w-40 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 group
                            transition-all duration-300 ease-in-out flex items-center justify-center overflow-hidden"
                     >
@@ -876,7 +876,7 @@ function LandingPage() {
             </motion.div>
 
             <motion.div
-              className="relative flex items-center justify-center order-1 lg:order-2"
+              className="relative flex items-center justify-center"
               initial={{ opacity: 0, x: 50, scale: 0.9 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
